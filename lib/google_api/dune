@@ -1,0 +1,4 @@
+(library
+ (name google_api)
+ (public_name google-api)
+ (libraries google-api.runtime uri))

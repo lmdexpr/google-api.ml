@@ -1,0 +1,73 @@
+(rule
+ (targets fixture.ml fixture.mli)
+ (deps
+  (:discovery fixture.json))
+ (action
+  (run %{exe:../gen/main.exe} %{discovery} %{targets})))
+
+(tests
+ (names test_google_api test_gen)
+ (package google-api)
+ (modules test_google_api test_gen fixture)
+ (libraries google-api google-api.runtime google_api_gen alcotest uri yojson))
+
+(test
+ (name test_tasks)
+ (package google-api-tasks)
+ (modules test_tasks)
+ (libraries
+  google-api
+  google-api.runtime
+  google-api-tasks
+  alcotest
+  uri
+  yojson))
+
+(test
+ (name test_calendar)
+ (package google-api-calendar)
+ (modules test_calendar)
+ (libraries
+  google-api
+  google-api.runtime
+  google-api-calendar
+  alcotest
+  uri
+  yojson))
+
+(test
+ (name test_directory)
+ (package google-api-directory)
+ (modules test_directory)
+ (libraries google-api google-api.runtime google-api-directory alcotest uri))
+
+(test
+ (name test_cohttp_eio)
+ (package google-api-cohttp-eio)
+ (modules test_cohttp_eio)
+ (libraries
+  google-api
+  google-api.runtime
+  google-api-cohttp-eio
+  alcotest
+  cohttp-eio
+  eio
+  eio_main
+  http
+  uri))
+
+(test
+ (name test_auth)
+ (package google-auth)
+ (modules test_auth)
+ (libraries
+  google-api
+  google-auth
+  alcotest
+  base64
+  jose
+  mirage-crypto-pk
+  mirage-crypto-rng.unix
+  unix
+  uri
+  yojson))

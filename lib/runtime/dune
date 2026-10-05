@@ -1,0 +1,4 @@
+(library
+ (name google_api_runtime)
+ (public_name google-api.runtime)
+ (libraries yojson uri))

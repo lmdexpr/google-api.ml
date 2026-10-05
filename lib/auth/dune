@@ -1,0 +1,12 @@
+(library
+ (name google_auth)
+ (public_name google-auth)
+ (libraries
+  google-api
+  google-api.runtime
+  oidc
+  jose
+  digestif
+  base64
+  uri
+  yojson))

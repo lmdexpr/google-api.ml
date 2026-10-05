@@ -1,0 +1,115 @@
+{
+  "kind": "discovery#restDescription",
+  "name": "fixture",
+  "version": "v1",
+  "revision": "1",
+  "title": "Fixture API",
+  "description": "Edge cases for the generator: \"unbalanced quote, {|quoted|}, (* nested *), @tag, [code], back\\slash.",
+  "rootUrl": "https://fixture.example.com/",
+  "servicePath": "fixture/v1/",
+  "batchPath": "batch/fixture/v1",
+  "schemas": {
+    "Node": {
+      "id": "Node",
+      "type": "object",
+      "description": "A node with a \"stray quote.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["A_VALUE", "bValue", "1", "other", "A_VALUE"],
+          "enumDescriptions": ["a", "b", "one", "other", "duplicate"]
+        },
+        "end": { "type": "string", "format": "date-time" },
+        "children": { "type": "array", "items": { "$ref": "Node" } },
+        "labels": { "type": "object", "additionalProperties": { "type": "string" } },
+        "size": { "type": "string", "format": "int64" },
+        "count": { "type": "integer", "format": "int32" },
+        "ratio": { "type": "number", "format": "double" },
+        "meta": { "type": "any" },
+        "inner": {
+          "type": "object",
+          "properties": { "value": { "type": "number" }, "Value": { "type": "string" } }
+        },
+        "list": {
+          "type": "array",
+          "items": { "type": "object", "properties": { "x": { "type": "boolean" } } }
+        },
+        "empty": { "$ref": "Empty" }
+      }
+    },
+    "Result": {
+      "id": "Result",
+      "type": "object",
+      "properties": {
+        "nodes": { "type": "array", "items": { "$ref": "Node" } },
+        "nextPageToken": { "type": "string" }
+      }
+    },
+    "Empty": { "id": "Empty", "type": "object" },
+    "Labels": { "id": "Labels", "type": "object", "additionalProperties": { "$ref": "Node" } }
+  },
+  "resources": {
+    "nodes": {
+      "methods": {
+        "get": {
+          "id": "fixture.nodes.get",
+          "httpMethod": "GET",
+          "path": "nodes/{+name}",
+          "parameterOrder": ["name"],
+          "parameters": {
+            "type": {
+              "type": "string",
+              "location": "query",
+              "enum": ["full", "basic"]
+            },
+            "ids": { "type": "string", "location": "query", "repeated": true },
+            "name": {
+              "type": "string",
+              "location": "path",
+              "required": true,
+              "description": "Resource name, e.g. \"a/b\"."
+            }
+          },
+          "response": { "$ref": "Node" }
+        },
+        "insert": {
+          "id": "fixture.nodes.insert",
+          "httpMethod": "POST",
+          "path": "nodes",
+          "parameters": {
+            "body": { "type": "boolean", "location": "query" },
+            "pageSize": { "type": "integer", "location": "query", "required": true }
+          },
+          "request": { "$ref": "Node" },
+          "response": { "$ref": "Node" }
+        },
+        "delete": {
+          "id": "fixture.nodes.delete",
+          "httpMethod": "DELETE",
+          "path": "nodes/{nodeId}",
+          "parameterOrder": ["nodeId"],
+          "parameters": {
+            "nodeId": { "type": "integer", "location": "path", "required": true }
+          }
+        }
+      },
+      "resources": {
+        "children": {
+          "methods": {
+            "list": {
+              "id": "fixture.nodes.children.list",
+              "httpMethod": "GET",
+              "path": "nodes/{nodeId}/children",
+              "parameterOrder": ["nodeId"],
+              "parameters": {
+                "nodeId": { "type": "string", "location": "path", "required": true },
+                "pageToken": { "type": "string", "location": "query" }
+              },
+              "response": { "$ref": "Result" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

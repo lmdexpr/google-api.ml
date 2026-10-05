@@ -1,0 +1,21 @@
+(library
+ (name google_api_tasks)
+ (public_name google-api-tasks)
+ (libraries google-api google-api.runtime uri yojson))
+
+(rule
+ (targets google_api_tasks.ml.gen google_api_tasks.mli.gen)
+ (deps
+  (:discovery %{project_root}/discovery/tasks.v1.json))
+ (action
+  (run %{exe:../../gen/main.exe} %{discovery} %{targets})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_tasks.ml google_api_tasks.ml.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_tasks.mli google_api_tasks.mli.gen)))

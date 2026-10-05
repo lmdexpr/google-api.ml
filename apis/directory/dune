@@ -1,0 +1,21 @@
+(library
+ (name google_api_directory)
+ (public_name google-api-directory)
+ (libraries google-api google-api.runtime uri yojson))
+
+(rule
+ (targets google_api_directory.ml.gen google_api_directory.mli.gen)
+ (deps
+  (:discovery %{project_root}/discovery/admin.directory_v1.json))
+ (action
+  (run %{exe:../../gen/main.exe} %{discovery} %{targets})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_directory.ml google_api_directory.ml.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_directory.mli google_api_directory.mli.gen)))

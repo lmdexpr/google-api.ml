@@ -1,0 +1,65 @@
+# This workflow is managed by gh actions-lock.
+
+name: Discovery
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write # to dispatch CI: pull requests opened with GITHUB_TOKEN trigger no workflow
+    env:
+      BRANCH: discovery-update
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Fetch the Discovery documents
+        id: fetch
+        run: |
+          ./scripts/update-discovery.sh
+          if git diff --quiet -- discovery; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: ocaml-dune/setup-dune@v2.1.0
+        if: steps.fetch.outputs.changed == 'true'
+        with:
+          # Keep in sync with ci.yml
+          version: 3.24.2
+          # runtest is left out: it fails until the bindings are promoted
+          steps: install-dune enable-pkg lazy-update-depexts install-depexts build-deps build
+      - name: Regenerate the bindings
+        if: steps.fetch.outputs.changed == 'true'
+        run: |
+          dune runtest || true
+          dune promote
+          dune runtest
+      - name: Open a pull request
+        if: steps.fetch.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -C "$BRANCH"
+          git add discovery apis
+          git commit -m "chore(discovery): update Discovery documents" -m "$(jq -r '"\(.name) \(.version) revision \(.revision)"' discovery/*.json)"
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --head "$BRANCH" --title "chore(discovery): update Discovery documents" \
+              --body "Regenerated from the latest Discovery documents by the Discovery workflow." \
+              --assignee lmdexpr
+          fi
+          gh workflow run ci.yml --ref "$BRANCH"

@@ -1,0 +1,9 @@
+(library
+ (name google_api_gen)
+ (modules discovery naming emit)
+ (libraries yojson))
+
+(executable
+ (name main)
+ (modules main)
+ (libraries google_api_gen yojson))

@@ -1,0 +1,21 @@
+(library
+ (name google_api_calendar)
+ (public_name google-api-calendar)
+ (libraries google-api google-api.runtime uri yojson))
+
+(rule
+ (targets google_api_calendar.ml.gen google_api_calendar.mli.gen)
+ (deps
+  (:discovery %{project_root}/discovery/calendar.v3.json))
+ (action
+  (run %{exe:../../gen/main.exe} %{discovery} %{targets})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_calendar.ml google_api_calendar.ml.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_calendar.mli google_api_calendar.mli.gen)))

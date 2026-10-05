@@ -1,0 +1,4 @@
+(library
+ (name google_api_cohttp_eio)
+ (public_name google-api-cohttp-eio)
+ (libraries google-api eio cohttp-eio http))
