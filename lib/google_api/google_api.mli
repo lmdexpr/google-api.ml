@@ -119,14 +119,14 @@ module Page : sig
     init:'acc ->
     f:('acc -> 'a -> 'acc) ->
     'a Call.t list ->
-    (('acc, Error.t) result list, Error.t) result
+    ('acc, Error.t) result list
   (** [fold_batch ~access_token ~endpoint ?max_pages ~next_page_token ~init ~f calls] is {!fold} on
       each of [calls], each from [init], sending the pages in rounds of {!Batch.execute}: the first
       pages in one batch, then the next pages of the calls not finished yet, until every call is
       finished. It answers each call in order; a call stops at its own first error without stopping
-      the others. The outer [Error] is a failure of a batch request itself, which drops every
-      result. Generated packages provide the [endpoint] as [batch_endpoint]. E.g. all tasks of
-      several lists:
+      the others. A failure of a batch request itself ends the calls of that round with that error;
+      the calls finished in earlier rounds keep their results. Generated packages provide the
+      [endpoint] as [batch_endpoint]. E.g. all tasks of several lists:
 
       {[
       List.map (fun tasklist -> Google_api_tasks.Tasks.list ~tasklist ()) tasklists
@@ -135,7 +135,7 @@ module Page : sig
            ~init:[]
            ~f:(fun acc (page : Google_api_tasks.tasks) ->
              List.rev_append (Option.value page.items ~default:[]) acc)
-      |> Result.map (List.map (Result.map List.rev))
+      |> List.map (Result.map List.rev)
       ]}
 
       A round holds at most as many calls as [calls], so keep [calls] within the API's batch limit.

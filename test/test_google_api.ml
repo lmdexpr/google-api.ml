@@ -412,9 +412,9 @@ let test_page_batch_follows_tokens () =
         "/v1/c?pageToken=t1", (404, "{}");
       ]
   in
-  Alcotest.(check (result (list (result (list string) error)) error))
+  Alcotest.(check (list (result (list string) error)))
     "each call"
-    (Ok [ Ok [ "a1"; "a2"; "a3" ]; Ok [ "b1" ]; Error (Error.Http { status = 404; body = "{}" }) ])
+    [ Ok [ "a1"; "a2"; "a3" ]; Ok [ "b1" ]; Error (Error.Http { status = 404; body = "{}" }) ]
     (with_stub ~respond (fun () ->
        fold_batch_pages
          (List.map list_at
@@ -428,7 +428,7 @@ let test_page_batch_follows_tokens () =
     ]
     (List.rev !rounds)
 
-let test_page_batch_stops_at_batch_error () =
+let test_page_batch_keeps_finished_calls_at_batch_error () =
   let rounds, respond =
     respond_batch
       [
@@ -436,13 +436,23 @@ let test_page_batch_stops_at_batch_error () =
         "/v1/b", (200, {|{"items":["b1"]}|});
       ]
   in
-  Alcotest.(check (result (list (result (list string) error)) error))
-    "batch error"
-    (Error (Error.Http { status = 500; body = "batch failed" }))
+  Alcotest.(check (list (result (list string) error)))
+    "only the unfinished call fails"
+    [ Error (Error.Http { status = 500; body = "batch failed" }); Ok [ "b1" ] ]
     (with_stub ~respond (fun () ->
        fold_batch_pages
          (List.map list_at [ "https://example.com/v1/a"; "https://example.com/v1/b" ])));
   Alcotest.(check int) "two rounds" 2 (List.length !rounds)
+
+let test_page_batch_fails_every_call_at_first_round () =
+  let rounds, respond = respond_batch [ "/v1/a", (200, {|{"items":["a1"]}|}) ] in
+  let batch_failed = Error (Error.Http { status = 500; body = "batch failed" }) in
+  Alcotest.(check (list (result (list string) error)))
+    "every call fails" [ batch_failed; batch_failed ]
+    (with_stub ~respond (fun () ->
+       fold_batch_pages
+         (List.map list_at [ "https://example.com/v1/a"; "https://example.com/v1/b" ])));
+  Alcotest.(check int) "one round" 1 (List.length !rounds)
 
 let test_page_batch_stops_at_max_pages () =
   let rounds, respond =
@@ -454,17 +464,16 @@ let test_page_batch_stops_at_max_pages () =
         "/v1/b?pageToken=t1", (200, {|{"items":["b2"]}|});
       ]
   in
-  Alcotest.(check (result (list (result (list string) error)) error))
+  Alcotest.(check (list (result (list string) error)))
     "only the endless call fails"
-    (Ok [ Error (Error.Too_many_pages { max_pages = 2 }); Ok [ "b1"; "b2" ] ])
+    [ Error (Error.Too_many_pages { max_pages = 2 }); Ok [ "b1"; "b2" ] ]
     (with_stub ~respond (fun () ->
        fold_batch_pages ~max_pages:2
          (List.map list_at [ "https://example.com/v1/a"; "https://example.com/v1/b" ])));
   Alcotest.(check int) "two rounds" 2 (List.length !rounds)
 
 let test_page_batch_of_nothing () =
-  Alcotest.(check (result (list (result (list string) error)) error))
-    "no request" (Ok []) (fold_batch_pages [])
+  Alcotest.(check (list (result (list string) error))) "no request" [] (fold_batch_pages [])
 
 let () =
   Alcotest.run "google-api"
@@ -503,8 +512,10 @@ let () =
           Alcotest.test_case "stops at max pages" `Quick test_page_stops_at_max_pages;
           Alcotest.test_case "ends at max pages" `Quick test_page_ends_at_max_pages;
           Alcotest.test_case "batch follows tokens" `Quick test_page_batch_follows_tokens;
-          Alcotest.test_case "batch stops at a batch error" `Quick
-            test_page_batch_stops_at_batch_error;
+          Alcotest.test_case "batch error keeps finished calls" `Quick
+            test_page_batch_keeps_finished_calls_at_batch_error;
+          Alcotest.test_case "batch error at the first round fails every call" `Quick
+            test_page_batch_fails_every_call_at_first_round;
           Alcotest.test_case "batch stops at max pages" `Quick test_page_batch_stops_at_max_pages;
           Alcotest.test_case "batch of nothing sends nothing" `Quick test_page_batch_of_nothing;
         ] );
