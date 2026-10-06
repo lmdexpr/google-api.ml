@@ -39,7 +39,8 @@ printf "fetch %s '%s'\n" "$file" "$url" >> scripts/update-discovery.sh
 mkdir "apis/$name"
 sed "s/google_api_tasks/google_api_$name/g; s/google-api-tasks/google-api-$name/; s/tasks\.v1\.json/$file/" \
   apis/tasks/dune > "apis/$name/dune"
-touch "apis/$name/google_api_$name.ml" "apis/$name/google_api_$name.mli"
+# dune only diffs, and so promotes, files that already exist.
+touch "apis/$name/google_api_$name.ml" "apis/$name/google_api_$name.mli" "google-api-$name.opam"
 
 # Wrap at 80 columns like the other descriptions; "\n" stays literal for dune.
 description=$(
