@@ -42,6 +42,17 @@
  (libraries google-api google-api.runtime google-api-directory alcotest uri))
 
 (test
+ (name test_cloudidentity)
+ (package google-api-cloudidentity)
+ (modules test_cloudidentity)
+ (libraries
+  google-api
+  google-api.runtime
+  google-api-cloudidentity
+  alcotest
+  uri))
+
+(test
  (name test_cohttp_eio)
  (package google-api-cohttp-eio)
  (modules test_cohttp_eio)
