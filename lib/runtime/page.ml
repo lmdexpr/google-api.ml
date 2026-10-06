@@ -34,12 +34,14 @@ let advance ?max_pages ~next_page_token ~f states results =
 let fold_batch ~access_token ~endpoint ?max_pages ~next_page_token ~init ~f calls =
   let pending = List.filter_map (function Next (_, _, call) -> Some call | Done _ -> None) in
   let finished = List.filter_map (function Done result -> Some result | Next _ -> None) in
+  (* A failed batch request ends only the calls it carried. *)
+  let fail e = List.map (function Next _ -> Done (Error e) | Done _ as state -> state) in
   let rec go states =
     match pending states with
-    | [] -> Ok (finished states)
+    | [] -> finished states
     | calls -> (
       match Batch.execute ~access_token ~endpoint calls with
-      | Error e -> Error e
+      | Error e -> finished (fail e states)
       | Ok results -> go (advance ?max_pages ~next_page_token ~f states results))
   in
   go (List.map (fun call -> Next (0, init, call)) calls)
