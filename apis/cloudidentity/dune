@@ -1,0 +1,21 @@
+(library
+ (name google_api_cloudidentity)
+ (public_name google-api-cloudidentity)
+ (libraries google-api google-api.runtime uri yojson))
+
+(rule
+ (targets google_api_cloudidentity.ml.gen google_api_cloudidentity.mli.gen)
+ (deps
+  (:discovery %{project_root}/discovery/cloudidentity.v1.json))
+ (action
+  (run %{exe:../../gen/main.exe} %{discovery} %{targets})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_cloudidentity.ml google_api_cloudidentity.ml.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_cloudidentity.mli google_api_cloudidentity.mli.gen)))

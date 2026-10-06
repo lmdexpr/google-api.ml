@@ -14,3 +14,4 @@ fetch() {
 fetch tasks.v1.json 'https://tasks.googleapis.com/$discovery/rest?version=v1'
 fetch calendar.v3.json 'https://calendar-json.googleapis.com/$discovery/rest?version=v3'
 fetch admin.directory_v1.json 'https://admin.googleapis.com/$discovery/rest?version=directory_v1'
+fetch cloudidentity.v1.json 'https://cloudidentity.googleapis.com/$discovery/rest?version=v1'
