@@ -154,9 +154,11 @@ from `discovery/*.json` and fails if they differ; `dune promote` accepts the new
 
 - Update the Discovery documents with `scripts/update-discovery.sh` (needs `curl` and `jq`). The
   Discovery workflow does it every Monday and opens a pull request from `discovery-update`.
-- Add an API: vendor its document in `discovery/`, copy `apis/tasks/dune` with the names changed,
-  add the package to `dune-project`, create empty `.ml` / `.mli` files, then `dune runtest` and
-  `dune promote`.
+- Add an API with `scripts/add-api.sh <name> <discovery-file> <discovery-url> <title>`, e.g.
+  `scripts/add-api.sh cloudidentity cloudidentity.v1.json
+  'https://cloudidentity.googleapis.com/$discovery/rest?version=v1' 'Cloud Identity API v1'`. It
+  vendors the document, adds the package to `dune-project`, `update-discovery.sh` and this README,
+  and generates the bindings. Then write `test/test_<name>.ml`.
 - Opam files are generated from `dune-project`: run `dune build @opam` and `dune promote`.
 
 ## License
