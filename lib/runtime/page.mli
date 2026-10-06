@@ -18,3 +18,19 @@ val fold :
     the packaged APIs does. Methods taking it in the request body would be sent the first page again
     and again. With {!Call.fields}, include [nextPageToken]: a page without it is taken as the last.
 *)
+
+val fold_batch :
+  access_token:string ->
+  endpoint:Uri.t ->
+  next_page_token:('a -> string option) ->
+  init:'acc ->
+  f:('acc -> 'a -> 'acc) ->
+  'a Call.t list ->
+  (('acc, Error.t) result list, Error.t) result
+(** [fold_batch ~access_token ~endpoint ~next_page_token ~init ~f calls] is {!fold} on each of
+    [calls], each from [init], sending the pages in rounds of {!Batch.execute}: the first pages in
+    one batch, then the next pages of the calls not finished yet, until every call is finished. It
+    answers each call in order; a call stops at its own first error without stopping the others. The
+    outer [Error] is a failure of a batch request itself, which drops every result.
+
+    A round holds at most as many calls as [calls], so keep [calls] within the API's batch limit. *)
