@@ -45,3 +45,10 @@ let execute ~access_token call =
   in
   let { Http.status; body; headers = _ } = Http.perform request in
   response call ~status ~body
+
+let page_token token call =
+  let uri = Uri.remove_query_param call.request.uri "pageToken" in
+  {
+    call with
+    request = { call.request with uri = Uri.add_query_param uri ("pageToken", [ token ]) };
+  }

@@ -76,3 +76,35 @@ module Batch : sig
       failure of the batch request itself. An empty [calls] performs no request. Generated packages
       provide [batch], which supplies the [endpoint]. *)
 end
+
+(** Follows [nextPageToken] across the pages of a list method.
+
+    Google APIs page with a [pageToken] query parameter and a [nextPageToken] response field
+    ({{:https://google.aip.dev/158} AIP-158}); the last page has no or an empty [nextPageToken]. *)
+module Page : sig
+  val fold :
+    access_token:string ->
+    next_page_token:('a -> string option) ->
+    init:'acc ->
+    f:('acc -> 'a -> 'acc) ->
+    'a Call.t ->
+    ('acc, Error.t) result
+  (** [fold ~access_token ~next_page_token ~init ~f call] executes [call], then the same call with
+      [pageToken] set to the [next_page_token] of each page, folding [f] over the pages in order. It
+      stops at the first error. E.g. all tasks of a list:
+
+      {[
+      Google_api_tasks.Tasks.list ~tasklist ()
+      |> Google_api.Page.fold ~access_token
+           ~next_page_token:(fun (page : Google_api_tasks.tasks) -> page.next_page_token)
+           ~init:[]
+           ~f:(fun acc (page : Google_api_tasks.tasks) ->
+             List.rev_append (Option.value page.items ~default:[]) acc)
+      |> Result.map List.rev
+      ]}
+
+      The method must take the page token as the [pageToken] query parameter, as every list method
+      of the packaged APIs does. Methods taking it in the request body would be sent the first page
+      again and again. With {!Call.fields}, include [nextPageToken]: a page without it is taken as
+      the last. *)
+end

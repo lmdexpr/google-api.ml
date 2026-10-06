@@ -5,7 +5,7 @@ OCaml clients for Google APIs. Types, JSON codecs and calls are generated from t
 
 | Package | Contents |
 | --- | --- |
-| `google-api` | Transport-independent core: the HTTP effect, errors, calls, batch requests |
+| `google-api` | Transport-independent core: the HTTP effect, errors, calls, batch requests, pagination |
 | `google-api-cohttp-eio` | Handles the HTTP effect with [cohttp-eio][cohttp-eio] |
 | `google-api-tasks` | Google Tasks API v1 |
 | `google-api-calendar` | Google Calendar API v3 |
@@ -97,6 +97,21 @@ let parts = Google_api_calendar.batch ~access_token [ call; other_call ]
 - `Call.fields` asks for a partial response; `Call.add_query` adds other standard parameters;
   `Call.add_header` adds headers such as `If-Match` or `X-Goog-User-Project`.
 - `Call.map` changes the result type, e.g. to put calls of different types in one batch.
+- `Page.fold` executes a list call page after page, setting `pageToken` to the previous page's
+  `next_page_token` until it is absent or empty. It needs the method to take `pageToken` as a query
+  parameter, as every list method of the packaged APIs does. With `Call.fields`, include
+  `nextPageToken`, or the first page is taken as the last:
+
+  ```ocaml
+  let all_tasks =
+    Google_api_tasks.Tasks.list ~tasklist:"@default" ()
+    |> Google_api.Page.fold ~access_token
+         ~next_page_token:(fun (page : Google_api_tasks.tasks) -> page.next_page_token)
+         ~init:[]
+         ~f:(fun acc (page : Google_api_tasks.tasks) ->
+           List.rev_append (Option.value page.items ~default:[]) acc)
+    |> Result.map List.rev
+  ```
 - Errors are `Google_api.Error.t`: `Http` (non-2xx, read the body with `Google_api.Error_body`),
   `Decode` (2xx body of an unexpected shape, with the `Yojson.Safe.Util.Type_error` message), and the
   batch-specific `Missing_batch_part` / `Malformed_batch_response`.
@@ -138,7 +153,6 @@ nonce) and returns its claims for checks of your own, such as `hd` for a Workspa
 
 - Media upload and download (the generator refuses such methods; none of the packaged APIs has one).
 - Sending an explicit `null` to clear a field in a PATCH: `None` fields are omitted.
-- Pagination helpers: follow `next_page_token` yourself.
 
 ## Development
 
