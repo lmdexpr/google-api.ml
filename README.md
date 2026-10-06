@@ -99,7 +99,8 @@ let parts = Google_api_calendar.batch ~access_token [ call; other_call ]
 - `Call.map` changes the result type, e.g. to put calls of different types in one batch.
 - `Page.fold` executes a list call page after page, setting `pageToken` to the previous page's
   `next_page_token` until it is absent or empty. It needs the method to take `pageToken` as a query
-  parameter, as every list method of the packaged APIs does:
+  parameter, as every list method of the packaged APIs does. With `Call.fields`, include
+  `nextPageToken`, or the first page is taken as the last:
 
   ```ocaml
   let all_tasks =

@@ -105,5 +105,6 @@ module Page : sig
 
       The method must take the page token as the [pageToken] query parameter, as every list method
       of the packaged APIs does. Methods taking it in the request body would be sent the first page
-      again and again. *)
+      again and again. With {!Call.fields}, include [nextPageToken]: a page without it is taken as
+      the last. *)
 end
