@@ -91,7 +91,8 @@ let test_decode_error () =
   with
   | Error (Google_api.Error.Decode { message; status = _; body = _ }) ->
     Alcotest.(check string) "path" "Expected int, got string" message
-  | Ok (_ : Fixture.node) | Error (Http _ | Missing_batch_part | Malformed_batch_response _) ->
+  | Ok (_ : Fixture.node)
+  | Error (Http _ | Missing_batch_part | Malformed_batch_response _ | Too_many_pages _) ->
     Alcotest.fail "expected a decode error"
 
 let () =

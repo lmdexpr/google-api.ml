@@ -275,8 +275,8 @@ let list_at uri =
 
 let list_things = list_at "https://example.com/v1/things?pageSize=2"
 
-let fold_pages call =
-  Page.fold ~access_token:"token" ~next_page_token:snd ~init:[]
+let fold_pages ?max_pages call =
+  Page.fold ~access_token:"token" ?max_pages ~next_page_token:snd ~init:[]
     ~f:(fun acc (items, _) -> acc @ items)
     call
 
@@ -341,8 +341,35 @@ let test_page_stops_at_error () =
     (with_stub ~respond (fun () -> fold_pages list_things));
   Alcotest.(check int) "two requests" 2 (List.length !seen)
 
-let fold_batch_pages calls =
-  Page.fold_batch ~access_token:"token" ~endpoint ~next_page_token:snd ~init:[]
+let test_page_stops_at_max_pages () =
+  let seen, respond =
+    respond_pages
+      [
+        None, (200, {|{"items":["a"],"nextPageToken":"t1"}|});
+        Some "t1", (200, {|{"items":["b"],"nextPageToken":"t1"}|});
+      ]
+  in
+  Alcotest.(check (result (list string) error))
+    "too many pages"
+    (Error (Error.Too_many_pages { max_pages = 3 }))
+    (with_stub ~respond (fun () -> fold_pages ~max_pages:3 list_things));
+  Alcotest.(check int) "three requests" 3 (List.length !seen)
+
+let test_page_ends_at_max_pages () =
+  let seen, respond =
+    respond_pages
+      [
+        None, (200, {|{"items":["a"],"nextPageToken":"t1"}|}); Some "t1", (200, {|{"items":["b"]}|});
+      ]
+  in
+  Alcotest.(check (result (list string) error))
+    "last page within the limit"
+    (Ok [ "a"; "b" ])
+    (with_stub ~respond (fun () -> fold_pages ~max_pages:2 list_things));
+  Alcotest.(check int) "two requests" 2 (List.length !seen)
+
+let fold_batch_pages ?max_pages calls =
+  Page.fold_batch ~access_token:"token" ~endpoint ?max_pages ~next_page_token:snd ~init:[]
     ~f:(fun acc (items, _) -> acc @ items)
     calls
 
@@ -417,6 +444,24 @@ let test_page_batch_stops_at_batch_error () =
          (List.map list_at [ "https://example.com/v1/a"; "https://example.com/v1/b" ])));
   Alcotest.(check int) "two rounds" 2 (List.length !rounds)
 
+let test_page_batch_stops_at_max_pages () =
+  let rounds, respond =
+    respond_batch
+      [
+        "/v1/a", (200, {|{"items":["a1"],"nextPageToken":"t1"}|});
+        "/v1/a?pageToken=t1", (200, {|{"items":["a2"],"nextPageToken":"t1"}|});
+        "/v1/b", (200, {|{"items":["b1"],"nextPageToken":"t1"}|});
+        "/v1/b?pageToken=t1", (200, {|{"items":["b2"]}|});
+      ]
+  in
+  Alcotest.(check (result (list (result (list string) error)) error))
+    "only the endless call fails"
+    (Ok [ Error (Error.Too_many_pages { max_pages = 2 }); Ok [ "b1"; "b2" ] ])
+    (with_stub ~respond (fun () ->
+       fold_batch_pages ~max_pages:2
+         (List.map list_at [ "https://example.com/v1/a"; "https://example.com/v1/b" ])));
+  Alcotest.(check int) "two rounds" 2 (List.length !rounds)
+
 let test_page_batch_of_nothing () =
   Alcotest.(check (result (list (result (list string) error)) error))
     "no request" (Ok []) (fold_batch_pages [])
@@ -455,9 +500,12 @@ let () =
           Alcotest.test_case "follows tokens" `Quick test_page_follows_tokens;
           Alcotest.test_case "stops at an empty token" `Quick test_page_stops_at_empty_token;
           Alcotest.test_case "stops at an error" `Quick test_page_stops_at_error;
+          Alcotest.test_case "stops at max pages" `Quick test_page_stops_at_max_pages;
+          Alcotest.test_case "ends at max pages" `Quick test_page_ends_at_max_pages;
           Alcotest.test_case "batch follows tokens" `Quick test_page_batch_follows_tokens;
           Alcotest.test_case "batch stops at a batch error" `Quick
             test_page_batch_stops_at_batch_error;
+          Alcotest.test_case "batch stops at max pages" `Quick test_page_batch_stops_at_max_pages;
           Alcotest.test_case "batch of nothing sends nothing" `Quick test_page_batch_of_nothing;
         ] );
     ]

@@ -9,5 +9,7 @@ type t =
   | Missing_batch_part  (** The batch response has no part for this call. *)
   | Malformed_batch_response of { status : int; body : string; reason : string }
     (** The batch response itself cannot be split into parts. *)
+  | Too_many_pages of { max_pages : int }
+    (** A list call still had a next page after [max_pages] pages; see {!Page}. *)
 
 val to_string : t -> string
