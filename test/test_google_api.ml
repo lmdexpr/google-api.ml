@@ -5,6 +5,7 @@ module Error = Google_api_runtime.Error
 module Error_body = Google_api_runtime.Error_body
 module Call = Google_api_runtime.Call
 module Batch = Google_api_runtime.Batch
+module Page = Google_api_runtime.Page
 
 let json = Alcotest.testable Yojson.Safe.pp Yojson.Safe.equal
 let error = Alcotest.testable (fun ppf e -> Format.pp_print_string ppf (Error.to_string e)) ( = )
@@ -262,6 +263,83 @@ let test_batch_of_nothing () =
   Alcotest.check batch_result "no request" (Ok [])
     (Batch.execute ~access_token:"token" ~endpoint [])
 
+(* Pages *)
+
+let list_things =
+  Call.make ~meth:`GET
+    ~uri:(Uri.of_string "https://example.com/v1/things?pageSize=2")
+    (Call.json
+       Yojson.Safe.Util.(
+         fun json ->
+           ( member "items" json |> to_list |> List.map to_string,
+             member "nextPageToken" json |> to_option to_string )))
+
+let fold_pages call =
+  Page.fold ~access_token:"token" ~next_page_token:snd ~init:[]
+    ~f:(fun acc (items, _) -> acc @ items)
+    call
+
+let respond_pages pages =
+  let seen = ref [] in
+  let respond (request : Http.request) =
+    seen := request.uri :: !seen;
+    let token = Uri.get_query_param request.uri "pageToken" in
+    match List.assoc_opt token pages with
+    | Some (status, body) -> response status body
+    | None -> response 400 "{}"
+  in
+  seen, respond
+
+(* Query parameters sorted by name, as the order Uri keeps is not significant *)
+let query_of uri =
+  Uri.query uri |> List.sort compare
+  |> List.map (fun (name, values) -> name ^ "=" ^ String.concat "," values)
+  |> String.concat "&"
+
+let test_page_follows_tokens () =
+  let seen, respond =
+    respond_pages
+      [
+        None, (200, {|{"items":["a","b"],"nextPageToken":"t1"}|});
+        Some "t1", (200, {|{"items":["c","d"],"nextPageToken":"t2"}|});
+        Some "t2", (200, {|{"items":["e"]}|});
+      ]
+  in
+  Alcotest.(check (result (list string) error))
+    "all items"
+    (Ok [ "a"; "b"; "c"; "d"; "e" ])
+    (with_stub ~respond (fun () -> fold_pages (list_things |> Call.fields "items,nextPageToken")));
+  Alcotest.(check (list string))
+    "requests"
+    [
+      "fields=items,nextPageToken&pageSize=2";
+      "fields=items,nextPageToken&pageSize=2&pageToken=t1";
+      "fields=items,nextPageToken&pageSize=2&pageToken=t2";
+    ]
+    (List.rev_map query_of !seen)
+
+let test_page_stops_at_empty_token () =
+  let seen, respond = respond_pages [ None, (200, {|{"items":["a"],"nextPageToken":""}|}) ] in
+  Alcotest.(check (result (list string) error))
+    "one page" (Ok [ "a" ])
+    (with_stub ~respond (fun () -> fold_pages list_things));
+  Alcotest.(check int) "one request" 1 (List.length !seen)
+
+let test_page_stops_at_error () =
+  let seen, respond =
+    respond_pages
+      [
+        None, (200, {|{"items":["a"],"nextPageToken":"t1"}|});
+        Some "t1", (500, "oops");
+        Some "t2", (200, {|{"items":["b"]}|});
+      ]
+  in
+  Alcotest.(check (result (list string) error))
+    "error"
+    (Error (Error.Http { status = 500; body = "oops" }))
+    (with_stub ~respond (fun () -> fold_pages list_things));
+  Alcotest.(check int) "two requests" 2 (List.length !seen)
+
 let () =
   Alcotest.run "google-api"
     [
@@ -290,5 +368,11 @@ let () =
           Alcotest.test_case "part without body" `Quick test_batch_part_without_body;
           Alcotest.test_case "response without boundary" `Quick test_batch_without_boundary;
           Alcotest.test_case "of nothing sends nothing" `Quick test_batch_of_nothing;
+        ] );
+      ( "page",
+        [
+          Alcotest.test_case "follows tokens" `Quick test_page_follows_tokens;
+          Alcotest.test_case "stops at an empty token" `Quick test_page_stops_at_empty_token;
+          Alcotest.test_case "stops at an error" `Quick test_page_stops_at_error;
         ] );
     ]

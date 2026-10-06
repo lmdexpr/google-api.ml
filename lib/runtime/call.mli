@@ -34,6 +34,10 @@ val fields : string -> 'a t -> 'a t
 (** Asks for a partial response, e.g. [fields "nextPageToken,items(id,summary)"]. Fields left out
     decode as [None]. *)
 
+val page_token : string -> 'a t -> 'a t
+[@@alert internal "For Page; see Google_api."]
+(** Replaces the [pageToken] query parameter. *)
+
 val response : 'a t -> status:int -> body:string -> ('a, Error.t) result
 [@@alert internal "For generated code; see Google_api."]
 (** Interprets a response to the request. *)

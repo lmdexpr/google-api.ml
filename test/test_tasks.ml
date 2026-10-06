@@ -89,12 +89,38 @@ let test_batch_delete () =
     (List.map (fun (request : Http.request) -> Uri.to_string request.uri) !seen);
   Alcotest.(check (list (result unit reject))) "deleted" [ Ok () ] results
 
+let test_list_all_pages () =
+  let respond (request : Http.request) =
+    let body =
+      match Uri.get_query_param request.uri "pageToken" with
+      | None -> {|{"items":[{"id":"t1"}],"nextPageToken":"p2"}|}
+      | Some "p2" -> {|{"items":[{"id":"t2"}]}|}
+      | Some token -> Alcotest.failf "unexpected page token %s" token
+    in
+    { Http.status = 200; headers = []; body }
+  in
+  let ids =
+    with_stub ~respond (fun () ->
+      Tasks.Tasks.list ~tasklist:"@default" ()
+      |> Google_api.Page.fold ~access_token:"token"
+           ~next_page_token:(fun (page : Tasks.tasks) -> page.next_page_token)
+           ~init:[]
+           ~f:(fun acc (page : Tasks.tasks) ->
+             List.rev_append (Option.value page.items ~default:[]) acc)
+      |> Result.map List.rev)
+    |> unwrap
+  in
+  Alcotest.(check (list (option string)))
+    "ids" [ Some "t1"; Some "t2" ]
+    (List.map (fun (task : Tasks.task) -> task.id) ids)
+
 let () =
   Alcotest.run "google-api-tasks"
     [
       ( "tasks",
         [
           Alcotest.test_case "list" `Quick test_list_tasks;
+          Alcotest.test_case "list all pages" `Quick test_list_all_pages;
           Alcotest.test_case "insert" `Quick test_insert_task;
           Alcotest.test_case "delete in a batch" `Quick test_batch_delete;
         ] );
