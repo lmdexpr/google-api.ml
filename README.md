@@ -112,9 +112,14 @@ let parts = Google_api_calendar.batch ~access_token [ call; other_call ]
            List.rev_append (Option.value page.items ~default:[]) acc)
     |> Result.map List.rev
   ```
+- `Page.fold_batch` does the same for several list calls in batches: the first pages in one batch,
+  then the next pages of the calls not finished yet, until every call is finished. Each call has its
+  own result, as with `batch`; pass the package's `batch_endpoint` as `~endpoint`.
+- Both take `?max_pages`: a call still having a next page after that many pages fails with
+  `Too_many_pages` instead of paging on, e.g. if a server keeps returning the same token.
 - Errors are `Google_api.Error.t`: `Http` (non-2xx, read the body with `Google_api.Error_body`),
-  `Decode` (2xx body of an unexpected shape, with the `Yojson.Safe.Util.Type_error` message), and the
-  batch-specific `Missing_batch_part` / `Malformed_batch_response`.
+  `Decode` (2xx body of an unexpected shape, with the `Yojson.Safe.Util.Type_error` message), the
+  batch-specific `Missing_batch_part` / `Malformed_batch_response`, and `Too_many_pages` from `Page`.
 
 HTTP goes through the effect `Google_api.Http.Request`. Handle it yourself in tests:
 

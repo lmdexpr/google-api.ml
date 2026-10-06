@@ -3,6 +3,7 @@ type t =
   | Decode of { status : int; body : string; message : string }
   | Missing_batch_part
   | Malformed_batch_response of { status : int; body : string; reason : string }
+  | Too_many_pages of { max_pages : int }
 
 let to_string = function
   | Http { status; body } -> Printf.sprintf "HTTP %d: %s" status (Error_body.summary body)
@@ -11,3 +12,4 @@ let to_string = function
   | Missing_batch_part -> "the batch response has no part for this call"
   | Malformed_batch_response { status; body = _; reason } ->
     Printf.sprintf "HTTP %d: malformed batch response: %s" status reason
+  | Too_many_pages { max_pages } -> Printf.sprintf "more than %d pages" max_pages
