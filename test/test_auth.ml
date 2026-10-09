@@ -272,6 +272,81 @@ let test_code_challenge () =
     "RFC 7636 appendix B" "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
     (Google_auth.code_challenge ~verifier:"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
 
+(* Service account *)
+
+let priv_pem jwk =
+  match Jose.Jwk.to_priv_pem jwk with
+  | Ok pem -> pem
+  | Error (`Msg m) -> failwith m
+  | Error `Unsupported_kty -> failwith "unsupported key type"
+
+let rsa_pem = priv_pem jwk
+
+let ec_pem =
+  match Jose.Jwk.of_priv_x509 (`P256 (fst (Mirage_crypto_ec.P256.Dsa.generate ()))) with
+  | Ok jwk -> priv_pem jwk
+  | Error (`Msg m) -> failwith m
+  | Error `Unsupported_kty -> failwith "unsupported key type"
+
+let key_file ?(private_key = rsa_pem) ?(token_uri = token_endpoint) () =
+  `Assoc
+    [
+      "type", `String "service_account";
+      "client_email", `String "robot@example.iam.gserviceaccount.com";
+      "private_key_id", `String "key-1";
+      "private_key", `String private_key;
+      "token_uri", `String token_uri;
+    ]
+
+let test_service_account_token () =
+  let provider = provider () in
+  provider.token <- {|{"access_token":"sa-token","expires_in":3599,"token_type":"Bearer"}|};
+  let account = Google_auth.Service_account.of_json (key_file ()) |> Result.get_ok in
+  let now = Ptime.of_float_s 1_700_000_000. |> Option.get in
+  let credentials =
+    with_provider provider (fun () ->
+      Google_auth.Service_account.access_token account ~now
+        ~scopes:[ "https://www.googleapis.com/auth/bigquery.insertdata" ]
+        ())
+    |> unwrap
+  in
+  Alcotest.(check string) "access token" "sa-token" credentials.access_token;
+  Alcotest.(check (option string)) "no refresh token" None credentials.refresh_token;
+  let body = token_request_body provider |> Option.get |> Uri.query_of_encoded in
+  Alcotest.(check (option string))
+    "grant type" (Some "urn:ietf:params:oauth:grant-type:jwt-bearer")
+    (query_param body "grant_type");
+  let assertion = query_param body "assertion" |> Option.get in
+  let jwt =
+    match
+      Jose.Jwt.of_string ~jwk:public ~now:(Ptime.of_float_s 1_700_000_010. |> Option.get) assertion
+    with
+    | Ok jwt -> jwt
+    | Error _ -> Alcotest.fail "the assertion must verify with the key"
+  in
+  Alcotest.(check (option string)) "kid" (Some "key-1") jwt.header.kid;
+  let claim key = Jose.Jwt.get_string_claim jwt key in
+  Alcotest.(check (option string))
+    "iss" (Some "robot@example.iam.gserviceaccount.com") (claim "iss");
+  Alcotest.(check (option string)) "aud" (Some token_endpoint) (claim "aud");
+  Alcotest.(check (option string))
+    "scope" (Some "https://www.googleapis.com/auth/bigquery.insertdata") (claim "scope");
+  Alcotest.(check (option int)) "iat" (Some 1_700_000_000) (Jose.Jwt.get_int_claim jwt "iat");
+  Alcotest.(check (option int)) "exp" (Some 1_700_003_600) (Jose.Jwt.get_int_claim jwt "exp")
+
+let test_service_account_rejects_bad_key () =
+  let rejects name json =
+    Alcotest.(check bool) name true (Result.is_error (Google_auth.Service_account.of_json json))
+  in
+  Alcotest.(check bool)
+    "not a key" true
+    (Result.is_error (Google_auth.Service_account.of_string {|{"client_email":"x"}|}));
+  rejects "bad pem"
+    (key_file ~private_key:"-----BEGIN PRIVATE KEY-----\nnope\n-----END PRIVATE KEY-----\n" ());
+  rejects "EC key" (key_file ~private_key:ec_pem ());
+  rejects "http token_uri" (key_file ~token_uri:"http://oauth2.googleapis.com/token" ());
+  rejects "relative token_uri" (key_file ~token_uri:"/token" ())
+
 let () =
   Alcotest.run "google-auth"
     [
@@ -291,6 +366,11 @@ let () =
           Alcotest.test_case "rejects an unknown kid" `Quick test_unknown_kid;
           Alcotest.test_case "missing" `Quick test_missing_id_token;
           Alcotest.test_case "claims for the caller" `Quick test_claims_for_the_caller;
+        ] );
+      ( "service account",
+        [
+          Alcotest.test_case "access token" `Quick test_service_account_token;
+          Alcotest.test_case "rejects a bad key" `Quick test_service_account_rejects_bad_key;
         ] );
       ( "errors",
         [

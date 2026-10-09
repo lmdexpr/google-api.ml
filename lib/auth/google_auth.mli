@@ -71,3 +71,23 @@ val refresh : client -> refresh_token:string -> (credentials, error) result
 val code_challenge : verifier:string -> string
 (** The PKCE S256 challenge: base64url (no padding) of SHA-256 of [verifier], 43 to 128 characters
     of [A-Z a-z 0-9 - . _ ~] (RFC 7636). *)
+
+module Service_account : sig
+  (** OAuth 2.0 for server-to-server calls with a service account key: a JWT signed with the key is
+      exchanged for an access token (RFC 7523). *)
+
+  type t
+
+  val of_json : Yojson.Safe.t -> (t, string) result
+  (** Reads the JSON key file as downloaded from the Google Cloud console. Fails unless
+      [private_key] is an RSA key and [token_uri] an https URI. *)
+
+  val of_string : string -> (t, string) result
+  val client_email : t -> string
+
+  val access_token :
+    t -> now:Ptime.t -> scopes:string list -> ?subject:string -> unit -> (credentials, error) result
+  (** An access token for [scopes], valid for an hour from [now]. [subject] is the user to
+      impersonate with domain-wide delegation. [credentials.refresh_token] is [None]: call again
+      instead. *)
+end

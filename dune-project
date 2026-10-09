@@ -89,6 +89,21 @@
   (alcotest :with-test)))
 
 (package
+ (name google-api-bigquery)
+ (synopsis "BigQuery API v2")
+ (description
+  "Types, JSON codecs and calls generated from the Discovery document of the\nBigQuery API v2.")
+ (depends
+  (ocaml
+   (>= 5.5.0))
+  dune
+  (google-api
+   (= :version))
+  uri
+  yojson
+  (alcotest :with-test)))
+
+(package
  (name google-auth)
  (synopsis "Google sign-in (OpenID Connect) and OAuth 2.0 tokens")
  (description
@@ -103,11 +118,13 @@
    (>= 0.2.0))
   (jose
    (>= 0.11.0))
+  ptime
   digestif
   base64
   uri
   yojson
   (alcotest :with-test)
+  (mirage-crypto-ec :with-test)
   (mirage-crypto-pk :with-test)
   (mirage-crypto-rng :with-test)))
 

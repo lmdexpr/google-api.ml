@@ -29,11 +29,6 @@ fi
 curl -sSf "$url" | jq -S . > "discovery/$file"
 printf 'discovery/%s revision %s\n' "$file" "$(jq -r .revision "discovery/$file")"
 
-if jq -e '.. | objects | select(has("mediaUpload") or .supportsMediaDownload == true)' \
-  "discovery/$file" > /dev/null; then
-  echo "warning: the document has media methods, which the generator refuses" >&2
-fi
-
 printf "fetch %s '%s'\n" "$file" "$url" >> scripts/update-discovery.sh
 
 mkdir "apis/$name"

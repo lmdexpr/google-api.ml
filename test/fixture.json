@@ -51,6 +51,16 @@
   "resources": {
     "nodes": {
       "methods": {
+        "upload": {
+          "id": "fixture.nodes.upload",
+          "httpMethod": "POST",
+          "path": "nodes/{nodeId}/upload",
+          "supportsMediaUpload": true,
+          "parameterOrder": ["nodeId"],
+          "parameters": {
+            "nodeId": { "type": "string", "location": "path", "required": true }
+          }
+        },
         "get": {
           "id": "fixture.nodes.get",
           "httpMethod": "GET",

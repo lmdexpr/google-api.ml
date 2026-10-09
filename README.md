@@ -11,6 +11,7 @@ OCaml clients for Google APIs. Types, JSON codecs and calls are generated from t
 | `google-api-calendar` | Google Calendar API v3 |
 | `google-api-directory` | Admin SDK Directory API v1 |
 | `google-api-cloudidentity` | Cloud Identity API v1 |
+| `google-api-bigquery` | BigQuery API v2 |
 | `google-auth` | Sign-in with Google (OpenID Connect) and OAuth 2.0 tokens |
 
 API packages only depend on `google-api`, `uri` and `yojson`; they take an access token, so
@@ -155,9 +156,27 @@ let signed_in =
 nonce) and returns its claims for checks of your own, such as `hd` for a Workspace domain.
 `refresh` renews the access token. Errors leave out response bodies, which may carry tokens.
 
+### Service accounts
+
+Server-to-server calls use a service account key (the JSON file from the Google Cloud console).
+The key signs a JWT that is exchanged for an access token; `now` is explicit so the caller owns
+the clock.
+
+```ocaml
+let account = Google_auth.Service_account.of_string key_json |> Result.get_ok in
+let credentials =
+  Google_auth.Service_account.access_token account ~now:(Ptime_clock.now ())
+    ~scopes:[ "https://www.googleapis.com/auth/bigquery.insertdata" ] ()
+  |> Result.get_ok
+in
+Google_api_bigquery.Tabledata.insert_all ~project_id ~dataset_id ~table_id ~body ()
+|> Google_api.Call.execute ~access_token:credentials.access_token
+```
+
 ## Not supported
 
-- Media upload and download (the generator refuses such methods; none of the packaged APIs has one).
+- Media upload and download. Methods supporting them are generated as plain JSON calls,
+  e.g. BigQuery `jobs.insert` creates a job from a Cloud Storage source but cannot upload a file.
 - Sending an explicit `null` to clear a field in a PATCH: `None` fields are omitted.
 
 ## Development

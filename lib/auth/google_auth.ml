@@ -204,3 +204,80 @@ let refresh client ~refresh_token =
   json_response ~what:"token response"
     (token_request client [ "grant_type", "refresh_token"; "refresh_token", refresh_token ])
     credentials_of_json
+
+module Service_account = struct
+  type t = { client_email : string; key : Jose.Jwk.priv_rsa; token_uri : Uri.t }
+
+  let client_email t = t.client_email
+
+  (* Google accepts RS256 assertions only. [kid] tells Google which of the account's keys to verify with. *)
+  let rsa_key ~private_key_id pem =
+    match Jose.Jwk.of_priv_pem pem with
+    | Ok (Jose.Jwk.Rsa_priv rsa) -> Ok { rsa with Jose.Jwk.kid = private_key_id }
+    | Ok _ | Error `Unsupported_kty -> Error "private key: RSA expected"
+    | Error (`Msg message) -> Error ("private key: " ^ message)
+
+  (* The assertion is good for an access token for an hour: never send it in clear. *)
+  let https_uri s =
+    let uri = Uri.of_string s in
+    match Uri.scheme uri, Uri.host uri with
+    | Some "https", Some _ -> Ok uri
+    | _ -> Error ("token_uri must be an https URI: " ^ s)
+
+  let of_json json =
+    let open Yojson.Safe.Util in
+    match
+      ( member "client_email" json |> to_string,
+        member "private_key_id" json |> to_option to_string,
+        member "private_key" json |> to_string,
+        member "token_uri" json |> to_string )
+    with
+    | exception Type_error (message, _) -> Error ("malformed key file: " ^ message)
+    | client_email, private_key_id, private_key, token_uri ->
+      let* key = rsa_key ~private_key_id private_key in
+      let* token_uri = https_uri token_uri in
+      Ok { client_email; key; token_uri }
+
+  let of_string s =
+    match Yojson.Safe.from_string s with
+    | exception Yojson.Json_error message -> Error ("key file is not JSON: " ^ message)
+    | json -> of_json json
+
+  let lifetime = 3600
+
+  let assertion t ~now ~scopes ~subject =
+    let iat = int_of_float (Ptime.to_float_s now) in
+    let payload =
+      `Assoc
+        ([
+           "iss", `String t.client_email;
+           "scope", `String (String.concat " " scopes);
+           "aud", `String (Uri.to_string t.token_uri);
+           "iat", `Int iat;
+           "exp", `Int (iat + lifetime);
+         ]
+        @ Option.fold subject ~none:[] ~some:(fun sub -> [ "sub", `String sub ]))
+    in
+    let key = Jose.Jwk.Rsa_priv t.key in
+    (* Signing with an RSA key and RS256 has no error to report. *)
+    match
+      Jose.Jwt.sign ~header:(Jose.Header.make_header ~typ:"JWT" ~alg:`RS256 key) ~payload key
+    with
+    | Ok jwt -> Jose.Jwt.to_string jwt
+    | Error (`Msg message) -> invalid_arg ("Google_auth.Service_account: " ^ message)
+
+  let access_token t ~now ~scopes ?subject () =
+    let assertion = assertion t ~now ~scopes ~subject in
+    let params =
+      [ "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"; "assertion", assertion ]
+    in
+    json_response ~what:"token response"
+      (Google_api_runtime.Http.perform
+         {
+           meth = `POST;
+           uri = t.token_uri;
+           headers = [ "content-type", "application/x-www-form-urlencoded" ];
+           body = Some (Uri.encoded_of_query (List.map (fun (key, value) -> key, [ value ]) params));
+         })
+      credentials_of_json
+end

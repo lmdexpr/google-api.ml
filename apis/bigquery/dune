@@ -1,0 +1,21 @@
+(library
+ (name google_api_bigquery)
+ (public_name google-api-bigquery)
+ (libraries google-api google-api.runtime uri yojson))
+
+(rule
+ (targets google_api_bigquery.ml.gen google_api_bigquery.mli.gen)
+ (deps
+  (:discovery %{project_root}/discovery/bigquery.v2.json))
+ (action
+  (run %{exe:../../gen/main.exe} %{discovery} %{targets})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_bigquery.ml google_api_bigquery.ml.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff google_api_bigquery.mli google_api_bigquery.mli.gen)))
