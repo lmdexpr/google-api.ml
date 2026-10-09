@@ -171,9 +171,6 @@ let ordered_parameters ~order parameters =
 let ref_of path json = required path "$ref" string json
 
 let meth path name json =
-  let flag key = optional path key bool json |> Option.value ~default:false in
-  if flag "supportsMediaUpload" || flag "supportsMediaDownload" then
-    unsupported path "media upload and download";
   let path' = required path "path" string json in
   if String.starts_with ~prefix:"/" path' then unsupported path "absolute method path";
   let order =
@@ -193,14 +190,14 @@ let meth path name json =
     response = optional path "response" ref_of json;
   }
 
-let methods path json = optional path "methods" (entries' meth) json |> Option.value ~default:[]
+let entries key decode path json =
+  optional path key (entries' decode) json |> Option.value ~default:[]
+
+(* Methods with media upload or download become the plain JSON call: the media protocols are left out. *)
+let methods path json = entries "methods" meth path json
 
 let rec resource path name json =
-  {
-    name;
-    methods = methods path json;
-    resources = optional path "resources" (entries' resource) json |> Option.value ~default:[];
-  }
+  { name; methods = methods path json; resources = entries "resources" resource path json }
 
 let of_yojson json =
   let path = "$" in
@@ -215,7 +212,7 @@ let of_yojson json =
     root_url = field "rootUrl";
     service_path = field "servicePath";
     batch_path = field "batchPath";
-    schemas = optional path "schemas" (entries' definition) json |> Option.value ~default:[];
+    schemas = entries "schemas" definition path json;
     methods = methods path json;
-    resources = optional path "resources" (entries' resource) json |> Option.value ~default:[];
+    resources = entries "resources" resource path json;
   }

@@ -157,7 +157,8 @@ nonce) and returns its claims for checks of your own, such as `hd` for a Workspa
 
 ## Not supported
 
-- Media upload and download (the generator refuses such methods; none of the packaged APIs has one).
+- Media upload and download. Methods supporting them are generated as plain JSON calls,
+  e.g. BigQuery `jobs.insert` creates a job from a Cloud Storage source but cannot upload a file.
 - Sending an explicit `null` to clear a field in a PATCH: `None` fields are omitted.
 
 ## Development
