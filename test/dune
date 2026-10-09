@@ -53,6 +53,18 @@
   uri))
 
 (test
+ (name test_bigquery)
+ (package google-api-bigquery)
+ (modules test_bigquery)
+ (libraries
+  google-api
+  google-api.runtime
+  google-api-bigquery
+  alcotest
+  uri
+  yojson))
+
+(test
  (name test_cohttp_eio)
  (package google-api-cohttp-eio)
  (modules test_cohttp_eio)
