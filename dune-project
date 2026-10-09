@@ -118,11 +118,13 @@
    (>= 0.2.0))
   (jose
    (>= 0.11.0))
+  ptime
   digestif
   base64
   uri
   yojson
   (alcotest :with-test)
+  (mirage-crypto-ec :with-test)
   (mirage-crypto-pk :with-test)
   (mirage-crypto-rng :with-test)))
 

@@ -89,6 +89,8 @@
   alcotest
   base64
   jose
+  ptime
+  mirage-crypto-ec
   mirage-crypto-pk
   mirage-crypto-rng.unix
   unix
