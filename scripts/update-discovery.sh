@@ -16,3 +16,4 @@ fetch calendar.v3.json 'https://calendar-json.googleapis.com/$discovery/rest?ver
 fetch admin.directory_v1.json 'https://admin.googleapis.com/$discovery/rest?version=directory_v1'
 fetch cloudidentity.v1.json 'https://cloudidentity.googleapis.com/$discovery/rest?version=v1'
 fetch bigquery.v2.json 'https://bigquery.googleapis.com/$discovery/rest?version=v2'
+fetch pubsub.v1.json 'https://pubsub.googleapis.com/$discovery/rest?version=v1'

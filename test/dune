@@ -65,6 +65,12 @@
   yojson))
 
 (test
+ (name test_pubsub)
+ (package google-api-pubsub)
+ (modules test_pubsub)
+ (libraries google-api google-api.runtime google-api-pubsub alcotest uri))
+
+(test
  (name test_cohttp_eio)
  (package google-api-cohttp-eio)
  (modules test_cohttp_eio)
