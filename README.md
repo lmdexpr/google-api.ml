@@ -12,6 +12,7 @@ OCaml clients for Google APIs. Types, JSON codecs and calls are generated from t
 | `google-api-directory` | Admin SDK Directory API v1 |
 | `google-api-cloudidentity` | Cloud Identity API v1 |
 | `google-api-bigquery` | BigQuery API v2 |
+| `google-api-pubsub` | Cloud Pub/Sub API v1 |
 | `google-auth` | Sign-in with Google (OpenID Connect) and OAuth 2.0 tokens |
 
 API packages only depend on `google-api`, `uri` and `yojson`; they take an access token, so
@@ -69,7 +70,8 @@ Each package is one module (`Google_api_calendar`, ...) containing:
 - A record type per schema, e.g. `event`, with every field an `option` (Google omits fields, and
   partial responses leave out more). Inline objects get their own types (`event_creator`).
   `make_event ?summary ?start ... ()` builds one; `event_of_yojson` / `yojson_of_event` convert.
-  As in Google's client libraries, `format: int64` values stay strings.
+  As in Google's client libraries, `format: int64` values stay strings. `format: byte` values,
+  such as Pub/Sub message `data`, are base64 strings: encode and decode them yourself.
 - Enums as polymorphic variants with a fallback for values added later:
   ``[ `Start_time | `Updated | `Unrecognized of string ]``.
 - A module per resource, e.g. `Events`, with a function per method. Path and required parameters
