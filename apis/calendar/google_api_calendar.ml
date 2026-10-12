@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of calendar v3 (revision 20260925). Do not edit. *)
+(* Generated from the Discovery document of calendar v3 (revision 20261005). Do not edit. *)
 
 [@@@alert "-internal"]
 
