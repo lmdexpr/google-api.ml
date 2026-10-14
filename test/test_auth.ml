@@ -265,6 +265,38 @@ let test_refresh () =
     (Some "grant_type=refresh_token&refresh_token=1//rt&client_id=client&client_secret=secret")
     (token_request_body provider)
 
+(* Revocation *)
+
+let revoke ~status ~body =
+  let seen = ref [] in
+  let result =
+    try Google_auth.revoke ~token:"1//rt"
+    with effect Google_api.Http.Request request, k ->
+      seen := request :: !seen;
+      Effect.Deep.continue k { Google_api.Http.status; headers = []; body }
+  in
+  result, List.rev !seen
+
+let test_revoke () =
+  let result, seen = revoke ~status:200 ~body:"" in
+  Alcotest.(check (result unit error)) "revoked" (Ok ()) result;
+  match seen with
+  | [ request ] ->
+    Alcotest.(check string)
+      "endpoint" "https://oauth2.googleapis.com/revoke" (Uri.to_string request.uri);
+    Alcotest.(check (option string)) "form body" (Some "token=1//rt") request.body
+  | _ -> Alcotest.fail "expected one request"
+
+let test_revoke_json_body () =
+  Alcotest.(check (result unit error)) "revoked" (Ok ()) (fst (revoke ~status:200 ~body:"{}"))
+
+let test_revoke_already_revoked () =
+  Alcotest.(check (result unit error))
+    "invalid_token" (Error (Google_auth.Rejected "invalid_token"))
+    (fst
+       (revoke ~status:400
+          ~body:{|{"error":"invalid_token","error_description":"Token expired or revoked"}|}))
+
 (* PKCE *)
 
 let test_code_challenge () =
@@ -379,5 +411,11 @@ let () =
           Alcotest.test_case "another issuer" `Quick test_other_issuer;
         ] );
       "refresh", [ Alcotest.test_case "refresh" `Quick test_refresh ];
+      ( "revoke",
+        [
+          Alcotest.test_case "revoke" `Quick test_revoke;
+          Alcotest.test_case "JSON body" `Quick test_revoke_json_body;
+          Alcotest.test_case "already revoked" `Quick test_revoke_already_revoked;
+        ] );
       "pkce", [ Alcotest.test_case "code challenge" `Quick test_code_challenge ];
     ]

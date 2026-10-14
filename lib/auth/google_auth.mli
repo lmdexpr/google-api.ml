@@ -68,6 +68,11 @@ val exchange_code :
 
 val refresh : client -> refresh_token:string -> (credentials, error) result
 
+val revoke : token:string -> (unit, error) result
+(** Revokes an access or refresh token at [https://oauth2.googleapis.com/revoke]. Revoking a refresh
+    token also revokes the access tokens issued from it. A token that is already revoked or expired
+    fails with [Rejected "invalid_token"]. *)
+
 val code_challenge : verifier:string -> string
 (** The PKCE S256 challenge: base64url (no padding) of SHA-256 of [verifier], 43 to 128 characters
     of [A-Z a-z 0-9 - . _ ~] (RFC 7636). *)
