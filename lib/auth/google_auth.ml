@@ -205,6 +205,25 @@ let refresh client ~refresh_token =
     (token_request client [ "grant_type", "refresh_token"; "refresh_token", refresh_token ])
     credentials_of_json
 
+(* Not in the discovery document that ocaml-oidc parses; Google documents it as fixed. *)
+let revocation_endpoint = Uri.of_string "https://oauth2.googleapis.com/revoke"
+
+let revoke ~token =
+  let ({ Google_api.Http.status; body; headers = _ } as response) =
+    Google_api_runtime.Http.perform
+      {
+        meth = `POST;
+        uri = revocation_endpoint;
+        headers = [ "content-type", "application/x-www-form-urlencoded" ];
+        body = Some (Uri.encoded_of_query [ "token", [ token ] ]);
+      }
+  in
+  (* A successful revocation has no body to read. *)
+  if is_success status && String.trim body = "" then
+    Ok ()
+  else
+    json_response ~what:"revocation response" response (fun (_ : Yojson.Safe.t) -> ())
+
 module Service_account = struct
   type t = { client_email : string; key : Jose.Jwk.priv_rsa; token_uri : Uri.t }
 
