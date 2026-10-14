@@ -156,7 +156,9 @@ let signed_in =
 
 `exchange_code` validates the ID token (RS256 signature by Google, issuer, audience, expiry,
 nonce) and returns its claims for checks of your own, such as `hd` for a Workspace domain.
-`refresh` renews the access token. Errors leave out response bodies, which may carry tokens.
+`refresh` renews the access token, and `revoke` invalidates a token on sign-out (revoking a
+refresh token also revokes its access tokens). Errors leave out response bodies, which may carry
+tokens.
 
 ### Service accounts
 
