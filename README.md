@@ -13,6 +13,7 @@ OCaml clients for Google APIs. Types, JSON codecs and calls are generated from t
 | `google-api-cloudidentity` | Cloud Identity API v1 |
 | `google-api-bigquery` | BigQuery API v2 |
 | `google-api-pubsub` | Cloud Pub/Sub API v1 |
+| `google-api-cloudkms` | Cloud Key Management Service (KMS) API v1 |
 | `google-auth` | Sign-in with Google (OpenID Connect) and OAuth 2.0 tokens |
 
 API packages only depend on `google-api`, `uri` and `yojson`; they take an access token, so
