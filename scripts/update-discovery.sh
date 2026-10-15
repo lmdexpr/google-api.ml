@@ -17,3 +17,4 @@ fetch admin.directory_v1.json 'https://admin.googleapis.com/$discovery/rest?vers
 fetch cloudidentity.v1.json 'https://cloudidentity.googleapis.com/$discovery/rest?version=v1'
 fetch bigquery.v2.json 'https://bigquery.googleapis.com/$discovery/rest?version=v2'
 fetch pubsub.v1.json 'https://pubsub.googleapis.com/$discovery/rest?version=v1'
+fetch cloudkms.v1.json 'https://cloudkms.googleapis.com/$discovery/rest?version=v1'
