@@ -1978,7 +1978,7 @@
       }
     }
   },
-  "revision": "20261005",
+  "revision": "20261012",
   "rootUrl": "https://www.googleapis.com/",
   "schemas": {
     "Acl": {

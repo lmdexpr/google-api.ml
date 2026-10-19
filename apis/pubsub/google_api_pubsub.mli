@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of pubsub v1 (revision 20261002). Do not edit. *)
+(* Generated from the Discovery document of pubsub v1 (revision 20261006). Do not edit. *)
 
-(** Cloud Pub/Sub API (pubsub v1, revision 20261002).
+(** Cloud Pub/Sub API (pubsub v1, revision 20261006).
 
     Provides reliable, many-to-many, asynchronous messaging between applications.
 
@@ -166,7 +166,7 @@ and dead_letter_policy = {
 (** Row key definition based on fields from the message. *)
 and delimited_key = {
   delimiter : string option;  (** Optional. Byte sequence used to delimit concatenated fields. Must be specified if multiple key fields are used. The delimiter must contain at least 1 character and at most 50 characters. *)
-  key_fields : string list option;  (** Optional. The key fields to construct from the row key. The fields must be present in the message as a top-level field, i.e. JSON path expressions will not traverse into nested objects. *)
+  key_fields : string list option;  (** Required. The key fields to construct from the row key. The fields must be present in the message as a top-level field, i.e. JSON path expressions will not traverse into nested objects. *)
 }
 
 (** Response for the DetachSubscription method. Reserved for future use. *)

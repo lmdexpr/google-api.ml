@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of tasks v1 (revision 20261006). Do not edit. *)
+(* Generated from the Discovery document of tasks v1 (revision 20261013). Do not edit. *)
 
-(** Google Tasks API (tasks v1, revision 20261006).
+(** Google Tasks API (tasks v1, revision 20261013).
 
     The Google Tasks API lets you manage your tasks and task lists.
 

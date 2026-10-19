@@ -2423,7 +2423,7 @@
       }
     }
   },
-  "revision": "20261007",
+  "revision": "20261014",
   "rootUrl": "https://cloudidentity.googleapis.com/",
   "schemas": {
     "AddIdpCredentialOperationMetadata": {
