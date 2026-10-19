@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of calendar v3 (revision 20261005). Do not edit. *)
+(* Generated from the Discovery document of calendar v3 (revision 20261012). Do not edit. *)
 
-(** Calendar API (calendar v3, revision 20261005).
+(** Calendar API (calendar v3, revision 20261012).
 
     Manipulates events and other calendar data.
 

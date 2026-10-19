@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of pubsub v1 (revision 20261002). Do not edit. *)
+(* Generated from the Discovery document of pubsub v1 (revision 20261006). Do not edit. *)
 
 [@@@alert "-internal"]
 
