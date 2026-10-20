@@ -77,6 +77,12 @@
  (libraries google-api google-api.runtime google-api-cloudkms alcotest uri))
 
 (test
+ (name test_run)
+ (package google-api-run)
+ (modules test_run)
+ (libraries google-api google-api.runtime google-api-run alcotest uri))
+
+(test
  (name test_cohttp_eio)
  (package google-api-cohttp-eio)
  (modules test_cohttp_eio)
