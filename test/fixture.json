@@ -65,6 +65,8 @@
           "id": "fixture.nodes.get",
           "httpMethod": "GET",
           "path": "nodes/{+name}",
+          "supportsMediaDownload": true,
+          "useMediaDownloadService": true,
           "parameterOrder": ["name"],
           "parameters": {
             "type": {

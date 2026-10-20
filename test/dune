@@ -83,6 +83,12 @@
  (libraries google-api google-api.runtime google-api-run alcotest uri))
 
 (test
+ (name test_storage)
+ (package google-api-storage)
+ (modules test_storage)
+ (libraries google-api google-api.runtime google-api-storage alcotest uri))
+
+(test
  (name test_cohttp_eio)
  (package google-api-cohttp-eio)
  (modules test_cohttp_eio)

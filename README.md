@@ -15,6 +15,7 @@ OCaml clients for Google APIs. Types, JSON codecs and calls are generated from t
 | `google-api-pubsub` | Cloud Pub/Sub API v1 |
 | `google-api-cloudkms` | Cloud Key Management Service (KMS) API v1 |
 | `google-api-run` | Cloud Run Admin API v2 |
+| `google-api-storage` | Cloud Storage JSON API v1 |
 | `google-auth` | Sign-in with Google (OpenID Connect) and OAuth 2.0 tokens |
 
 API packages only depend on `google-api`, `uri` and `yojson`; they take an access token, so
@@ -79,6 +80,9 @@ Each package is one module (`Google_api_calendar`, ...) containing:
 - A module per resource, e.g. `Events`, with a function per method. Path and required parameters
   are labelled arguments, optional ones are optional arguments, a request body is `~body`. Each
   returns a `Google_api.Call.t`; nothing is sent until it is executed.
+- For a method supporting media download, such as Cloud Storage `objects.get`, also `<method>_media`
+  (`Objects.get_media`): it sends `alt=media` and returns the response body as a `string`. The whole
+  body is held in memory.
 - `batch_endpoint` and `batch` for the API's batch endpoint.
 
 The documentation of every type, field, method and parameter is copied from the Discovery
@@ -181,8 +185,9 @@ Google_api_bigquery.Tabledata.insert_all ~project_id ~dataset_id ~table_id ~body
 
 ## Not supported
 
-- Media upload and download. Methods supporting them are generated as plain JSON calls,
-  e.g. BigQuery `jobs.insert` creates a job from a Cloud Storage source but cannot upload a file.
+- Media upload. Methods supporting it are generated as plain JSON calls, e.g. BigQuery
+  `jobs.insert` creates a job from a Cloud Storage source but cannot upload a file.
+- Streaming a media download: `<method>_media` returns the whole body.
 - Sending an explicit `null` to clear a field in a PATCH: `None` fields are omitted.
 
 ## Development

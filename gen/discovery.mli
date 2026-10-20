@@ -33,6 +33,7 @@ type meth = {
   parameters : parameter list;  (** [parameterOrder] first *)
   request : string option;
   response : string option;
+  media_download : bool;  (** [supportsMediaDownload]: [alt=media] returns the content *)
 }
 
 type resource = { name : string; methods : meth list; resources : resource list }
