@@ -18,3 +18,4 @@ fetch cloudidentity.v1.json 'https://cloudidentity.googleapis.com/$discovery/res
 fetch bigquery.v2.json 'https://bigquery.googleapis.com/$discovery/rest?version=v2'
 fetch pubsub.v1.json 'https://pubsub.googleapis.com/$discovery/rest?version=v1'
 fetch cloudkms.v1.json 'https://cloudkms.googleapis.com/$discovery/rest?version=v1'
+fetch run.v2.json 'https://run.googleapis.com/$discovery/rest?version=v2'
