@@ -43,6 +43,16 @@ let test_media_method_is_a_json_call () =
     "method" "POST"
     (Google_api.Http.string_of_meth (Call.request upload).meth)
 
+(* The body is not JSON: [get_media] hands it over untouched. *)
+let test_media_download () =
+  let get_media = Fixture.Nodes.get_media ~name:"a/b" ~type_:`Basic () in
+  Alcotest.(check string)
+    "uri" "https://fixture.example.com/fixture/v1/nodes/a/b?type=basic&alt=media" (uri get_media);
+  let content = "\x00\xffnot json" in
+  Alcotest.(check (result string reject))
+    "content" (Ok content)
+    (Call.response get_media ~status:200 ~body:content)
+
 let test_reserved_expansion_and_repeated_enum () =
   Alcotest.(check string)
     "uri" "https://fixture.example.com/fixture/v1/nodes/a/b%20c?ids=1&ids=2&type=basic"
@@ -113,6 +123,7 @@ let () =
       ( "methods",
         [
           Alcotest.test_case "media method is a JSON call" `Quick test_media_method_is_a_json_call;
+          Alcotest.test_case "media download" `Quick test_media_download;
           Alcotest.test_case "reserved expansion and repeated enum" `Quick
             test_reserved_expansion_and_repeated_enum;
           Alcotest.test_case "parameter named body" `Quick test_parameter_named_body;

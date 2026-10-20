@@ -237,14 +237,25 @@ let indent depth = String.make (2 * depth) ' '
 (* Names the generated code defines itself; method bodies refer to [base_url]. *)
 let reserved = [ "base_url"; "batch_endpoint"; "batch" ]
 
-let method_names (methods : Discovery.meth list) =
-  Naming.dedupe (reserved @ List.map (fun (m : Discovery.meth) -> Naming.value m.name) methods)
-  |> List.drop (List.length reserved)
+(* A method supporting media download also gets [<name>_media], which sends [alt=media] and returns
+   the response body as is. *)
+type variant = Json | Media
+
+let variants (methods : Discovery.meth list) =
+  methods
+  |> List.concat_map (fun (m : Discovery.meth) ->
+    if m.media_download then [ m, Json; m, Media ] else [ m, Json ])
+
+let method_names variants =
+  let name ((m : Discovery.meth), variant) =
+    Naming.value (match variant with Json -> m.name | Media -> m.name ^ "Media")
+  in
+  Naming.dedupe (reserved @ List.map name variants) |> List.drop (List.length reserved)
 
 let resource_names (resources : Discovery.resource list) =
   Naming.dedupe (List.map (fun (r : Discovery.resource) -> Naming.module_ r.name) resources)
 
-let method_impl b ~resolve ~depth name (m : Discovery.meth) =
+let method_impl b ~resolve ~depth name ((m : Discovery.meth), variant) =
   let p fmt = Printf.bprintf b fmt in
   let pad = indent depth in
   let args = args m in
@@ -259,21 +270,25 @@ let method_impl b ~resolve ~depth name (m : Discovery.meth) =
   p "%s  Google_api_runtime.Call.make ~meth:`%s\n" pad (string_of_http_method m.http_method);
   let path = path_expr path_args m.path in
   p "%s    ~uri:\n" pad;
-  (match query_args with
+  let queries =
+    List.map query query_args @ if variant = Media then [ {|[ "alt", [ "media" ] ]|} ] else []
+  in
+  (match queries with
   | [] -> p "%s      (Uri.of_string (%s))\n" pad path
-  | query_args ->
+  | queries ->
     p "%s      (Uri.add_query_params\n" pad;
     p "%s         (Uri.of_string (%s))\n" pad path;
     p "%s         (List.concat\n" pad;
     p "%s            [\n" pad;
-    List.iter (fun a -> p "%s              %s;\n" pad (query a)) query_args;
+    List.iter (p "%s              %s;\n" pad) queries;
     p "%s            ]))\n" pad);
   Option.iter (fun id -> p "%s    ~body:(yojson_of_%s body)\n" pad (resolve id)) m.request;
-  match m.response with
-  | Some id -> p "%s    (Google_api_runtime.Call.json %s_of_yojson)\n" pad (resolve id)
-  | None -> p "%s    Google_api_runtime.Call.empty\n" pad
+  match variant, m.response with
+  | Media, _ -> p "%s    Fun.id\n" pad
+  | Json, Some id -> p "%s    (Google_api_runtime.Call.json %s_of_yojson)\n" pad (resolve id)
+  | Json, None -> p "%s    Google_api_runtime.Call.empty\n" pad
 
-let method_doc ~depth (m : Discovery.meth) =
+let method_doc ~depth ((m : Discovery.meth), variant) =
   let args = args m in
   let pad = indent depth in
   let params =
@@ -281,10 +296,15 @@ let method_doc ~depth (m : Discovery.meth) =
     |> List.filter_map (fun a ->
       Option.map (fun d -> Printf.sprintf "- [%s]: %s" a.var (doc d)) a.param.description)
   in
-  let http = Printf.sprintf "[%s %s]" (string_of_http_method m.http_method) m.path in
+  let alt, media =
+    match variant with
+    | Json -> "", []
+    | Media -> "?alt=media", [ "Downloads the content: the response body, as is." ]
+  in
+  let http = Printf.sprintf "[%s %s%s]" (string_of_http_method m.http_method) m.path alt in
   let paragraphs =
     Option.to_list (Option.map doc m.description)
-    @ [ http ]
+    @ media @ [ http ]
     @ match params with [] -> [] | params -> [ String.concat "\n" params ]
   in
   let text = String.concat "\n\n" paragraphs in
@@ -292,7 +312,7 @@ let method_doc ~depth (m : Discovery.meth) =
   let text = String.split_on_char '\n' text |> List.mapi indent |> String.concat "\n" in
   pad ^ "(** " ^ text ^ " *)\n"
 
-let method_sig b ~resolve ~depth name (m : Discovery.meth) =
+let method_sig b ~resolve ~depth name ((m : Discovery.meth), variant) =
   let p fmt = Printf.bprintf b fmt in
   let pad = indent depth in
   let args = args m in
@@ -302,11 +322,16 @@ let method_sig b ~resolve ~depth name (m : Discovery.meth) =
     @ List.map (fun a -> Printf.sprintf "?%s:%s" a.var (arg_ty a)) (optional args)
     @ [ "unit" ]
   in
-  let response = match m.response with Some id -> resolve id | None -> "unit" in
+  let response =
+    match variant, m.response with
+    | Media, _ -> "string"
+    | Json, Some id -> resolve id
+    | Json, None -> "unit"
+  in
   p "%sval %s :\n" pad name;
   List.iter (fun param -> p "%s  %s ->\n" pad param) params;
   p "%s  %s Google_api.Call.t\n" pad response;
-  p "%s" (method_doc ~depth m)
+  p "%s" (method_doc ~depth (m, variant))
 
 (* Prints [items] separated by blank lines. *)
 let separated b print names items =
@@ -320,7 +345,8 @@ let rec resources_impl b ~resolve ~depth (resources : Discovery.resource list) =
   separated b
     (fun module_name (r : Discovery.resource) ->
       Printf.bprintf b "%smodule %s = struct\n" (indent depth) module_name;
-      separated b (method_impl b ~resolve ~depth:(depth + 1)) (method_names r.methods) r.methods;
+      let methods = variants r.methods in
+      separated b (method_impl b ~resolve ~depth:(depth + 1)) (method_names methods) methods;
       if r.methods <> [] && r.resources <> [] then Buffer.add_char b '\n';
       resources_impl b ~resolve ~depth:(depth + 1) r.resources;
       Printf.bprintf b "%send\n" (indent depth))
@@ -330,7 +356,8 @@ let rec resources_sig b ~resolve ~depth (resources : Discovery.resource list) =
   separated b
     (fun module_name (r : Discovery.resource) ->
       Printf.bprintf b "%smodule %s : sig\n" (indent depth) module_name;
-      separated b (method_sig b ~resolve ~depth:(depth + 1)) (method_names r.methods) r.methods;
+      let methods = variants r.methods in
+      separated b (method_sig b ~resolve ~depth:(depth + 1)) (method_names methods) methods;
       if r.methods <> [] && r.resources <> [] then Buffer.add_char b '\n';
       resources_sig b ~resolve ~depth:(depth + 1) r.resources;
       Printf.bprintf b "%send\n" (indent depth))
@@ -440,7 +467,8 @@ let generate (api : Discovery.t) =
   p
     "let batch ~access_token calls = Google_api.Batch.execute ~access_token \
      ~endpoint:batch_endpoint calls\n\n";
-  separated ml (method_impl ml ~resolve ~depth:0) (method_names api.methods) api.methods;
+  let methods = variants api.methods in
+  separated ml (method_impl ml ~resolve ~depth:0) (method_names methods) methods;
   if api.methods <> [] && api.resources <> [] then Buffer.add_char ml '\n';
   resources_impl ml ~resolve ~depth:0 api.resources;
   let mli = Buffer.create 65536 in
@@ -459,7 +487,7 @@ let generate (api : Discovery.t) =
     \  'a Google_api.Call.t list ->\n\
     \  (('a, Google_api.Error.t) result list, Google_api.Error.t) result\n";
   p "(** {!Google_api.Batch.execute} on {!batch_endpoint}. *)\n\n";
-  separated mli (method_sig mli ~resolve ~depth:0) (method_names api.methods) api.methods;
+  separated mli (method_sig mli ~resolve ~depth:0) (method_names methods) methods;
   if api.methods <> [] && api.resources <> [] then Buffer.add_char mli '\n';
   resources_sig mli ~resolve ~depth:0 api.resources;
   Buffer.contents ml, Buffer.contents mli

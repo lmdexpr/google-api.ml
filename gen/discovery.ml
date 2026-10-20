@@ -31,6 +31,7 @@ type meth = {
   parameters : parameter list;
   request : string option;
   response : string option;
+  media_download : bool;
 }
 
 type resource = { name : string; methods : meth list; resources : resource list }
@@ -188,12 +189,13 @@ let meth path name json =
       |> Option.value ~default:[] |> ordered_parameters ~order;
     request = optional path "request" ref_of json;
     response = optional path "response" ref_of json;
+    media_download = optional path "supportsMediaDownload" bool json |> Option.value ~default:false;
   }
 
 let entries key decode path json =
   optional path key (entries' decode) json |> Option.value ~default:[]
 
-(* Methods with media upload or download become the plain JSON call: the media protocols are left out. *)
+(* Media upload is left out: such methods are only the plain JSON call. *)
 let methods path json = entries "methods" meth path json
 
 let rec resource path name json =
