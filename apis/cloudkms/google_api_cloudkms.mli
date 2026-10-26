@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of cloudkms v1 (revision 20261010). Do not edit. *)
+(* Generated from the Discovery document of cloudkms v1 (revision 20261016). Do not edit. *)
 
-(** Cloud Key Management Service (KMS) API (cloudkms v1, revision 20261010).
+(** Cloud Key Management Service (KMS) API (cloudkms v1, revision 20261016).
 
     Manages keys and performs cryptographic operations in a central cloud service, for direct use by other cloud resources and applications.
 

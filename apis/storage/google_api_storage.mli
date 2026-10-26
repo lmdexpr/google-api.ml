@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of storage v1 (revision 20261013). Do not edit. *)
+(* Generated from the Discovery document of storage v1 (revision 20261020). Do not edit. *)
 
-(** Cloud Storage JSON API (storage v1, revision 20261013).
+(** Cloud Storage JSON API (storage v1, revision 20261020).
 
     Stores and retrieves potentially large, immutable data objects.
 
