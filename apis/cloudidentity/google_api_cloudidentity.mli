@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of cloudidentity v1 (revision 20261014). Do not edit. *)
+(* Generated from the Discovery document of cloudidentity v1 (revision 20261020). Do not edit. *)
 
-(** Cloud Identity API (cloudidentity v1, revision 20261014).
+(** Cloud Identity API (cloudidentity v1, revision 20261020).
 
     API for provisioning and managing identity resources.
 
@@ -532,7 +532,7 @@ and membership = {
   name : string option;  (** Output only. The \[resource name\](https://cloud.google.com/apis/design/resource_names) of the `Membership`. Shall be of the form `groups/\{group\}/memberships/\{membership\}`. *)
   preferred_member_key : entity_key option;  (** Required. Immutable. The `EntityKey` of the member. *)
   roles : membership_role list option;  (** The `MembershipRole`s that apply to the `Membership`. If unspecified, defaults to a single `MembershipRole` with `name` `MEMBER`. Must not contain duplicate `MembershipRole`s with the same `name`. *)
-  type_ : [ `Type_unspecified | `User | `Service_account | `Group | `Shared_drive | `Cbcm_browser | `Chrome_os_device | `Other | `Unrecognized of string ] option;  (** Output only. The type of the membership. *)
+  type_ : [ `Type_unspecified | `User | `Service_account | `Group | `Shared_drive | `Cbcm_browser | `Chrome_os_device | `Personal_agent | `Coworker_agent | `Other | `Unrecognized of string ] option;  (** Output only. The type of the membership. *)
   update_time : string option;  (** Output only. The time when the `Membership` was last updated. *)
 }
 
@@ -1452,7 +1452,7 @@ val make_membership :
   ?name:string ->
   ?preferred_member_key:entity_key ->
   ?roles:membership_role list ->
-  ?type_:[ `Type_unspecified | `User | `Service_account | `Group | `Shared_drive | `Cbcm_browser | `Chrome_os_device | `Other | `Unrecognized of string ] ->
+  ?type_:[ `Type_unspecified | `User | `Service_account | `Group | `Shared_drive | `Cbcm_browser | `Chrome_os_device | `Personal_agent | `Coworker_agent | `Other | `Unrecognized of string ] ->
   ?update_time:string ->
   unit ->
   membership

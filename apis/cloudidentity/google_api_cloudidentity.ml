@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of cloudidentity v1 (revision 20261014). Do not edit. *)
+(* Generated from the Discovery document of cloudidentity v1 (revision 20261020). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -443,7 +443,7 @@ and membership = {
   name : string option;
   preferred_member_key : entity_key option;
   roles : membership_role list option;
-  type_ : [ `Type_unspecified | `User | `Service_account | `Group | `Shared_drive | `Cbcm_browser | `Chrome_os_device | `Other | `Unrecognized of string ] option;
+  type_ : [ `Type_unspecified | `User | `Service_account | `Group | `Shared_drive | `Cbcm_browser | `Chrome_os_device | `Personal_agent | `Coworker_agent | `Other | `Unrecognized of string ] option;
   update_time : string option;
 }
 
@@ -1846,7 +1846,7 @@ and membership_of_yojson json : membership =
     name = member "name" json |> to_option to_string;
     preferred_member_key = member "preferredMemberKey" json |> to_option entity_key_of_yojson;
     roles = member "roles" json |> to_option (convert_each membership_role_of_yojson);
-    type_ = member "type" json |> to_option (fun json -> match to_string json with "TYPE_UNSPECIFIED" -> `Type_unspecified | "USER" -> `User | "SERVICE_ACCOUNT" -> `Service_account | "GROUP" -> `Group | "SHARED_DRIVE" -> `Shared_drive | "CBCM_BROWSER" -> `Cbcm_browser | "CHROME_OS_DEVICE" -> `Chrome_os_device | "OTHER" -> `Other | value -> `Unrecognized value);
+    type_ = member "type" json |> to_option (fun json -> match to_string json with "TYPE_UNSPECIFIED" -> `Type_unspecified | "USER" -> `User | "SERVICE_ACCOUNT" -> `Service_account | "GROUP" -> `Group | "SHARED_DRIVE" -> `Shared_drive | "CBCM_BROWSER" -> `Cbcm_browser | "CHROME_OS_DEVICE" -> `Chrome_os_device | "PERSONAL_AGENT" -> `Personal_agent | "COWORKER_AGENT" -> `Coworker_agent | "OTHER" -> `Other | value -> `Unrecognized value);
     update_time = member "updateTime" json |> to_option to_string;
   }
 
@@ -1859,7 +1859,7 @@ and yojson_of_membership (value : membership) : Yojson.Safe.t =
          Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
          Option.map (fun field -> ("preferredMemberKey", yojson_of_entity_key field)) value.preferred_member_key;
          Option.map (fun field -> ("roles", (fun items -> `List (List.map yojson_of_membership_role items)) field)) value.roles;
-         Option.map (fun field -> ("type", (fun value -> `String ((function `Type_unspecified -> "TYPE_UNSPECIFIED" | `User -> "USER" | `Service_account -> "SERVICE_ACCOUNT" | `Group -> "GROUP" | `Shared_drive -> "SHARED_DRIVE" | `Cbcm_browser -> "CBCM_BROWSER" | `Chrome_os_device -> "CHROME_OS_DEVICE" | `Other -> "OTHER" | `Unrecognized value -> value) value)) field)) value.type_;
+         Option.map (fun field -> ("type", (fun value -> `String ((function `Type_unspecified -> "TYPE_UNSPECIFIED" | `User -> "USER" | `Service_account -> "SERVICE_ACCOUNT" | `Group -> "GROUP" | `Shared_drive -> "SHARED_DRIVE" | `Cbcm_browser -> "CBCM_BROWSER" | `Chrome_os_device -> "CHROME_OS_DEVICE" | `Personal_agent -> "PERSONAL_AGENT" | `Coworker_agent -> "COWORKER_AGENT" | `Other -> "OTHER" | `Unrecognized value -> value) value)) field)) value.type_;
          Option.map (fun field -> ("updateTime", (fun value -> `String value) field)) value.update_time;
        ])
 

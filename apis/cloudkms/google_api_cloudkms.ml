@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of cloudkms v1 (revision 20261010). Do not edit. *)
+(* Generated from the Discovery document of cloudkms v1 (revision 20261016). Do not edit. *)
 
 [@@@alert "-internal"]
 
