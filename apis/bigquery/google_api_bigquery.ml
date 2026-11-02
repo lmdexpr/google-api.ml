@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of bigquery v2 (revision 20260922). Do not edit. *)
+(* Generated from the Discovery document of bigquery v2 (revision 20261009). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -831,6 +831,7 @@ and job_configuration_extract = {
   model_extract_options : model_extract_options option;
   native_geography_export_enabled : bool option;
   print_header : bool option;
+  secure_context : secure_context option;
   source_model : model_reference option;
   source_table : table_reference option;
   use_avro_logical_types : bool option;
@@ -4261,6 +4262,7 @@ and job_configuration_extract_of_yojson json : job_configuration_extract =
     model_extract_options = member "modelExtractOptions" json |> to_option model_extract_options_of_yojson;
     native_geography_export_enabled = member "nativeGeographyExportEnabled" json |> to_option to_bool;
     print_header = member "printHeader" json |> to_option to_bool;
+    secure_context = member "secureContext" json |> to_option secure_context_of_yojson;
     source_model = member "sourceModel" json |> to_option model_reference_of_yojson;
     source_table = member "sourceTable" json |> to_option table_reference_of_yojson;
     use_avro_logical_types = member "useAvroLogicalTypes" json |> to_option to_bool;
@@ -4278,6 +4280,7 @@ and yojson_of_job_configuration_extract (value : job_configuration_extract) : Yo
          Option.map (fun field -> ("modelExtractOptions", yojson_of_model_extract_options field)) value.model_extract_options;
          Option.map (fun field -> ("nativeGeographyExportEnabled", (fun value -> `Bool value) field)) value.native_geography_export_enabled;
          Option.map (fun field -> ("printHeader", (fun value -> `Bool value) field)) value.print_header;
+         Option.map (fun field -> ("secureContext", yojson_of_secure_context field)) value.secure_context;
          Option.map (fun field -> ("sourceModel", yojson_of_model_reference field)) value.source_model;
          Option.map (fun field -> ("sourceTable", yojson_of_table_reference field)) value.source_table;
          Option.map (fun field -> ("useAvroLogicalTypes", (fun value -> `Bool value) field)) value.use_avro_logical_types;
@@ -7640,7 +7643,7 @@ let make_job_cancel_response ?job ?kind () : job_cancel_response = { job; kind }
 
 let make_job_configuration ?copy ?dry_run ?extract ?job_timeout_ms ?job_type ?labels ?load ?max_slots ?query ?reservation () : job_configuration = { copy; dry_run; extract; job_timeout_ms; job_type; labels; load; max_slots; query; reservation }
 
-let make_job_configuration_extract ?compression ?destination_format ?destination_uri ?destination_uris ?field_delimiter ?model_extract_options ?native_geography_export_enabled ?print_header ?source_model ?source_table ?use_avro_logical_types () : job_configuration_extract = { compression; destination_format; destination_uri; destination_uris; field_delimiter; model_extract_options; native_geography_export_enabled; print_header; source_model; source_table; use_avro_logical_types }
+let make_job_configuration_extract ?compression ?destination_format ?destination_uri ?destination_uris ?field_delimiter ?model_extract_options ?native_geography_export_enabled ?print_header ?secure_context ?source_model ?source_table ?use_avro_logical_types () : job_configuration_extract = { compression; destination_format; destination_uri; destination_uris; field_delimiter; model_extract_options; native_geography_export_enabled; print_header; secure_context; source_model; source_table; use_avro_logical_types }
 
 let make_job_configuration_load ?allow_jagged_rows ?allow_quoted_newlines ?autodetect ?clustering ?column_name_character_map ?connection_properties ?copy_files_only ?create_disposition ?create_session ?date_format ?datetime_format ?decimal_target_types ?destination_encryption_configuration ?destination_table ?destination_table_properties ?encoding ?field_delimiter ?file_set_spec_type ?hive_partitioning_options ?ignore_unknown_values ?json_extension ?max_bad_records ?null_marker ?null_markers ?parquet_options ?preserve_ascii_control_characters ?projection_fields ?quote ?range_partitioning ?reference_file_schema_uri ?schema ?schema_inline ?schema_inline_format ?schema_update_options ?skip_leading_rows ?source_column_match ?source_format ?source_uris ?time_format ?time_partitioning ?time_zone ?timestamp_format ?timestamp_target_precision ?use_avro_logical_types ?write_disposition () : job_configuration_load = { allow_jagged_rows; allow_quoted_newlines; autodetect; clustering; column_name_character_map; connection_properties; copy_files_only; create_disposition; create_session; date_format; datetime_format; decimal_target_types; destination_encryption_configuration; destination_table; destination_table_properties; encoding; field_delimiter; file_set_spec_type; hive_partitioning_options; ignore_unknown_values; json_extension; max_bad_records; null_marker; null_markers; parquet_options; preserve_ascii_control_characters; projection_fields; quote; range_partitioning; reference_file_schema_uri; schema; schema_inline; schema_inline_format; schema_update_options; skip_leading_rows; source_column_match; source_format; source_uris; time_format; time_partitioning; time_zone; timestamp_format; timestamp_target_precision; use_avro_logical_types; write_disposition }
 

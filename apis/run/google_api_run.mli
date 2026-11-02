@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of run v2 (revision 20261016). Do not edit. *)
+(* Generated from the Discovery document of run v2 (revision 20261023). Do not edit. *)
 
-(** Cloud Run Admin API (run v2, revision 20261016).
+(** Cloud Run Admin API (run v2, revision 20261023).
 
     Deploy and manage user provided container images that scale automatically based on incoming requests. The Cloud Run Admin API v1 follows the Knative Serving API specification, while v2 is aligned with Google Cloud AIP-based API standards, as described in https://google.aip.dev/.
 
@@ -214,7 +214,7 @@ and google_cloud_run_v2_export_status_response = {
   operation_state : [ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] option;  (** Output only. The state of the overall export operation. *)
 }
 
-(** Represents a volume backed by a Cloud Storage bucket using Cloud Storage FUSE. *)
+(** Represents a volume backed by a Cloud Storage bucket (mounted via Cloud Storage FUSE or as a block device disk). *)
 and google_cloud_run_v2_gcs_volume_source = {
   bucket : string option;  (** Cloud Storage Bucket name. *)
   mount_options : string list option;  (** A list of additional flags to pass to the gcsfuse CLI. Options should be specified without the leading '--'. *)
@@ -286,6 +286,7 @@ and google_cloud_run_v2_instance = {
   observed_generation : string option;  (** Output only. The generation of this Instance currently serving traffic. See comments in `reconciling` for additional information on reconciliation process in Cloud Run. Please note that unlike v1, this is an `int64` value. As with most Google APIs, its JSON representation will be a `string` instead of an `integer`. *)
   reconciling : bool option;  (** Output only. Returns `true` if the Instance is currently being acted upon by the system to bring it into the desired state. When a new Instance is created, or an existing one is updated, Cloud Run will asynchronously perform all necessary steps to bring the Instance to the desired serving state. This process is called reconciliation. While reconciliation is in process, `observed_generation` will have a transient value that might mismatch the intended state. Once reconciliation is over (and this field is `false`), there are two possible outcomes: reconciliation succeeded and the serving state matches the Instance, or there was an error, and reconciliation failed. This state can be found in `terminal_condition.state`. *)
   restart_policy : [ `Restart_policy_unspecified | `Always | `On_failure | `Never | `Unrecognized of string ] option;  (** Optional. Restart policy for the Instance. *)
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;  (** Optional. Configuration for sandboxes. *)
   satisfies_pzs : bool option;  (** Output only. Reserved for future use. *)
   service_account : string option;
   ssh_enabled : bool option;  (** Optional. Enables SSH access to the Instance. *)
@@ -468,6 +469,7 @@ and google_cloud_run_v2_revision = {
   node_selector : google_cloud_run_v2_node_selector option;  (** The node selector for the revision. *)
   observed_generation : string option;  (** Output only. The generation of this Revision currently serving traffic. See comments in `reconciling` for additional information on reconciliation process in Cloud Run. *)
   reconciling : bool option;  (** Output only. Indicates whether the resource's reconciliation is still in progress. See comments in `Service.reconciling` for additional information on reconciliation process in Cloud Run. *)
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;  (** Output only. Configuration for sandboxes. *)
   satisfies_pzs : bool option;  (** Output only. Reserved for future use. *)
   scaling : google_cloud_run_v2_revision_scaling option;  (** Scaling settings for this revision. *)
   scaling_status : google_cloud_run_v2_revision_scaling_status option;  (** Output only. The current effective scaling settings for the revision. *)
@@ -513,6 +515,7 @@ and google_cloud_run_v2_revision_template = {
   max_instance_request_concurrency : int option;  (** Optional. Sets the maximum number of requests that each serving instance can receive. If not specified or 0, concurrency defaults to 80 when requested `CPU >= 1` and defaults to 1 when requested `CPU < 1`. *)
   node_selector : google_cloud_run_v2_node_selector option;  (** Optional. The node selector for the revision template. *)
   revision : string option;  (** Optional. The unique name for the revision. If this field is omitted, it will be automatically generated based on the Service name. *)
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;  (** Optional. Configuration for sandboxes. *)
   scaling : google_cloud_run_v2_revision_scaling option;  (** Optional. Scaling settings for this Revision. *)
   service_account : string option;  (** Optional. Email address of the IAM service account associated with the revision of the service. The service account represents the identity of the running revision, and determines what permissions the revision has. If not provided, the revision will use the project's default service account. *)
   service_mesh : google_cloud_run_v2_service_mesh option;  (** Optional. Enables service mesh connectivity. *)
@@ -528,6 +531,22 @@ and google_cloud_run_v2_run_job_request = {
   etag : string option;  (** A system-generated fingerprint for this version of the resource. May be used to detect modification conflict during updates. *)
   overrides : google_cloud_run_v2_overrides option;  (** Overrides specification for a given execution of a job. If provided, overrides will be applied to update the execution or task spec. *)
   validate_only : bool option;  (** Indicates that the request should be validated without actually deleting any resources. *)
+}
+
+(** Configuration for sandboxes. *)
+and google_cloud_run_v2_sandbox_configuration = {
+  templates : google_cloud_run_v2_sandbox_template list option;  (** Required. Sandbox templates that can be launched through the `sandbox` CLI. *)
+}
+
+(** Template for a single sandbox. *)
+and google_cloud_run_v2_sandbox_template = {
+  args : string list option;  (** Optional. Arguments to the entrypoint. The docker image's CMD is used if this is not provided. *)
+  command : string list option;  (** Optional. Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided. *)
+  env : google_cloud_run_v2_env_var list option;  (** Optional. List of environment variables to set in the sandbox. *)
+  image : string option;  (** Required. Name of the container image in Dockerhub or Artifact Registry. If the host is not provided, Dockerhub is assumed. *)
+  name : string option;  (** Required. Name of the sandbox specified as a DNS_LABEL (RFC 1123). *)
+  volume_mounts : google_cloud_run_v2_volume_mount list option;  (** Optional. Volume to mount into the container's filesystem. *)
+  working_dir : string option;  (** Optional. Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. *)
 }
 
 (** SecretEnvVarSource represents a source for the value of an EnvVar. *)
@@ -683,6 +702,7 @@ and google_cloud_run_v2_task = {
   observed_generation : string option;  (** Output only. The generation of this Task. See comments in `Job.reconciling` for additional information on reconciliation process in Cloud Run. *)
   reconciling : bool option;  (** Output only. Indicates whether the resource's reconciliation is still in progress. See comments in `Job.reconciling` for additional information on reconciliation process in Cloud Run. *)
   retried : int option;  (** Output only. The number of times this Task was retried. Tasks are retried when they fail up to the maxRetries limit. *)
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;  (** Configuration for sandboxes. *)
   satisfies_pzs : bool option;  (** Output only. Reserved for future use. *)
   scheduled_time : string option;  (** Output only. Represents time when the task was scheduled to run by the system. It is not guaranteed to be set in happens-before order across separate operations. *)
   service_account : string option;  (** Email address of the IAM service account associated with the Task of a Job. The service account represents the identity of the running task, and determines what permissions the task has. If not provided, the task will use the project's default service account. *)
@@ -710,6 +730,7 @@ and google_cloud_run_v2_task_template = {
   gpu_zonal_redundancy_disabled : bool option;  (** Optional. True if GPU zonal redundancy is disabled on this task template. *)
   max_retries : int option;  (** Number of retries allowed per Task, before marking this Task failed. Defaults to 3. *)
   node_selector : google_cloud_run_v2_node_selector option;  (** Optional. The node selector for the task template. *)
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;  (** Optional. Configuration for sandboxes. *)
   service_account : string option;  (** Optional. Email address of the IAM service account associated with the Task of a Job. The service account represents the identity of the running task, and determines what permissions the task has. If not provided, the task will use the project's default service account. *)
   timeout : string option;  (** Optional. Max allowed time duration the Task may be active before the system will actively try to mark it failed and kill associated containers. This applies per attempt of a task, meaning each retry can run for the full timeout. Defaults to 600 seconds. *)
   volumes : google_cloud_run_v2_volume list option;  (** Optional. A list of Volumes to make available to containers. *)
@@ -822,6 +843,7 @@ and google_cloud_run_v2_worker_pool_revision_template = {
   labels : (string * string) list option;  (** Optional. Unstructured key value map that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component, environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels. Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 WorkerPoolRevisionTemplate. *)
   node_selector : google_cloud_run_v2_node_selector option;  (** Optional. The node selector for the revision template. *)
   revision : string option;  (** Optional. The unique name for the revision. If this field is omitted, it will be automatically generated based on the WorkerPool name. *)
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;  (** Optional. Configuration for sandboxes. *)
   service_account : string option;  (** Optional. Email address of the IAM service account associated with the revision of the service. The service account represents the identity of the running revision, and determines what permissions the revision has. If not provided, the revision will use the project's default service account. *)
   service_mesh : google_cloud_run_v2_service_mesh option;  (** Optional. Enables service mesh connectivity. *)
   volumes : google_cloud_run_v2_volume list option;  (** Optional. A list of Volumes to make available to containers. *)
@@ -1733,6 +1755,7 @@ val make_google_cloud_run_v2_instance :
   ?observed_generation:string ->
   ?reconciling:bool ->
   ?restart_policy:[ `Restart_policy_unspecified | `Always | `On_failure | `Never | `Unrecognized of string ] ->
+  ?sandboxes:google_cloud_run_v2_sandbox_configuration ->
   ?satisfies_pzs:bool ->
   ?service_account:string ->
   ?ssh_enabled:bool ->
@@ -1972,6 +1995,7 @@ val make_google_cloud_run_v2_revision :
   ?node_selector:google_cloud_run_v2_node_selector ->
   ?observed_generation:string ->
   ?reconciling:bool ->
+  ?sandboxes:google_cloud_run_v2_sandbox_configuration ->
   ?satisfies_pzs:bool ->
   ?scaling:google_cloud_run_v2_revision_scaling ->
   ?scaling_status:google_cloud_run_v2_revision_scaling_status ->
@@ -2026,6 +2050,7 @@ val make_google_cloud_run_v2_revision_template :
   ?max_instance_request_concurrency:int ->
   ?node_selector:google_cloud_run_v2_node_selector ->
   ?revision:string ->
+  ?sandboxes:google_cloud_run_v2_sandbox_configuration ->
   ?scaling:google_cloud_run_v2_revision_scaling ->
   ?service_account:string ->
   ?service_mesh:google_cloud_run_v2_service_mesh ->
@@ -2046,6 +2071,28 @@ val make_google_cloud_run_v2_run_job_request :
   ?validate_only:bool ->
   unit ->
   google_cloud_run_v2_run_job_request
+
+val google_cloud_run_v2_sandbox_configuration_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_sandbox_configuration
+val yojson_of_google_cloud_run_v2_sandbox_configuration : google_cloud_run_v2_sandbox_configuration -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_sandbox_configuration :
+  ?templates:google_cloud_run_v2_sandbox_template list ->
+  unit ->
+  google_cloud_run_v2_sandbox_configuration
+
+val google_cloud_run_v2_sandbox_template_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_sandbox_template
+val yojson_of_google_cloud_run_v2_sandbox_template : google_cloud_run_v2_sandbox_template -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_sandbox_template :
+  ?args:string list ->
+  ?command:string list ->
+  ?env:google_cloud_run_v2_env_var list ->
+  ?image:string ->
+  ?name:string ->
+  ?volume_mounts:google_cloud_run_v2_volume_mount list ->
+  ?working_dir:string ->
+  unit ->
+  google_cloud_run_v2_sandbox_template
 
 val google_cloud_run_v2_secret_key_selector_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_secret_key_selector
 val yojson_of_google_cloud_run_v2_secret_key_selector : google_cloud_run_v2_secret_key_selector -> Yojson.Safe.t
@@ -2241,6 +2288,7 @@ val make_google_cloud_run_v2_task :
   ?observed_generation:string ->
   ?reconciling:bool ->
   ?retried:int ->
+  ?sandboxes:google_cloud_run_v2_sandbox_configuration ->
   ?satisfies_pzs:bool ->
   ?scheduled_time:string ->
   ?service_account:string ->
@@ -2274,6 +2322,7 @@ val make_google_cloud_run_v2_task_template :
   ?gpu_zonal_redundancy_disabled:bool ->
   ?max_retries:int ->
   ?node_selector:google_cloud_run_v2_node_selector ->
+  ?sandboxes:google_cloud_run_v2_sandbox_configuration ->
   ?service_account:string ->
   ?timeout:string ->
   ?volumes:google_cloud_run_v2_volume list ->
@@ -2416,6 +2465,7 @@ val make_google_cloud_run_v2_worker_pool_revision_template :
   ?labels:(string * string) list ->
   ?node_selector:google_cloud_run_v2_node_selector ->
   ?revision:string ->
+  ?sandboxes:google_cloud_run_v2_sandbox_configuration ->
   ?service_account:string ->
   ?service_mesh:google_cloud_run_v2_service_mesh ->
   ?volumes:google_cloud_run_v2_volume list ->
