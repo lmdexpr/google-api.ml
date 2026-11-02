@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of pubsub v1 (revision 20261006). Do not edit. *)
+(* Generated from the Discovery document of pubsub v1 (revision 20261020). Do not edit. *)
 
-(** Cloud Pub/Sub API (pubsub v1, revision 20261006).
+(** Cloud Pub/Sub API (pubsub v1, revision 20261020).
 
     Provides reliable, many-to-many, asynchronous messaging between applications.
 
@@ -94,7 +94,7 @@ and binding = {
 (** Ingestion settings for Cloud Storage. *)
 and cloud_storage = {
   avro_format : avro_format option;  (** Optional. Data from Cloud Storage will be interpreted in Avro format. *)
-  bucket : string option;  (** Optional. Cloud Storage bucket. The bucket name must be without any prefix like 'gs://'. See the \[bucket naming requirements\] (https://cloud.google.com/storage/docs/buckets#naming). *)
+  bucket : string option;  (** Optional. Cloud Storage bucket. The bucket name must be without any prefix like 'gs://'. See the \[bucket naming requirements\]( https://cloud.google.com/storage/docs/buckets#naming). *)
   match_glob : string option;  (** Optional. Glob pattern used to match objects that will be ingested. If unset, all objects will be ingested. See the \[supported patterns\](https://cloud.google.com/storage/docs/json_api/v1/objects/list#list-objects-and-prefixes-using-glob). *)
   minimum_object_create_time : string option;  (** Optional. Only objects with a larger or equal creation timestamp will be ingested. *)
   pubsub_avro_format : pub_sub_avro_format option;  (** Optional. It will be assumed data from Cloud Storage was written via \[Cloud Storage subscriptions\](https://cloud.google.com/pubsub/docs/cloudstorage). *)
@@ -319,7 +319,7 @@ and pubsub_client_telemetry = {
   publish_operation : publish_operation option;  (** Optional. Telemetry about a `Publish` operation. *)
 }
 
-(** A message that is published by publishers and consumed by subscribers. The message must contain either a non-empty data field or at least one attribute. Note that client libraries represent this object differently depending on the language. See the corresponding \[client library documentation\](https://cloud.google.com/pubsub/docs/reference/libraries) for more information. See \[quotas and limits\] (https://cloud.google.com/pubsub/quotas) for more information about message limits. *)
+(** A message that is published by publishers and consumed by subscribers. The message must contain either a non-empty data field or at least one attribute. Note that client libraries represent this object differently depending on the language. See the corresponding \[client library documentation\](https://cloud.google.com/pubsub/docs/reference/libraries) for more information. See \[quotas and limits\]( https://cloud.google.com/pubsub/quotas) for more information about message limits. *)
 and pubsub_message = {
   attributes : (string * string) list option;  (** Optional. Attributes for this message. If this field is empty, the message must contain non-empty data. This can be used to filter messages on the subscription. *)
   data : string option;  (** Optional. The message data field. If this field is empty, the message must contain at least one attribute. *)
@@ -328,7 +328,7 @@ and pubsub_message = {
   publish_time : string option;  (** The time at which the message was published, populated by the server when it receives the `Publish` call. It must not be populated by the publisher in a `Publish` call. *)
 }
 
-(** The payload to the push endpoint is in the form of the JSON representation of a PubsubMessage (https://cloud.google.com/pubsub/docs/reference/rpc/google.pubsub.v1#pubsubmessage). *)
+(** The payload to the push endpoint is in the form of the JSON representation of a \[PubsubMessage\](https://cloud.google.com/pubsub/docs/reference/rpc/google.pubsub.v1#pubsubmessage). *)
 and pubsub_wrapper = Yojson.Safe.t
 
 (** Request for the `Pull` method. *)
@@ -347,7 +347,7 @@ and push_config = {
   attributes : (string * string) list option;  (** Optional. Endpoint configuration attributes that can be used to control different aspects of the message delivery. The only currently supported attribute is `x-goog-version`, which you can use to change the format of the pushed message. This attribute indicates the version of the data expected by the endpoint. This controls the shape of the pushed message (i.e., its fields and metadata). If not present during the `CreateSubscription` call, it will default to the version of the Pub/Sub API used to make such call. If not present in a `ModifyPushConfig` call, its value will not be changed. `GetSubscription` calls will always return a valid version, even if the subscription was created without this attribute. The only supported values for the `x-goog-version` attribute are: * `v1beta1`: uses the push format defined in the v1beta1 Pub/Sub API. * `v1` or `v1beta2`: uses the push format defined in the v1 Pub/Sub API. For example: `attributes \{ 'x-goog-version': 'v1' \}` *)
   no_wrapper : no_wrapper option;  (** Optional. When set, the payload to the push endpoint is not wrapped. *)
   oidc_token : oidc_token option;  (** Optional. If specified, Pub/Sub will generate and attach an OIDC JWT token as an `Authorization` header in the HTTP request for every pushed message. *)
-  pubsub_wrapper : pubsub_wrapper option;  (** Optional. When set, the payload to the push endpoint is in the form of the JSON representation of a PubsubMessage (https://cloud.google.com/pubsub/docs/reference/rpc/google.pubsub.v1#pubsubmessage). *)
+  pubsub_wrapper : pubsub_wrapper option;  (** Optional. When set, the payload to the push endpoint is in the form of the JSON representation of a \[PubsubMessage\]( https://cloud.google.com/pubsub/docs/reference/rpc/google.pubsub.v1#pubsubmessage). *)
   push_endpoint : string option;  (** Optional. A URL locating the endpoint to which messages should be pushed. For example, a Webhook endpoint might use `https://example.com/push`. *)
 }
 
@@ -407,7 +407,7 @@ and set_iam_policy_request = {
 (** A snapshot resource. Snapshots are used in \[Seek\](https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. *)
 and snapshot = {
   expire_time : string option;  (** Optional. The snapshot is guaranteed to exist up until this time. A newly-created snapshot expires no later than 7 days from the time of its creation. Its exact lifetime is determined at creation by the existing backlog in the source subscription. Specifically, the lifetime of the snapshot is `7 days - (age of oldest unacked message in the subscription)`. For example, consider a subscription whose oldest unacked message is 3 days old. If a snapshot is created from this subscription, the snapshot -- which will always capture this 3-day-old backlog as long as the snapshot exists -- will expire in 4 days. The service will refuse to create a snapshot that would expire in less than 1 hour after creation. *)
-  labels : (string * string) list option;  (** Optional. See \[Creating and managing labels\] (https://cloud.google.com/pubsub/docs/labels). *)
+  labels : (string * string) list option;  (** Optional. See \[Creating and managing labels\]( https://cloud.google.com/pubsub/docs/labels). *)
   name : string option;  (** Optional. The name of the snapshot. *)
   topic : string option;  (** Optional. The name of the topic from which this snapshot is retaining messages. *)
 }
@@ -430,7 +430,7 @@ and subscription = {
   message_transforms : message_transform list option;  (** Optional. Transforms to be applied to messages before they are delivered to subscribers. Transforms are applied in the order specified. *)
   name : string option;  (** Required. Identifier. The name of the subscription. It must have the format `'projects/\{project\}/subscriptions/\{subscription\}'`. `\{subscription\}` must start with a letter, and contain only letters (`\[A-Za-z\]`), numbers (`\[0-9\]`), dashes (`-`), underscores (`_`), periods (`.`), tildes (`~`), plus (`+`) or percent signs (`%`). It must be between 3 and 255 characters in length, and it must not start with `'goog'`. *)
   push_config : push_config option;  (** Optional. If push delivery is used with this subscription, this field is used to configure it. *)
-  retain_acked_messages : bool option;  (** Optional. Indicates whether to retain acknowledged messages. If true, then messages are not expunged from the subscription's backlog, even if they are acknowledged, until they fall out of the `message_retention_duration` window. This must be true if you would like to \[`Seek` to a timestamp\] (https://cloud.google.com/pubsub/docs/replay-overview#seek_to_a_time) in the past to replay previously-acknowledged messages. *)
+  retain_acked_messages : bool option;  (** Optional. Indicates whether to retain acknowledged messages. If true, then messages are not expunged from the subscription's backlog, even if they are acknowledged, until they fall out of the `message_retention_duration` window. This must be true if you would like to \[`Seek` to a timestamp\]( https://cloud.google.com/pubsub/docs/replay-overview#seek_to_a_time) in the past to replay previously-acknowledged messages. *)
   retry_policy : retry_policy option;  (** Optional. A policy that specifies how Pub/Sub retries message delivery for this subscription. If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. RetryPolicy will be triggered on NACKs or acknowledgment deadline exceeded events for a given message. *)
   state : [ `State_unspecified | `Active | `Resource_error | `Unrecognized of string ] option;  (** Output only. An output-only field indicating whether or not the subscription can receive messages. *)
   tags : (string * string) list option;  (** Optional. Input only. Immutable. Tag keys/values directly bound to this resource. For example: '123/environment': 'production', '123/costCenter': 'marketing' See https://\{$universe.dns_names.final_documentation_domain\}/pubsub/docs/tags for more information on using tags with Pub/Sub resources. *)
@@ -460,7 +460,7 @@ and text_format = {
 and topic = {
   ingestion_data_source_settings : ingestion_data_source_settings option;  (** Optional. Settings for ingestion from a data source into this topic. *)
   kms_key_name : string option;  (** Optional. The resource name of the Cloud KMS CryptoKey to be used to protect access to messages published on this topic. The expected format is `projects/*/locations/*/keyRings/*/cryptoKeys/*`. *)
-  labels : (string * string) list option;  (** Optional. See \[Creating and managing labels\] (https://cloud.google.com/pubsub/docs/labels). *)
+  labels : (string * string) list option;  (** Optional. See \[Creating and managing labels\]( https://cloud.google.com/pubsub/docs/labels). *)
   message_retention_duration : string option;  (** Optional. Indicates the minimum duration to retain a message after it is published to the topic. If this field is set, messages published to the topic in the last `message_retention_duration` are always available to subscribers. For instance, it allows any attached subscription to \[seek to a timestamp\](https://cloud.google.com/pubsub/docs/replay-overview#seek_to_a_time) that is up to `message_retention_duration` in the past. If this field is not set, message retention is controlled by settings on individual subscriptions. Cannot be more than 31 days or less than 10 minutes. *)
   message_storage_policy : message_storage_policy option;  (** Optional. Policy constraining the set of Google Cloud Platform regions where messages published to the topic may be stored. If not present, then no constraints are in effect. *)
   message_transforms : message_transform list option;  (** Optional. Transforms to be applied to messages published to the topic. Transforms are applied in the order specified. *)
@@ -1393,7 +1393,7 @@ module Projects : sig
       body:create_snapshot_request ->
       unit ->
       snapshot Google_api.Call.t
-    (** Creates a snapshot from the requested subscription. Snapshots are used in \[Seek\](https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. If the snapshot already exists, returns `ALREADY_EXISTS`. If the requested subscription doesn't exist, returns `NOT_FOUND`. If the backlog in the subscription is too old -- and the resulting snapshot would expire in less than 1 hour -- then `FAILED_PRECONDITION` is returned. See also the `Snapshot.expire_time` field. If the name is not provided in the request, the server will assign a random name for this snapshot on the same project as the subscription, conforming to the \[resource name format\] (https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names). The generated name is populated in the returned Snapshot object. Note that for REST API requests, you must specify a name in the request.
+    (** Creates a snapshot from the requested subscription. Snapshots are used in \[Seek\](https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. If the snapshot already exists, returns `ALREADY_EXISTS`. If the requested subscription doesn't exist, returns `NOT_FOUND`. If the backlog in the subscription is too old -- and the resulting snapshot would expire in less than 1 hour -- then `FAILED_PRECONDITION` is returned. See also the `Snapshot.expire_time` field. If the name is not provided in the request, the server will assign a random name for this snapshot on the same project as the subscription, conforming to the \[resource name format\]( https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names). The generated name is populated in the returned Snapshot object. Note that for REST API requests, you must specify a name in the request.
 
         [PUT v1/{+name}]
 
@@ -1403,7 +1403,7 @@ module Projects : sig
       snapshot:string ->
       unit ->
       empty Google_api.Call.t
-    (** Removes an existing snapshot. Snapshots are used in \[Seek\] (https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. When the snapshot is deleted, all messages retained in the snapshot are immediately dropped. After a snapshot is deleted, a new one may be created with the same name, but the new one has no association with the old snapshot or its subscription, unless the same subscription is specified.
+    (** Removes an existing snapshot. Snapshots are used in \[Seek\]( https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. When the snapshot is deleted, all messages retained in the snapshot are immediately dropped. After a snapshot is deleted, a new one may be created with the same name, but the new one has no association with the old snapshot or its subscription, unless the same subscription is specified.
 
         [DELETE v1/{+snapshot}]
 
@@ -1496,7 +1496,7 @@ module Projects : sig
       body:subscription ->
       unit ->
       subscription Google_api.Call.t
-    (** Creates a subscription to a given topic. See the \[resource name rules\] (https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names). If the subscription already exists, returns `ALREADY_EXISTS`. If the corresponding topic doesn't exist, returns `NOT_FOUND`. If the name is not provided in the request, the server will assign a random name for this subscription on the same project as the topic, conforming to the \[resource name format\] (https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names). The generated name is populated in the returned Subscription object. Note that for REST API requests, you must specify a name in the request.
+    (** Creates a subscription to a given topic. See the \[resource name rules\]( https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names). If the subscription already exists, returns `ALREADY_EXISTS`. If the corresponding topic doesn't exist, returns `NOT_FOUND`. If the name is not provided in the request, the server will assign a random name for this subscription on the same project as the topic, conforming to the \[resource name format\]( https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names). The generated name is populated in the returned Subscription object. Note that for REST API requests, you must specify a name in the request.
 
         [PUT v1/{+name}]
 
@@ -1607,7 +1607,7 @@ module Projects : sig
       body:seek_request ->
       unit ->
       seek_response Google_api.Call.t
-    (** Seeks an existing subscription to a point in time or to a given snapshot, whichever is provided in the request. Snapshots are used in \[Seek\] (https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. Note that both the subscription and the snapshot must be on the same topic.
+    (** Seeks an existing subscription to a point in time or to a given snapshot, whichever is provided in the request. Snapshots are used in \[Seek\]( https://cloud.google.com/pubsub/docs/replay-overview) operations, which allow you to manage message acknowledgments in bulk. That is, you can set the acknowledgment state of messages in an existing subscription to the state captured by a snapshot. Note that both the subscription and the snapshot must be on the same topic.
 
         [POST v1/{+subscription}:seek]
 
@@ -1642,7 +1642,7 @@ module Projects : sig
       body:topic ->
       unit ->
       topic Google_api.Call.t
-    (** Creates the given topic with the given name. See the \[resource name rules\] (https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names).
+    (** Creates the given topic with the given name. See the \[resource name rules\]( https://cloud.google.com/pubsub/docs/pubsub-basics#resource_names).
 
         [PUT v1/{+name}]
 

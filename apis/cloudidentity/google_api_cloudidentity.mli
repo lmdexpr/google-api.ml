@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of cloudidentity v1 (revision 20261020). Do not edit. *)
+(* Generated from the Discovery document of cloudidentity v1 (revision 20261028). Do not edit. *)
 
-(** Cloud Identity API (cloudidentity v1, revision 20261020).
+(** Cloud Identity API (cloudidentity v1, revision 20261028).
 
     API for provisioning and managing identity resources.
 

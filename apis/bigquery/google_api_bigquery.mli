@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of bigquery v2 (revision 20260922). Do not edit. *)
+(* Generated from the Discovery document of bigquery v2 (revision 20261009). Do not edit. *)
 
-(** BigQuery API (bigquery v2, revision 20260922).
+(** BigQuery API (bigquery v2, revision 20261009).
 
     A data platform for customers to create, manage, share and query data.
 
@@ -936,6 +936,7 @@ and job_configuration_extract = {
   model_extract_options : model_extract_options option;  (** Optional. Model extract options only applicable when extracting models. *)
   native_geography_export_enabled : bool option;  (** Optional. Applicable to formats: PARQUET. If enabled, BigQuery to Parquet export will write the native Parquet Geography type instead of the default GeoParquet type. *)
   print_header : bool option;  (** Optional. Whether to print out a header row in the results. Default is true. Not applicable when extracting models. *)
+  secure_context : secure_context option;  (** Optional. A set of key-value pairs representing the secure context. This can be used to pass sensitive or context-specific information. They can be retrieved via the SECURE_CONTEXT() function and used to modify the run-time behavior of an extract job on tables with row access policies. *)
   source_model : model_reference option;  (** A reference to the model being exported. *)
   source_table : table_reference option;  (** A reference to the table being exported. *)
   use_avro_logical_types : bool option;  (** Whether to use logical types when extracting to AVRO format. Not applicable when extracting models. *)
@@ -3543,6 +3544,7 @@ val make_job_configuration_extract :
   ?model_extract_options:model_extract_options ->
   ?native_geography_export_enabled:bool ->
   ?print_header:bool ->
+  ?secure_context:secure_context ->
   ?source_model:model_reference ->
   ?source_table:table_reference ->
   ?use_avro_logical_types:bool ->

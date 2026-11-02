@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of tasks v1 (revision 20261020). Do not edit. *)
+(* Generated from the Discovery document of tasks v1 (revision 20261027). Do not edit. *)
 
-(** Google Tasks API (tasks v1, revision 20261020).
+(** Google Tasks API (tasks v1, revision 20261027).
 
     The Google Tasks API lets you manage your tasks and task lists.
 
@@ -53,7 +53,7 @@ and task = {
 
 and task_list = {
   etag : string option;  (** ETag of the resource. *)
-  id : string option;  (** Task list identifier. *)
+  id : string option;  (** Task list identifier. In requests, the authenticated user's default task list can also be referred to as '\@default'. *)
   kind : string option;  (** Output only. Type of the resource. This is always 'tasks#taskList'. *)
   self_link : string option;  (** Output only. URL pointing to this task list. Used to retrieve, update, or delete this task list. *)
   title : string option;  (** Title of the task list. Maximum length allowed: 1024 characters. *)
@@ -185,11 +185,11 @@ module Tasklists : sig
     tasklist:string ->
     unit ->
     unit Google_api.Call.t
-  (** Deletes the authenticated user's specified task list. If the list contains assigned tasks, both the assigned tasks and the original tasks in the assignment surface (Docs, Chat Spaces) are deleted.
+  (** Deletes the authenticated user's specified task list. If the list contains assigned tasks, both the assigned tasks and the original tasks in the assignment surface (Docs, Chat Spaces) are deleted. The user's default task list cannot be deleted.
 
       [DELETE tasks/v1/users/@me/lists/{tasklist}]
 
-      - [tasklist]: Task list identifier. *)
+      - [tasklist]: Task list identifier. The default task list cannot be deleted. *)
 
   val get :
     tasklist:string ->
@@ -199,7 +199,7 @@ module Tasklists : sig
 
       [GET tasks/v1/users/@me/lists/{tasklist}]
 
-      - [tasklist]: Task list identifier. *)
+      - [tasklist]: Task list identifier. Use '\@default' to get the authenticated user's default task list. *)
 
   val insert :
     body:task_list ->
@@ -218,8 +218,8 @@ module Tasklists : sig
 
       [GET tasks/v1/users/@me/lists]
 
-      - [max_results]: Maximum number of task lists returned on one page. Optional. The default is 1000 (max allowed: 1000).
-      - [page_token]: Token specifying the result page to return. Optional. *)
+      - [max_results]: Optional. Maximum number of task lists returned on one page. The default is 1000 (max allowed: 1000).
+      - [page_token]: Optional. Token specifying the result page to return. *)
 
   val patch :
     tasklist:string ->
@@ -282,6 +282,7 @@ module Tasks : sig
   val insert :
     tasklist:string ->
     body:task ->
+    ?hidden:bool ->
     ?parent:string ->
     ?previous:string ->
     unit ->
@@ -291,8 +292,9 @@ module Tasks : sig
       [POST tasks/v1/lists/{tasklist}/tasks]
 
       - [tasklist]: Task list identifier.
-      - [parent]: Parent task identifier. If the task is created at the top level, this parameter is omitted. An assigned task cannot be a parent task, nor can it have a parent. Setting the parent to an assigned task results in failure of the request. Optional.
-      - [previous]: Previous sibling task identifier. If the task is created at the first position among its siblings, this parameter is omitted. Optional. *)
+      - [hidden]: Optional. Flag indicating whether the task is created as 'hidden', as if it had been completed and then cleared from the task list (see the 'clear' method). Hidden tasks are not returned by default when retrieving all tasks for a task list (see showHidden). Only completed tasks can be created as hidden, and they can not be nested or positioned, so parent and previous must be empty.
+      - [parent]: Optional. Parent task identifier. If the task is created at the top level, this parameter is omitted. An assigned task cannot be a parent task, nor can it have a parent. Setting the parent to an assigned task results in failure of the request.
+      - [previous]: Optional. Previous sibling task identifier. If the task is created at the first position among its siblings, this parameter is omitted. *)
 
   val list :
     tasklist:string ->
@@ -314,17 +316,17 @@ module Tasks : sig
       [GET tasks/v1/lists/{tasklist}/tasks]
 
       - [tasklist]: Task list identifier.
-      - [completed_max]: Upper bound for a task's completion date (as a RFC 3339 timestamp) to filter by. Optional. The default is not to filter by completion date.
-      - [completed_min]: Lower bound for a task's completion date (as a RFC 3339 timestamp) to filter by. Optional. The default is not to filter by completion date.
-      - [due_max]: Upper bound for a task's due date (as a RFC 3339 timestamp) to filter by. Optional. The default is not to filter by due date.
-      - [due_min]: Lower bound for a task's due date (as a RFC 3339 timestamp) to filter by. Optional. The default is not to filter by due date.
-      - [max_results]: Maximum number of tasks returned on one page. Optional. The default is 20 (max allowed: 100).
-      - [page_token]: Token specifying the result page to return. Optional.
-      - [show_assigned]: Optional. Flag indicating whether tasks assigned to the current user are returned in the result. Optional. The default is False.
-      - [show_completed]: Flag indicating whether completed tasks are returned in the result. Note that showHidden must also be True to show tasks completed in first party clients, such as the web UI and Google's mobile apps. Optional. The default is True.
-      - [show_deleted]: Flag indicating whether deleted tasks are returned in the result. Optional. The default is False.
-      - [show_hidden]: Flag indicating whether hidden tasks are returned in the result. Optional. The default is False.
-      - [updated_min]: Lower bound for a task's last modification time (as a RFC 3339 timestamp) to filter by. Optional. The default is not to filter by last modification time. *)
+      - [completed_max]: Optional. Upper bound for a task's completion date (as a RFC 3339 timestamp) to filter by. The default is not to filter by completion date.
+      - [completed_min]: Optional. Lower bound for a task's completion date (as a RFC 3339 timestamp) to filter by. The default is not to filter by completion date.
+      - [due_max]: Optional. Upper bound for a task's due date (as a RFC 3339 timestamp) to filter by. The default is not to filter by due date.
+      - [due_min]: Optional. Lower bound for a task's due date (as a RFC 3339 timestamp) to filter by. The default is not to filter by due date.
+      - [max_results]: Optional. Maximum number of tasks returned on one page. The default is 20 (max allowed: 100).
+      - [page_token]: Optional. Token specifying the result page to return.
+      - [show_assigned]: Optional. Flag indicating whether tasks assigned to the current user are returned in the result. The default is False.
+      - [show_completed]: Optional. Flag indicating whether completed tasks are returned in the result. Note that showHidden must also be True to show tasks completed in first party clients, such as the web UI and Google's mobile apps. The default is True.
+      - [show_deleted]: Optional. Flag indicating whether deleted tasks are returned in the result. The default is False.
+      - [show_hidden]: Optional. Flag indicating whether hidden tasks are returned in the result. The default is False.
+      - [updated_min]: Optional. Lower bound for a task's last modification time (as a RFC 3339 timestamp) to filter by. The default is not to filter by last modification time. *)
 
   val move :
     tasklist:string ->

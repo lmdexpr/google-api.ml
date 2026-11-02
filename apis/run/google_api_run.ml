@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of run v2 (revision 20261016). Do not edit. *)
+(* Generated from the Discovery document of run v2 (revision 20261023). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -252,6 +252,7 @@ and google_cloud_run_v2_instance = {
   observed_generation : string option;
   reconciling : bool option;
   restart_policy : [ `Restart_policy_unspecified | `Always | `On_failure | `Never | `Unrecognized of string ] option;
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;
   satisfies_pzs : bool option;
   service_account : string option;
   ssh_enabled : bool option;
@@ -415,6 +416,7 @@ and google_cloud_run_v2_revision = {
   node_selector : google_cloud_run_v2_node_selector option;
   observed_generation : string option;
   reconciling : bool option;
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;
   satisfies_pzs : bool option;
   scaling : google_cloud_run_v2_revision_scaling option;
   scaling_status : google_cloud_run_v2_revision_scaling_status option;
@@ -457,6 +459,7 @@ and google_cloud_run_v2_revision_template = {
   max_instance_request_concurrency : int option;
   node_selector : google_cloud_run_v2_node_selector option;
   revision : string option;
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;
   scaling : google_cloud_run_v2_revision_scaling option;
   service_account : string option;
   service_mesh : google_cloud_run_v2_service_mesh option;
@@ -471,6 +474,20 @@ and google_cloud_run_v2_run_job_request = {
   etag : string option;
   overrides : google_cloud_run_v2_overrides option;
   validate_only : bool option;
+}
+
+and google_cloud_run_v2_sandbox_configuration = {
+  templates : google_cloud_run_v2_sandbox_template list option;
+}
+
+and google_cloud_run_v2_sandbox_template = {
+  args : string list option;
+  command : string list option;
+  env : google_cloud_run_v2_env_var list option;
+  image : string option;
+  name : string option;
+  volume_mounts : google_cloud_run_v2_volume_mount list option;
+  working_dir : string option;
 }
 
 and google_cloud_run_v2_secret_key_selector = {
@@ -612,6 +629,7 @@ and google_cloud_run_v2_task = {
   observed_generation : string option;
   reconciling : bool option;
   retried : int option;
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;
   satisfies_pzs : bool option;
   scheduled_time : string option;
   service_account : string option;
@@ -637,6 +655,7 @@ and google_cloud_run_v2_task_template = {
   gpu_zonal_redundancy_disabled : bool option;
   max_retries : int option;
   node_selector : google_cloud_run_v2_node_selector option;
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;
   service_account : string option;
   timeout : string option;
   volumes : google_cloud_run_v2_volume list option;
@@ -739,6 +758,7 @@ and google_cloud_run_v2_worker_pool_revision_template = {
   labels : (string * string) list option;
   node_selector : google_cloud_run_v2_node_selector option;
   revision : string option;
+  sandboxes : google_cloud_run_v2_sandbox_configuration option;
   service_account : string option;
   service_mesh : google_cloud_run_v2_service_mesh option;
   volumes : google_cloud_run_v2_volume list option;
@@ -1829,6 +1849,7 @@ and google_cloud_run_v2_instance_of_yojson json : google_cloud_run_v2_instance =
     observed_generation = member "observedGeneration" json |> to_option to_string;
     reconciling = member "reconciling" json |> to_option to_bool;
     restart_policy = member "restartPolicy" json |> to_option (fun json -> match to_string json with "RESTART_POLICY_UNSPECIFIED" -> `Restart_policy_unspecified | "ALWAYS" -> `Always | "ON_FAILURE" -> `On_failure | "NEVER" -> `Never | value -> `Unrecognized value);
+    sandboxes = member "sandboxes" json |> to_option google_cloud_run_v2_sandbox_configuration_of_yojson;
     satisfies_pzs = member "satisfiesPzs" json |> to_option to_bool;
     service_account = member "serviceAccount" json |> to_option to_string;
     ssh_enabled = member "sshEnabled" json |> to_option to_bool;
@@ -1875,6 +1896,7 @@ and yojson_of_google_cloud_run_v2_instance (value : google_cloud_run_v2_instance
          Option.map (fun field -> ("observedGeneration", (fun value -> `String value) field)) value.observed_generation;
          Option.map (fun field -> ("reconciling", (fun value -> `Bool value) field)) value.reconciling;
          Option.map (fun field -> ("restartPolicy", (fun value -> `String ((function `Restart_policy_unspecified -> "RESTART_POLICY_UNSPECIFIED" | `Always -> "ALWAYS" | `On_failure -> "ON_FAILURE" | `Never -> "NEVER" | `Unrecognized value -> value) value)) field)) value.restart_policy;
+         Option.map (fun field -> ("sandboxes", yojson_of_google_cloud_run_v2_sandbox_configuration field)) value.sandboxes;
          Option.map (fun field -> ("satisfiesPzs", (fun value -> `Bool value) field)) value.satisfies_pzs;
          Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
          Option.map (fun field -> ("sshEnabled", (fun value -> `Bool value) field)) value.ssh_enabled;
@@ -2256,6 +2278,7 @@ and google_cloud_run_v2_revision_of_yojson json : google_cloud_run_v2_revision =
     node_selector = member "nodeSelector" json |> to_option google_cloud_run_v2_node_selector_of_yojson;
     observed_generation = member "observedGeneration" json |> to_option to_string;
     reconciling = member "reconciling" json |> to_option to_bool;
+    sandboxes = member "sandboxes" json |> to_option google_cloud_run_v2_sandbox_configuration_of_yojson;
     satisfies_pzs = member "satisfiesPzs" json |> to_option to_bool;
     scaling = member "scaling" json |> to_option google_cloud_run_v2_revision_scaling_of_yojson;
     scaling_status = member "scalingStatus" json |> to_option google_cloud_run_v2_revision_scaling_status_of_yojson;
@@ -2300,6 +2323,7 @@ and yojson_of_google_cloud_run_v2_revision (value : google_cloud_run_v2_revision
          Option.map (fun field -> ("nodeSelector", yojson_of_google_cloud_run_v2_node_selector field)) value.node_selector;
          Option.map (fun field -> ("observedGeneration", (fun value -> `String value) field)) value.observed_generation;
          Option.map (fun field -> ("reconciling", (fun value -> `Bool value) field)) value.reconciling;
+         Option.map (fun field -> ("sandboxes", yojson_of_google_cloud_run_v2_sandbox_configuration field)) value.sandboxes;
          Option.map (fun field -> ("satisfiesPzs", (fun value -> `Bool value) field)) value.satisfies_pzs;
          Option.map (fun field -> ("scaling", yojson_of_google_cloud_run_v2_revision_scaling field)) value.scaling;
          Option.map (fun field -> ("scalingStatus", yojson_of_google_cloud_run_v2_revision_scaling_status field)) value.scaling_status;
@@ -2365,6 +2389,7 @@ and google_cloud_run_v2_revision_template_of_yojson json : google_cloud_run_v2_r
     max_instance_request_concurrency = member "maxInstanceRequestConcurrency" json |> to_option to_int;
     node_selector = member "nodeSelector" json |> to_option google_cloud_run_v2_node_selector_of_yojson;
     revision = member "revision" json |> to_option to_string;
+    sandboxes = member "sandboxes" json |> to_option google_cloud_run_v2_sandbox_configuration_of_yojson;
     scaling = member "scaling" json |> to_option google_cloud_run_v2_revision_scaling_of_yojson;
     service_account = member "serviceAccount" json |> to_option to_string;
     service_mesh = member "serviceMesh" json |> to_option google_cloud_run_v2_service_mesh_of_yojson;
@@ -2394,6 +2419,7 @@ and yojson_of_google_cloud_run_v2_revision_template (value : google_cloud_run_v2
          Option.map (fun field -> ("maxInstanceRequestConcurrency", (fun value -> `Int value) field)) value.max_instance_request_concurrency;
          Option.map (fun field -> ("nodeSelector", yojson_of_google_cloud_run_v2_node_selector field)) value.node_selector;
          Option.map (fun field -> ("revision", (fun value -> `String value) field)) value.revision;
+         Option.map (fun field -> ("sandboxes", yojson_of_google_cloud_run_v2_sandbox_configuration field)) value.sandboxes;
          Option.map (fun field -> ("scaling", yojson_of_google_cloud_run_v2_revision_scaling field)) value.scaling;
          Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
          Option.map (fun field -> ("serviceMesh", yojson_of_google_cloud_run_v2_service_mesh field)) value.service_mesh;
@@ -2419,6 +2445,44 @@ and yojson_of_google_cloud_run_v2_run_job_request (value : google_cloud_run_v2_r
          Option.map (fun field -> ("etag", (fun value -> `String value) field)) value.etag;
          Option.map (fun field -> ("overrides", yojson_of_google_cloud_run_v2_overrides field)) value.overrides;
          Option.map (fun field -> ("validateOnly", (fun value -> `Bool value) field)) value.validate_only;
+       ])
+
+and google_cloud_run_v2_sandbox_configuration_of_yojson json : google_cloud_run_v2_sandbox_configuration =
+  let open Yojson.Safe.Util in
+  {
+    templates = member "templates" json |> to_option (convert_each google_cloud_run_v2_sandbox_template_of_yojson);
+  }
+
+and yojson_of_google_cloud_run_v2_sandbox_configuration (value : google_cloud_run_v2_sandbox_configuration) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("templates", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_sandbox_template items)) field)) value.templates;
+       ])
+
+and google_cloud_run_v2_sandbox_template_of_yojson json : google_cloud_run_v2_sandbox_template =
+  let open Yojson.Safe.Util in
+  {
+    args = member "args" json |> to_option (convert_each to_string);
+    command = member "command" json |> to_option (convert_each to_string);
+    env = member "env" json |> to_option (convert_each google_cloud_run_v2_env_var_of_yojson);
+    image = member "image" json |> to_option to_string;
+    name = member "name" json |> to_option to_string;
+    volume_mounts = member "volumeMounts" json |> to_option (convert_each google_cloud_run_v2_volume_mount_of_yojson);
+    working_dir = member "workingDir" json |> to_option to_string;
+  }
+
+and yojson_of_google_cloud_run_v2_sandbox_template (value : google_cloud_run_v2_sandbox_template) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("args", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.args;
+         Option.map (fun field -> ("command", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.command;
+         Option.map (fun field -> ("env", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_env_var items)) field)) value.env;
+         Option.map (fun field -> ("image", (fun value -> `String value) field)) value.image;
+         Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
+         Option.map (fun field -> ("volumeMounts", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_volume_mount items)) field)) value.volume_mounts;
+         Option.map (fun field -> ("workingDir", (fun value -> `String value) field)) value.working_dir;
        ])
 
 and google_cloud_run_v2_secret_key_selector_of_yojson json : google_cloud_run_v2_secret_key_selector =
@@ -2741,6 +2805,7 @@ and google_cloud_run_v2_task_of_yojson json : google_cloud_run_v2_task =
     observed_generation = member "observedGeneration" json |> to_option to_string;
     reconciling = member "reconciling" json |> to_option to_bool;
     retried = member "retried" json |> to_option to_int;
+    sandboxes = member "sandboxes" json |> to_option google_cloud_run_v2_sandbox_configuration_of_yojson;
     satisfies_pzs = member "satisfiesPzs" json |> to_option to_bool;
     scheduled_time = member "scheduledTime" json |> to_option to_string;
     service_account = member "serviceAccount" json |> to_option to_string;
@@ -2781,6 +2846,7 @@ and yojson_of_google_cloud_run_v2_task (value : google_cloud_run_v2_task) : Yojs
          Option.map (fun field -> ("observedGeneration", (fun value -> `String value) field)) value.observed_generation;
          Option.map (fun field -> ("reconciling", (fun value -> `Bool value) field)) value.reconciling;
          Option.map (fun field -> ("retried", (fun value -> `Int value) field)) value.retried;
+         Option.map (fun field -> ("sandboxes", yojson_of_google_cloud_run_v2_sandbox_configuration field)) value.sandboxes;
          Option.map (fun field -> ("satisfiesPzs", (fun value -> `Bool value) field)) value.satisfies_pzs;
          Option.map (fun field -> ("scheduledTime", (fun value -> `String value) field)) value.scheduled_time;
          Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
@@ -2819,6 +2885,7 @@ and google_cloud_run_v2_task_template_of_yojson json : google_cloud_run_v2_task_
     gpu_zonal_redundancy_disabled = member "gpuZonalRedundancyDisabled" json |> to_option to_bool;
     max_retries = member "maxRetries" json |> to_option to_int;
     node_selector = member "nodeSelector" json |> to_option google_cloud_run_v2_node_selector_of_yojson;
+    sandboxes = member "sandboxes" json |> to_option google_cloud_run_v2_sandbox_configuration_of_yojson;
     service_account = member "serviceAccount" json |> to_option to_string;
     timeout = member "timeout" json |> to_option to_string;
     volumes = member "volumes" json |> to_option (convert_each google_cloud_run_v2_volume_of_yojson);
@@ -2836,6 +2903,7 @@ and yojson_of_google_cloud_run_v2_task_template (value : google_cloud_run_v2_tas
          Option.map (fun field -> ("gpuZonalRedundancyDisabled", (fun value -> `Bool value) field)) value.gpu_zonal_redundancy_disabled;
          Option.map (fun field -> ("maxRetries", (fun value -> `Int value) field)) value.max_retries;
          Option.map (fun field -> ("nodeSelector", yojson_of_google_cloud_run_v2_node_selector field)) value.node_selector;
+         Option.map (fun field -> ("sandboxes", yojson_of_google_cloud_run_v2_sandbox_configuration field)) value.sandboxes;
          Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
          Option.map (fun field -> ("timeout", (fun value -> `String value) field)) value.timeout;
          Option.map (fun field -> ("volumes", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_volume items)) field)) value.volumes;
@@ -3068,6 +3136,7 @@ and google_cloud_run_v2_worker_pool_revision_template_of_yojson json : google_cl
     labels = member "labels" json |> to_option (fun json -> List.map (fun (key, value) -> (key, to_string value)) (to_assoc json));
     node_selector = member "nodeSelector" json |> to_option google_cloud_run_v2_node_selector_of_yojson;
     revision = member "revision" json |> to_option to_string;
+    sandboxes = member "sandboxes" json |> to_option google_cloud_run_v2_sandbox_configuration_of_yojson;
     service_account = member "serviceAccount" json |> to_option to_string;
     service_mesh = member "serviceMesh" json |> to_option google_cloud_run_v2_service_mesh_of_yojson;
     volumes = member "volumes" json |> to_option (convert_each google_cloud_run_v2_volume_of_yojson);
@@ -3089,6 +3158,7 @@ and yojson_of_google_cloud_run_v2_worker_pool_revision_template (value : google_
          Option.map (fun field -> ("labels", (fun members -> `Assoc (List.map (fun (key, value) -> (key, (fun value -> `String value) value)) members)) field)) value.labels;
          Option.map (fun field -> ("nodeSelector", yojson_of_google_cloud_run_v2_node_selector field)) value.node_selector;
          Option.map (fun field -> ("revision", (fun value -> `String value) field)) value.revision;
+         Option.map (fun field -> ("sandboxes", yojson_of_google_cloud_run_v2_sandbox_configuration field)) value.sandboxes;
          Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
          Option.map (fun field -> ("serviceMesh", yojson_of_google_cloud_run_v2_service_mesh field)) value.service_mesh;
          Option.map (fun field -> ("volumes", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_volume items)) field)) value.volumes;
@@ -4424,7 +4494,7 @@ let make_google_cloud_run_v2_image_export_status ?export_job_state ?exported_ima
 
 let make_google_cloud_run_v2_inlined_source ?sources () : google_cloud_run_v2_inlined_source = { sources }
 
-let make_google_cloud_run_v2_instance ?annotations ?binary_authorization ?client ?client_version ?conditions ?container_statuses ?containers ?create_time ?creator ?default_uri_disabled ?delete_time ?description ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?etag ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?iap_enabled ?ingress ?invoker_iam_disabled ?labels ?last_modifier ?launch_stage ?log_uri ?name ?node_selector ?observed_generation ?reconciling ?restart_policy ?satisfies_pzs ?service_account ?ssh_enabled ?terminal_condition ?uid ?update_time ?urls ?volumes ?vpc_access () : google_cloud_run_v2_instance = { annotations; binary_authorization; client; client_version; conditions; container_statuses; containers; create_time; creator; default_uri_disabled; delete_time; description; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; etag; expire_time; generation; gpu_zonal_redundancy_disabled; iap_enabled; ingress; invoker_iam_disabled; labels; last_modifier; launch_stage; log_uri; name; node_selector; observed_generation; reconciling; restart_policy; satisfies_pzs; service_account; ssh_enabled; terminal_condition; uid; update_time; urls; volumes; vpc_access }
+let make_google_cloud_run_v2_instance ?annotations ?binary_authorization ?client ?client_version ?conditions ?container_statuses ?containers ?create_time ?creator ?default_uri_disabled ?delete_time ?description ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?etag ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?iap_enabled ?ingress ?invoker_iam_disabled ?labels ?last_modifier ?launch_stage ?log_uri ?name ?node_selector ?observed_generation ?reconciling ?restart_policy ?sandboxes ?satisfies_pzs ?service_account ?ssh_enabled ?terminal_condition ?uid ?update_time ?urls ?volumes ?vpc_access () : google_cloud_run_v2_instance = { annotations; binary_authorization; client; client_version; conditions; container_statuses; containers; create_time; creator; default_uri_disabled; delete_time; description; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; etag; expire_time; generation; gpu_zonal_redundancy_disabled; iap_enabled; ingress; invoker_iam_disabled; labels; last_modifier; launch_stage; log_uri; name; node_selector; observed_generation; reconciling; restart_policy; sandboxes; satisfies_pzs; service_account; ssh_enabled; terminal_condition; uid; update_time; urls; volumes; vpc_access }
 
 let make_google_cloud_run_v2_instance_split ?percent ?revision ?type_ () : google_cloud_run_v2_instance_split = { percent; revision; type_ }
 
@@ -4462,15 +4532,19 @@ let make_google_cloud_run_v2_probe ?failure_threshold ?grpc ?http_get ?initial_d
 
 let make_google_cloud_run_v2_resource_requirements ?cpu_idle ?limits ?startup_cpu_boost () : google_cloud_run_v2_resource_requirements = { cpu_idle; limits; startup_cpu_boost }
 
-let make_google_cloud_run_v2_revision ?ambient_networking ?annotations ?client ?client_version ?conditions ?containers ?create_time ?creator ?delete_time ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?etag ?execution_environment ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?labels ?launch_stage ?log_uri ?max_instance_request_concurrency ?name ?node_selector ?observed_generation ?reconciling ?satisfies_pzs ?scaling ?scaling_status ?service ?service_account ?service_mesh ?session_affinity ?timeout ?uid ?update_time ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_revision = { ambient_networking; annotations; client; client_version; conditions; containers; create_time; creator; delete_time; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; etag; execution_environment; expire_time; generation; gpu_zonal_redundancy_disabled; labels; launch_stage; log_uri; max_instance_request_concurrency; name; node_selector; observed_generation; reconciling; satisfies_pzs; scaling; scaling_status; service; service_account; service_mesh; session_affinity; timeout; uid; update_time; volumes; vpc_access; workload_identity_config }
+let make_google_cloud_run_v2_revision ?ambient_networking ?annotations ?client ?client_version ?conditions ?containers ?create_time ?creator ?delete_time ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?etag ?execution_environment ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?labels ?launch_stage ?log_uri ?max_instance_request_concurrency ?name ?node_selector ?observed_generation ?reconciling ?sandboxes ?satisfies_pzs ?scaling ?scaling_status ?service ?service_account ?service_mesh ?session_affinity ?timeout ?uid ?update_time ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_revision = { ambient_networking; annotations; client; client_version; conditions; containers; create_time; creator; delete_time; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; etag; execution_environment; expire_time; generation; gpu_zonal_redundancy_disabled; labels; launch_stage; log_uri; max_instance_request_concurrency; name; node_selector; observed_generation; reconciling; sandboxes; satisfies_pzs; scaling; scaling_status; service; service_account; service_mesh; session_affinity; timeout; uid; update_time; volumes; vpc_access; workload_identity_config }
 
 let make_google_cloud_run_v2_revision_scaling ?concurrency_utilization ?cpu_utilization ?max_instance_count ?min_instance_count () : google_cloud_run_v2_revision_scaling = { concurrency_utilization; cpu_utilization; max_instance_count; min_instance_count }
 
 let make_google_cloud_run_v2_revision_scaling_status ?desired_min_instance_count () : google_cloud_run_v2_revision_scaling_status = { desired_min_instance_count }
 
-let make_google_cloud_run_v2_revision_template ?ambient_networking ?annotations ?client ?client_version ?containers ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?execution_environment ?gpu_zonal_redundancy_disabled ?health_check_disabled ?labels ?max_instance_request_concurrency ?node_selector ?revision ?scaling ?service_account ?service_mesh ?session_affinity ?timeout ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_revision_template = { ambient_networking; annotations; client; client_version; containers; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; execution_environment; gpu_zonal_redundancy_disabled; health_check_disabled; labels; max_instance_request_concurrency; node_selector; revision; scaling; service_account; service_mesh; session_affinity; timeout; volumes; vpc_access; workload_identity_config }
+let make_google_cloud_run_v2_revision_template ?ambient_networking ?annotations ?client ?client_version ?containers ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?execution_environment ?gpu_zonal_redundancy_disabled ?health_check_disabled ?labels ?max_instance_request_concurrency ?node_selector ?revision ?sandboxes ?scaling ?service_account ?service_mesh ?session_affinity ?timeout ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_revision_template = { ambient_networking; annotations; client; client_version; containers; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; execution_environment; gpu_zonal_redundancy_disabled; health_check_disabled; labels; max_instance_request_concurrency; node_selector; revision; sandboxes; scaling; service_account; service_mesh; session_affinity; timeout; volumes; vpc_access; workload_identity_config }
 
 let make_google_cloud_run_v2_run_job_request ?etag ?overrides ?validate_only () : google_cloud_run_v2_run_job_request = { etag; overrides; validate_only }
+
+let make_google_cloud_run_v2_sandbox_configuration ?templates () : google_cloud_run_v2_sandbox_configuration = { templates }
+
+let make_google_cloud_run_v2_sandbox_template ?args ?command ?env ?image ?name ?volume_mounts ?working_dir () : google_cloud_run_v2_sandbox_template = { args; command; env; image; name; volume_mounts; working_dir }
 
 let make_google_cloud_run_v2_secret_key_selector ?secret ?version () : google_cloud_run_v2_secret_key_selector = { secret; version }
 
@@ -4498,11 +4572,11 @@ let make_google_cloud_run_v2_submit_build_response ?base_image_uri ?base_image_w
 
 let make_google_cloud_run_v2_tcp_socket_action ?port () : google_cloud_run_v2_tcp_socket_action = { port }
 
-let make_google_cloud_run_v2_task ?annotations ?completion_time ?conditions ?containers ?create_time ?delete_time ?encryption_key ?etag ?execution ?execution_environment ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?index ?job ?labels ?last_attempt_result ?log_uri ?max_retries ?name ?node_selector ?observed_generation ?reconciling ?retried ?satisfies_pzs ?scheduled_time ?service_account ?start_time ?timeout ?uid ?update_time ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_task = { annotations; completion_time; conditions; containers; create_time; delete_time; encryption_key; etag; execution; execution_environment; expire_time; generation; gpu_zonal_redundancy_disabled; index; job; labels; last_attempt_result; log_uri; max_retries; name; node_selector; observed_generation; reconciling; retried; satisfies_pzs; scheduled_time; service_account; start_time; timeout; uid; update_time; volumes; vpc_access; workload_identity_config }
+let make_google_cloud_run_v2_task ?annotations ?completion_time ?conditions ?containers ?create_time ?delete_time ?encryption_key ?etag ?execution ?execution_environment ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?index ?job ?labels ?last_attempt_result ?log_uri ?max_retries ?name ?node_selector ?observed_generation ?reconciling ?retried ?sandboxes ?satisfies_pzs ?scheduled_time ?service_account ?start_time ?timeout ?uid ?update_time ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_task = { annotations; completion_time; conditions; containers; create_time; delete_time; encryption_key; etag; execution; execution_environment; expire_time; generation; gpu_zonal_redundancy_disabled; index; job; labels; last_attempt_result; log_uri; max_retries; name; node_selector; observed_generation; reconciling; retried; sandboxes; satisfies_pzs; scheduled_time; service_account; start_time; timeout; uid; update_time; volumes; vpc_access; workload_identity_config }
 
 let make_google_cloud_run_v2_task_attempt_result ?exit_code ?status ?term_signal () : google_cloud_run_v2_task_attempt_result = { exit_code; status; term_signal }
 
-let make_google_cloud_run_v2_task_template ?containers ?encryption_key ?execution_environment ?gpu_zonal_redundancy_disabled ?max_retries ?node_selector ?service_account ?timeout ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_task_template = { containers; encryption_key; execution_environment; gpu_zonal_redundancy_disabled; max_retries; node_selector; service_account; timeout; volumes; vpc_access; workload_identity_config }
+let make_google_cloud_run_v2_task_template ?containers ?encryption_key ?execution_environment ?gpu_zonal_redundancy_disabled ?max_retries ?node_selector ?sandboxes ?service_account ?timeout ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_task_template = { containers; encryption_key; execution_environment; gpu_zonal_redundancy_disabled; max_retries; node_selector; sandboxes; service_account; timeout; volumes; vpc_access; workload_identity_config }
 
 let make_google_cloud_run_v2_traffic_target ?percent ?revision ?tag ?type_ () : google_cloud_run_v2_traffic_target = { percent; revision; tag; type_ }
 
@@ -4522,7 +4596,7 @@ let make_google_cloud_run_v2_vpc_access ?connector ?egress ?network_interfaces (
 
 let make_google_cloud_run_v2_worker_pool ?annotations ?binary_authorization ?client ?client_version ?conditions ?create_time ?creator ?custom_audiences ?delete_time ?description ?etag ?expire_time ?generation ?instance_split_statuses ?instance_splits ?labels ?last_modifier ?latest_created_revision ?latest_ready_revision ?launch_stage ?name ?observed_generation ?reconciling ?satisfies_pzs ?scaling ?template ?terminal_condition ?threat_detection_enabled ?uid ?update_time () : google_cloud_run_v2_worker_pool = { annotations; binary_authorization; client; client_version; conditions; create_time; creator; custom_audiences; delete_time; description; etag; expire_time; generation; instance_split_statuses; instance_splits; labels; last_modifier; latest_created_revision; latest_ready_revision; launch_stage; name; observed_generation; reconciling; satisfies_pzs; scaling; template; terminal_condition; threat_detection_enabled; uid; update_time }
 
-let make_google_cloud_run_v2_worker_pool_revision_template ?annotations ?client ?client_version ?containers ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?gpu_zonal_redundancy_disabled ?labels ?node_selector ?revision ?service_account ?service_mesh ?volumes ?vpc_access () : google_cloud_run_v2_worker_pool_revision_template = { annotations; client; client_version; containers; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; gpu_zonal_redundancy_disabled; labels; node_selector; revision; service_account; service_mesh; volumes; vpc_access }
+let make_google_cloud_run_v2_worker_pool_revision_template ?annotations ?client ?client_version ?containers ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?gpu_zonal_redundancy_disabled ?labels ?node_selector ?revision ?sandboxes ?service_account ?service_mesh ?volumes ?vpc_access () : google_cloud_run_v2_worker_pool_revision_template = { annotations; client; client_version; containers; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; gpu_zonal_redundancy_disabled; labels; node_selector; revision; sandboxes; service_account; service_mesh; volumes; vpc_access }
 
 let make_google_cloud_run_v2_worker_pool_scaling ?manual_instance_count () : google_cloud_run_v2_worker_pool_scaling = { manual_instance_count }
 

@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of cloudidentity v1 (revision 20261020). Do not edit. *)
+(* Generated from the Discovery document of cloudidentity v1 (revision 20261028). Do not edit. *)
 
 [@@@alert "-internal"]
 
