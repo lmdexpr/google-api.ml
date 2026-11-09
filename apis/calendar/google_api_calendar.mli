@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of calendar v3 (revision 20261028). Do not edit. *)
+(* Generated from the Discovery document of calendar v3 (revision 20261102). Do not edit. *)
 
-(** Calendar API (calendar v3, revision 20261028).
+(** Calendar API (calendar v3, revision 20261102).
 
     Manipulates events and other calendar data.
 
@@ -38,6 +38,24 @@ and acl_rule = {
   scope : acl_rule_scope option;  (** The extent to which calendar access is granted by this ACL rule. *)
 }
 
+and calendar_working_hours_available_times_item = {
+  day_of_week : string option;  (** Day of the week. Required. Possible values are:
+    - 'monday'
+    - 'tuesday'
+    - 'wednesday'
+    - 'thursday'
+    - 'friday'
+    - 'saturday'
+    - 'sunday' *)
+  period_end : int option;  (** Period end, in minutes from the start of the day, exclusive. Required. *)
+  period_start : int option;  (** Period start, in minutes from the start of the day, inclusive. Required. *)
+}
+
+and calendar_working_hours = {
+  available_times : calendar_working_hours_available_times_item list option;  (** Working hours. Each availability period represents the user's working hours block during one day. *)
+  working_hours_enabled : bool option;  (** Whether the working hours are enabled for this calendar. Cannot be set to true when availableTimes is empty. *)
+}
+
 and calendar = {
   auto_accept_invitations : bool option;  (** Whether this calendar automatically accepts invitations. Only valid for resource calendars. *)
   conference_properties : conference_properties option;  (** Conferencing properties for this calendar, for example what types of conferences are allowed. *)
@@ -50,6 +68,7 @@ and calendar = {
   location : string option;  (** Geographic location of the calendar as free-form text. Optional. *)
   summary : string option;  (** Title of the calendar. *)
   time_zone : string option;  (** The time zone of the calendar. (Formatted as an IANA Time Zone Database name, e.g. 'Europe/Zurich'.) Optional. *)
+  working_hours : calendar_working_hours option;  (** Represents the information about the user's working hours. Only available for primary calendars of Google Workspace users. To update the working hours, the entire working hours object must be passed. If not specified (or passed as null or an empty object), the existing working hours remain unchanged. To disable working hours or clear the schedule, set workingHoursEnabled to false (and omit availableTimes or pass an empty list). *)
 }
 
 and calendar_list = {
@@ -584,6 +603,25 @@ val make_acl_rule :
   unit ->
   acl_rule
 
+val calendar_working_hours_available_times_item_of_yojson : Yojson.Safe.t -> calendar_working_hours_available_times_item
+val yojson_of_calendar_working_hours_available_times_item : calendar_working_hours_available_times_item -> Yojson.Safe.t
+
+val make_calendar_working_hours_available_times_item :
+  ?day_of_week:string ->
+  ?period_end:int ->
+  ?period_start:int ->
+  unit ->
+  calendar_working_hours_available_times_item
+
+val calendar_working_hours_of_yojson : Yojson.Safe.t -> calendar_working_hours
+val yojson_of_calendar_working_hours : calendar_working_hours -> Yojson.Safe.t
+
+val make_calendar_working_hours :
+  ?available_times:calendar_working_hours_available_times_item list ->
+  ?working_hours_enabled:bool ->
+  unit ->
+  calendar_working_hours
+
 val calendar_of_yojson : Yojson.Safe.t -> calendar
 val yojson_of_calendar : calendar -> Yojson.Safe.t
 
@@ -599,6 +637,7 @@ val make_calendar :
   ?location:string ->
   ?summary:string ->
   ?time_zone:string ->
+  ?working_hours:calendar_working_hours ->
   unit ->
   calendar
 

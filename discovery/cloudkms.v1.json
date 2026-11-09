@@ -3089,7 +3089,7 @@
       }
     }
   },
-  "revision": "20261022",
+  "revision": "20261106",
   "rootUrl": "https://cloudkms.googleapis.com/",
   "schemas": {
     "AddQuorumMember": {

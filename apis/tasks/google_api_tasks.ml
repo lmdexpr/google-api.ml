@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of tasks v1 (revision 20261027). Do not edit. *)
+(* Generated from the Discovery document of tasks v1 (revision 20261106). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -323,14 +323,13 @@ module Tasks = struct
         (Uri.of_string (base_url ^ "tasks/v1/lists/" ^ Uri.pct_encode ~component:`Path tasklist ^ "/tasks/" ^ Uri.pct_encode ~component:`Path task))
       (Google_api_runtime.Call.json task_of_yojson)
 
-  let insert ~tasklist ~body ?hidden ?parent ?previous () =
+  let insert ~tasklist ~body ?parent ?previous () =
     Google_api_runtime.Call.make ~meth:`POST
       ~uri:
         (Uri.add_query_params
            (Uri.of_string (base_url ^ "tasks/v1/lists/" ^ Uri.pct_encode ~component:`Path tasklist ^ "/tasks"))
            (List.concat
               [
-                Google_api_runtime.Query.optional "hidden" string_of_bool hidden;
                 Google_api_runtime.Query.optional "parent" Fun.id parent;
                 Google_api_runtime.Query.optional "previous" Fun.id previous;
               ]))

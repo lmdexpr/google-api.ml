@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of run v2 (revision 20261023). Do not edit. *)
+(* Generated from the Discovery document of run v2 (revision 20261106). Do not edit. *)
 
-(** Cloud Run Admin API (run v2, revision 20261023).
+(** Cloud Run Admin API (run v2, revision 20261106).
 
     Deploy and manage user provided container images that scale automatically based on incoming requests. The Cloud Run Admin API v1 follows the Knative Serving API specification, while v2 is aligned with Google Cloud AIP-based API standards, as described in https://google.aip.dev/.
 
@@ -29,13 +29,40 @@ and google_cloud_run_v2_build_config = {
   name : string option;  (** Output only. The Cloud Build name of the latest successful deployment of the function. *)
   service_account : string option;  (** Optional. Service account to be used for building the container. The format of this field is `projects/\{projectId\}/serviceAccounts/\{serviceAccountEmail\}`. *)
   source_location : string option;  (** The Cloud Storage bucket URI where the function source code is located. *)
-  worker_pool : string option;  (** Optional. Name of the Cloud Build Custom Worker Pool that should be used to build the Cloud Run function. The format of this field is `projects/\{project\}/locations/\{region\}/workerPools/\{workerPool\}` where `\{project\}` and `\{region\}` are the project id and region respectively where the worker pool is defined and `\{workerPool\}` is the short name of the worker pool. *)
+  worker_pool : string option;  (** Optional. Name of the Cloud Build private pool that should be used to build the Cloud Run function. The format of this field is `projects/\{project\}/locations/\{region\}/workerPools/\{workerPool\}` where `\{project\}` and `\{region\}` are the project id and region respectively where the worker pool is defined and `\{workerPool\}` is the short name of the worker pool. *)
 }
+
+(** Build configuration for a container. *)
+and google_cloud_run_v2_build_configuration = {
+  buildpacks_build : google_cloud_run_v2_build_configuration_buildpacks_build option;  (** Optional. Builds the source using Buildpacks. *)
+  docker_build : google_cloud_run_v2_build_configuration_docker_build option;  (** Optional. Builds the source using Docker. *)
+  image_repository_uri : string option;  (** Required. Artifact Registry URI to store the built image. *)
+  service_account : string option;  (** Optional. The service account to use for the build. Its resource name in the format `projects/\{project\}/serviceAccounts/\{email\}`. *)
+  tags : string list option;  (** Optional. Tags to add to the build. *)
+  worker_configuration : google_cloud_run_v2_worker_configuration option;  (** Optional. Configuration for the worker. *)
+}
+
+(** Buildpacks build configuration. *)
+and google_cloud_run_v2_build_configuration_buildpacks_build = {
+  build_base_image_uri : string option;  (** Optional. Specify base image other than the default. *)
+  cache_image_uri : string option;  (** Optional. Cache image URI. *)
+  environment_variables : (string * string) list option;  (** Optional. Environment variables for the build. *)
+}
+
+(** Docker build configuration. *)
+and google_cloud_run_v2_build_configuration_docker_build = Yojson.Safe.t
 
 (** Build information of the image. *)
 and google_cloud_run_v2_build_info = {
   function_target : string option;  (** Output only. Entry point of the function when the image is a Cloud Run function. *)
   source_location : string option;  (** Output only. Source code location of the image. *)
+}
+
+(** BuildStatus holds the status of a build. *)
+and google_cloud_run_v2_build_status = {
+  cloud_build_log_url : string option;  (** The log URL for the Cloud Build execution. *)
+  message : string option;  (** The message details of the build. *)
+  status : string option;  (** The status of the build. *)
 }
 
 (** Build the source using Buildpacks. *)
@@ -53,6 +80,12 @@ and google_cloud_run_v2_buildpacks_build = {
 and google_cloud_run_v2_cancel_execution_request = {
   etag : string option;  (** A system-generated fingerprint for this version of the resource. This may be used to detect modification conflict during updates. *)
   validate_only : bool option;  (** Indicates that the request should be validated without actually cancelling any resources. *)
+}
+
+(** Configuration for Cloud Build worker. *)
+and google_cloud_run_v2_cloud_build_worker_configuration = {
+  machine_type : string option;  (** Optional. The machine type for the Cloud Build worker. *)
+  worker_pool : string option;  (** Optional. The name of the Cloud Build worker pool. *)
 }
 
 (** Represents a set of Cloud SQL instances. Each one will be available under /cloudsql/\[instance\]. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. *)
@@ -84,6 +117,7 @@ and google_cloud_run_v2_condition = {
 and google_cloud_run_v2_container = {
   args : string list option;  (** Arguments to the entrypoint. The docker image's CMD is used if this is not provided. *)
   base_image_uri : string option;  (** Base image for this container. Only supported for services. If set, it indicates that the service is enrolled into automatic base image update. *)
+  build_config : google_cloud_run_v2_build_configuration option;  (** Optional. The build configuration for the container image. *)
   build_info : google_cloud_run_v2_build_info option;  (** Output only. The build info of the container image. *)
   command : string list option;  (** Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided. *)
   depends_on : string list option;  (** Names of the containers that must start before this container. *)
@@ -117,6 +151,7 @@ and google_cloud_run_v2_container_port = {
 
 (** ContainerStatus holds the information of container name and image digest value. *)
 and google_cloud_run_v2_container_status = {
+  build_status : google_cloud_run_v2_build_status option;  (** Output only. The build status of the container image. *)
   image_digest : string option;  (** ImageDigest holds the resolved digest for the image specified and resolved during the creation of Revision. This field holds the digest value regardless of whether a tag or digest was originally specified in the Container object. *)
   name : string option;  (** The name of the container, if specified. *)
 }
@@ -212,6 +247,11 @@ and google_cloud_run_v2_export_status_response = {
   image_export_statuses : google_cloud_run_v2_image_export_status list option;  (** The status of each image export job. *)
   operation_id : string option;  (** The operation id. *)
   operation_state : [ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] option;  (** Output only. The state of the overall export operation. *)
+}
+
+(** Represents a volume backed by a Filestore instance. *)
+and google_cloud_run_v2_filestore_volume_source = {
+  volume : string option;  (** Required. The resource name of the Filestore volume. Format: `projects/\{project\}/locations/\{location\}/volumePools/\{volume_pool\}/volumes/\{volume\}` *)
 }
 
 (** Represents a volume backed by a Cloud Storage bucket (mounted via Cloud Storage FUSE or as a block device disk). *)
@@ -449,6 +489,7 @@ and google_cloud_run_v2_revision = {
   client : string option;  (** Output only. Arbitrary identifier for the API client. *)
   client_version : string option;  (** Output only. Arbitrary version identifier for the API client. *)
   conditions : google_cloud_run_v2_condition list option;  (** Output only. The Condition of this Revision, containing its readiness status, and detailed error information in case it did not reach a serving state. *)
+  container_statuses : google_cloud_run_v2_container_status list option;  (** Output only. Status information for each of the specified containers. The status includes the resolved digest for specified images. *)
   containers : google_cloud_run_v2_container list option;  (** Holds the list which define the units of execution for this Revision. *)
   create_time : string option;  (** Output only. The creation time. *)
   creator : string option;  (** Output only. Email address of the authenticated creator. *)
@@ -661,7 +702,7 @@ and google_cloud_run_v2_submit_build_request = {
   service_account : string option;  (** Optional. The service account to use for the build. If not set, the default Cloud Build service account for the project will be used. *)
   storage_source : google_cloud_run_v2_storage_source option;  (** Required. Source for the build. *)
   tags : string list option;  (** Optional. Additional tags to annotate the build. *)
-  worker_pool : string option;  (** Optional. Name of the Cloud Build Custom Worker Pool that should be used to build the function. The format of this field is `projects/\{project\}/locations/\{region\}/workerPools/\{workerPool\}` where `\{project\}` and `\{region\}` are the project id and region respectively where the worker pool is defined and `\{workerPool\}` is the short name of the worker pool. *)
+  worker_pool : string option;  (** Optional. Name of the Cloud Build private pool that should be used to build the function. The format of this field is `projects/\{project\}/locations/\{region\}/workerPools/\{workerPool\}` where `\{project\}` and `\{region\}` are the project id and region respectively where the worker pool is defined and `\{workerPool\}` is the short name of the worker pool. *)
 }
 
 (** Response message for submitting a Build. *)
@@ -776,6 +817,7 @@ and google_cloud_run_v2_version_to_path = {
 and google_cloud_run_v2_volume = {
   cloud_sql_instance : google_cloud_run_v2_cloud_sql_instance option;  (** For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. *)
   empty_dir : google_cloud_run_v2_empty_dir_volume_source option;  (** Ephemeral storage used as a shared volume. *)
+  filestore : google_cloud_run_v2_filestore_volume_source option;  (** Optional. Represents a volume backed by a Filestore instance. *)
   gcs : google_cloud_run_v2_gcs_volume_source option;  (** Persistent storage backed by a Google Cloud Storage bucket. *)
   name : string option;  (** Required. Volume's name. *)
   nfs : google_cloud_run_v2_nfs_volume_source option;  (** For NFS Voumes, contains the path to the nfs Volume *)
@@ -794,6 +836,11 @@ and google_cloud_run_v2_vpc_access = {
   connector : string option;  (** VPC Access connector name. Format: `projects/\{project\}/locations/\{location\}/connectors/\{connector\}`, where `\{project\}` can be project id or number. For more information on sending traffic to a VPC network via a connector, visit https://cloud.google.com/run/docs/configuring/vpc-connectors. *)
   egress : [ `Vpc_egress_unspecified | `All_traffic | `Private_ranges_only | `Unrecognized of string ] option;  (** Optional. Traffic VPC egress settings. If not provided, it defaults to PRIVATE_RANGES_ONLY. *)
   network_interfaces : google_cloud_run_v2_network_interface list option;  (** Optional. Direct VPC egress settings. Currently only single network interface is supported. *)
+}
+
+(** Configuration for the worker. *)
+and google_cloud_run_v2_worker_configuration = {
+  cloud_build_worker_configuration : google_cloud_run_v2_cloud_build_worker_configuration option;  (** Optional. Cloud Build worker configuration. *)
 }
 
 (** WorkerPool acts as a top-level container that manages a set of configurations and revision templates which implement a pull-based workload. WorkerPool exists to provide a singular abstraction which can be access controlled, reasoned about, and which encapsulates software lifecycle decisions such as rollout policy and team resource ownership. *)
@@ -1424,6 +1471,32 @@ val make_google_cloud_run_v2_build_config :
   unit ->
   google_cloud_run_v2_build_config
 
+val google_cloud_run_v2_build_configuration_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_build_configuration
+val yojson_of_google_cloud_run_v2_build_configuration : google_cloud_run_v2_build_configuration -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_build_configuration :
+  ?buildpacks_build:google_cloud_run_v2_build_configuration_buildpacks_build ->
+  ?docker_build:google_cloud_run_v2_build_configuration_docker_build ->
+  ?image_repository_uri:string ->
+  ?service_account:string ->
+  ?tags:string list ->
+  ?worker_configuration:google_cloud_run_v2_worker_configuration ->
+  unit ->
+  google_cloud_run_v2_build_configuration
+
+val google_cloud_run_v2_build_configuration_buildpacks_build_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_build_configuration_buildpacks_build
+val yojson_of_google_cloud_run_v2_build_configuration_buildpacks_build : google_cloud_run_v2_build_configuration_buildpacks_build -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_build_configuration_buildpacks_build :
+  ?build_base_image_uri:string ->
+  ?cache_image_uri:string ->
+  ?environment_variables:(string * string) list ->
+  unit ->
+  google_cloud_run_v2_build_configuration_buildpacks_build
+
+val google_cloud_run_v2_build_configuration_docker_build_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_build_configuration_docker_build
+val yojson_of_google_cloud_run_v2_build_configuration_docker_build : google_cloud_run_v2_build_configuration_docker_build -> Yojson.Safe.t
+
 val google_cloud_run_v2_build_info_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_build_info
 val yojson_of_google_cloud_run_v2_build_info : google_cloud_run_v2_build_info -> Yojson.Safe.t
 
@@ -1432,6 +1505,16 @@ val make_google_cloud_run_v2_build_info :
   ?source_location:string ->
   unit ->
   google_cloud_run_v2_build_info
+
+val google_cloud_run_v2_build_status_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_build_status
+val yojson_of_google_cloud_run_v2_build_status : google_cloud_run_v2_build_status -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_build_status :
+  ?cloud_build_log_url:string ->
+  ?message:string ->
+  ?status:string ->
+  unit ->
+  google_cloud_run_v2_build_status
 
 val google_cloud_run_v2_buildpacks_build_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_buildpacks_build
 val yojson_of_google_cloud_run_v2_buildpacks_build : google_cloud_run_v2_buildpacks_build -> Yojson.Safe.t
@@ -1455,6 +1538,15 @@ val make_google_cloud_run_v2_cancel_execution_request :
   ?validate_only:bool ->
   unit ->
   google_cloud_run_v2_cancel_execution_request
+
+val google_cloud_run_v2_cloud_build_worker_configuration_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_cloud_build_worker_configuration
+val yojson_of_google_cloud_run_v2_cloud_build_worker_configuration : google_cloud_run_v2_cloud_build_worker_configuration -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_cloud_build_worker_configuration :
+  ?machine_type:string ->
+  ?worker_pool:string ->
+  unit ->
+  google_cloud_run_v2_cloud_build_worker_configuration
 
 val google_cloud_run_v2_cloud_sql_instance_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_cloud_sql_instance
 val yojson_of_google_cloud_run_v2_cloud_sql_instance : google_cloud_run_v2_cloud_sql_instance -> Yojson.Safe.t
@@ -1496,6 +1588,7 @@ val yojson_of_google_cloud_run_v2_container : google_cloud_run_v2_container -> Y
 val make_google_cloud_run_v2_container :
   ?args:string list ->
   ?base_image_uri:string ->
+  ?build_config:google_cloud_run_v2_build_configuration ->
   ?build_info:google_cloud_run_v2_build_info ->
   ?command:string list ->
   ?depends_on:string list ->
@@ -1538,6 +1631,7 @@ val google_cloud_run_v2_container_status_of_yojson : Yojson.Safe.t -> google_clo
 val yojson_of_google_cloud_run_v2_container_status : google_cloud_run_v2_container_status -> Yojson.Safe.t
 
 val make_google_cloud_run_v2_container_status :
+  ?build_status:google_cloud_run_v2_build_status ->
   ?image_digest:string ->
   ?name:string ->
   unit ->
@@ -1662,6 +1756,14 @@ val make_google_cloud_run_v2_export_status_response :
   ?operation_state:[ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] ->
   unit ->
   google_cloud_run_v2_export_status_response
+
+val google_cloud_run_v2_filestore_volume_source_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_filestore_volume_source
+val yojson_of_google_cloud_run_v2_filestore_volume_source : google_cloud_run_v2_filestore_volume_source -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_filestore_volume_source :
+  ?volume:string ->
+  unit ->
+  google_cloud_run_v2_filestore_volume_source
 
 val google_cloud_run_v2_gcs_volume_source_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_gcs_volume_source
 val yojson_of_google_cloud_run_v2_gcs_volume_source : google_cloud_run_v2_gcs_volume_source -> Yojson.Safe.t
@@ -1975,6 +2077,7 @@ val make_google_cloud_run_v2_revision :
   ?client:string ->
   ?client_version:string ->
   ?conditions:google_cloud_run_v2_condition list ->
+  ?container_statuses:google_cloud_run_v2_container_status list ->
   ?containers:google_cloud_run_v2_container list ->
   ?create_time:string ->
   ?creator:string ->
@@ -2386,6 +2489,7 @@ val yojson_of_google_cloud_run_v2_volume : google_cloud_run_v2_volume -> Yojson.
 val make_google_cloud_run_v2_volume :
   ?cloud_sql_instance:google_cloud_run_v2_cloud_sql_instance ->
   ?empty_dir:google_cloud_run_v2_empty_dir_volume_source ->
+  ?filestore:google_cloud_run_v2_filestore_volume_source ->
   ?gcs:google_cloud_run_v2_gcs_volume_source ->
   ?name:string ->
   ?nfs:google_cloud_run_v2_nfs_volume_source ->
@@ -2412,6 +2516,14 @@ val make_google_cloud_run_v2_vpc_access :
   ?network_interfaces:google_cloud_run_v2_network_interface list ->
   unit ->
   google_cloud_run_v2_vpc_access
+
+val google_cloud_run_v2_worker_configuration_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_worker_configuration
+val yojson_of_google_cloud_run_v2_worker_configuration : google_cloud_run_v2_worker_configuration -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_worker_configuration :
+  ?cloud_build_worker_configuration:google_cloud_run_v2_cloud_build_worker_configuration ->
+  unit ->
+  google_cloud_run_v2_worker_configuration
 
 val google_cloud_run_v2_worker_pool_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_worker_pool
 val yojson_of_google_cloud_run_v2_worker_pool : google_cloud_run_v2_worker_pool -> Yojson.Safe.t
