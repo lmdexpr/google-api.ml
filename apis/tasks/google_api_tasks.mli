@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of tasks v1 (revision 20261027). Do not edit. *)
+(* Generated from the Discovery document of tasks v1 (revision 20261106). Do not edit. *)
 
-(** Google Tasks API (tasks v1, revision 20261027).
+(** Google Tasks API (tasks v1, revision 20261106).
 
     The Google Tasks API lets you manage your tasks and task lists.
 
@@ -282,7 +282,6 @@ module Tasks : sig
   val insert :
     tasklist:string ->
     body:task ->
-    ?hidden:bool ->
     ?parent:string ->
     ?previous:string ->
     unit ->
@@ -292,7 +291,6 @@ module Tasks : sig
       [POST tasks/v1/lists/{tasklist}/tasks]
 
       - [tasklist]: Task list identifier.
-      - [hidden]: Optional. Flag indicating whether the task is created as 'hidden', as if it had been completed and then cleared from the task list (see the 'clear' method). Hidden tasks are not returned by default when retrieving all tasks for a task list (see showHidden). Only completed tasks can be created as hidden, and they can not be nested or positioned, so parent and previous must be empty.
       - [parent]: Optional. Parent task identifier. If the task is created at the top level, this parameter is omitted. An assigned task cannot be a parent task, nor can it have a parent. Setting the parent to an assigned task results in failure of the request.
       - [previous]: Optional. Previous sibling task identifier. If the task is created at the first position among its siblings, this parameter is omitted. *)
 

@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of run v2 (revision 20261023). Do not edit. *)
+(* Generated from the Discovery document of run v2 (revision 20261106). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -25,9 +25,32 @@ and google_cloud_run_v2_build_config = {
   worker_pool : string option;
 }
 
+and google_cloud_run_v2_build_configuration = {
+  buildpacks_build : google_cloud_run_v2_build_configuration_buildpacks_build option;
+  docker_build : google_cloud_run_v2_build_configuration_docker_build option;
+  image_repository_uri : string option;
+  service_account : string option;
+  tags : string list option;
+  worker_configuration : google_cloud_run_v2_worker_configuration option;
+}
+
+and google_cloud_run_v2_build_configuration_buildpacks_build = {
+  build_base_image_uri : string option;
+  cache_image_uri : string option;
+  environment_variables : (string * string) list option;
+}
+
+and google_cloud_run_v2_build_configuration_docker_build = Yojson.Safe.t
+
 and google_cloud_run_v2_build_info = {
   function_target : string option;
   source_location : string option;
+}
+
+and google_cloud_run_v2_build_status = {
+  cloud_build_log_url : string option;
+  message : string option;
+  status : string option;
 }
 
 and google_cloud_run_v2_buildpacks_build = {
@@ -43,6 +66,11 @@ and google_cloud_run_v2_buildpacks_build = {
 and google_cloud_run_v2_cancel_execution_request = {
   etag : string option;
   validate_only : bool option;
+}
+
+and google_cloud_run_v2_cloud_build_worker_configuration = {
+  machine_type : string option;
+  worker_pool : string option;
 }
 
 and google_cloud_run_v2_cloud_sql_instance = {
@@ -70,6 +98,7 @@ and google_cloud_run_v2_condition = {
 and google_cloud_run_v2_container = {
   args : string list option;
   base_image_uri : string option;
+  build_config : google_cloud_run_v2_build_configuration option;
   build_info : google_cloud_run_v2_build_info option;
   command : string list option;
   depends_on : string list option;
@@ -100,6 +129,7 @@ and google_cloud_run_v2_container_port = {
 }
 
 and google_cloud_run_v2_container_status = {
+  build_status : google_cloud_run_v2_build_status option;
   image_digest : string option;
   name : string option;
 }
@@ -185,6 +215,10 @@ and google_cloud_run_v2_export_status_response = {
   image_export_statuses : google_cloud_run_v2_image_export_status list option;
   operation_id : string option;
   operation_state : [ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] option;
+}
+
+and google_cloud_run_v2_filestore_volume_source = {
+  volume : string option;
 }
 
 and google_cloud_run_v2_gcs_volume_source = {
@@ -396,6 +430,7 @@ and google_cloud_run_v2_revision = {
   client : string option;
   client_version : string option;
   conditions : google_cloud_run_v2_condition list option;
+  container_statuses : google_cloud_run_v2_container_status list option;
   containers : google_cloud_run_v2_container list option;
   create_time : string option;
   creator : string option;
@@ -695,6 +730,7 @@ and google_cloud_run_v2_version_to_path = {
 and google_cloud_run_v2_volume = {
   cloud_sql_instance : google_cloud_run_v2_cloud_sql_instance option;
   empty_dir : google_cloud_run_v2_empty_dir_volume_source option;
+  filestore : google_cloud_run_v2_filestore_volume_source option;
   gcs : google_cloud_run_v2_gcs_volume_source option;
   name : string option;
   nfs : google_cloud_run_v2_nfs_volume_source option;
@@ -711,6 +747,10 @@ and google_cloud_run_v2_vpc_access = {
   connector : string option;
   egress : [ `Vpc_egress_unspecified | `All_traffic | `Private_ranges_only | `Unrecognized of string ] option;
   network_interfaces : google_cloud_run_v2_network_interface list option;
+}
+
+and google_cloud_run_v2_worker_configuration = {
+  cloud_build_worker_configuration : google_cloud_run_v2_cloud_build_worker_configuration option;
 }
 
 and google_cloud_run_v2_worker_pool = {
@@ -1298,6 +1338,52 @@ and yojson_of_google_cloud_run_v2_build_config (value : google_cloud_run_v2_buil
          Option.map (fun field -> ("workerPool", (fun value -> `String value) field)) value.worker_pool;
        ])
 
+and google_cloud_run_v2_build_configuration_of_yojson json : google_cloud_run_v2_build_configuration =
+  let open Yojson.Safe.Util in
+  {
+    buildpacks_build = member "buildpacksBuild" json |> to_option google_cloud_run_v2_build_configuration_buildpacks_build_of_yojson;
+    docker_build = member "dockerBuild" json |> to_option google_cloud_run_v2_build_configuration_docker_build_of_yojson;
+    image_repository_uri = member "imageRepositoryUri" json |> to_option to_string;
+    service_account = member "serviceAccount" json |> to_option to_string;
+    tags = member "tags" json |> to_option (convert_each to_string);
+    worker_configuration = member "workerConfiguration" json |> to_option google_cloud_run_v2_worker_configuration_of_yojson;
+  }
+
+and yojson_of_google_cloud_run_v2_build_configuration (value : google_cloud_run_v2_build_configuration) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("buildpacksBuild", yojson_of_google_cloud_run_v2_build_configuration_buildpacks_build field)) value.buildpacks_build;
+         Option.map (fun field -> ("dockerBuild", yojson_of_google_cloud_run_v2_build_configuration_docker_build field)) value.docker_build;
+         Option.map (fun field -> ("imageRepositoryUri", (fun value -> `String value) field)) value.image_repository_uri;
+         Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
+         Option.map (fun field -> ("tags", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.tags;
+         Option.map (fun field -> ("workerConfiguration", yojson_of_google_cloud_run_v2_worker_configuration field)) value.worker_configuration;
+       ])
+
+and google_cloud_run_v2_build_configuration_buildpacks_build_of_yojson json : google_cloud_run_v2_build_configuration_buildpacks_build =
+  let open Yojson.Safe.Util in
+  {
+    build_base_image_uri = member "buildBaseImageUri" json |> to_option to_string;
+    cache_image_uri = member "cacheImageUri" json |> to_option to_string;
+    environment_variables = member "environmentVariables" json |> to_option (fun json -> List.map (fun (key, value) -> (key, to_string value)) (to_assoc json));
+  }
+
+and yojson_of_google_cloud_run_v2_build_configuration_buildpacks_build (value : google_cloud_run_v2_build_configuration_buildpacks_build) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("buildBaseImageUri", (fun value -> `String value) field)) value.build_base_image_uri;
+         Option.map (fun field -> ("cacheImageUri", (fun value -> `String value) field)) value.cache_image_uri;
+         Option.map (fun field -> ("environmentVariables", (fun members -> `Assoc (List.map (fun (key, value) -> (key, (fun value -> `String value) value)) members)) field)) value.environment_variables;
+       ])
+
+and google_cloud_run_v2_build_configuration_docker_build_of_yojson json : google_cloud_run_v2_build_configuration_docker_build =
+  let open Yojson.Safe.Util in
+  Fun.id json
+
+and yojson_of_google_cloud_run_v2_build_configuration_docker_build (value : google_cloud_run_v2_build_configuration_docker_build) : Yojson.Safe.t = Fun.id value
+
 and google_cloud_run_v2_build_info_of_yojson json : google_cloud_run_v2_build_info =
   let open Yojson.Safe.Util in
   {
@@ -1311,6 +1397,23 @@ and yojson_of_google_cloud_run_v2_build_info (value : google_cloud_run_v2_build_
        [
          Option.map (fun field -> ("functionTarget", (fun value -> `String value) field)) value.function_target;
          Option.map (fun field -> ("sourceLocation", (fun value -> `String value) field)) value.source_location;
+       ])
+
+and google_cloud_run_v2_build_status_of_yojson json : google_cloud_run_v2_build_status =
+  let open Yojson.Safe.Util in
+  {
+    cloud_build_log_url = member "cloudBuildLogUrl" json |> to_option to_string;
+    message = member "message" json |> to_option to_string;
+    status = member "status" json |> to_option to_string;
+  }
+
+and yojson_of_google_cloud_run_v2_build_status (value : google_cloud_run_v2_build_status) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("cloudBuildLogUrl", (fun value -> `String value) field)) value.cloud_build_log_url;
+         Option.map (fun field -> ("message", (fun value -> `String value) field)) value.message;
+         Option.map (fun field -> ("status", (fun value -> `String value) field)) value.status;
        ])
 
 and google_cloud_run_v2_buildpacks_build_of_yojson json : google_cloud_run_v2_buildpacks_build =
@@ -1351,6 +1454,21 @@ and yojson_of_google_cloud_run_v2_cancel_execution_request (value : google_cloud
        [
          Option.map (fun field -> ("etag", (fun value -> `String value) field)) value.etag;
          Option.map (fun field -> ("validateOnly", (fun value -> `Bool value) field)) value.validate_only;
+       ])
+
+and google_cloud_run_v2_cloud_build_worker_configuration_of_yojson json : google_cloud_run_v2_cloud_build_worker_configuration =
+  let open Yojson.Safe.Util in
+  {
+    machine_type = member "machineType" json |> to_option to_string;
+    worker_pool = member "workerPool" json |> to_option to_string;
+  }
+
+and yojson_of_google_cloud_run_v2_cloud_build_worker_configuration (value : google_cloud_run_v2_cloud_build_worker_configuration) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("machineType", (fun value -> `String value) field)) value.machine_type;
+         Option.map (fun field -> ("workerPool", (fun value -> `String value) field)) value.worker_pool;
        ])
 
 and google_cloud_run_v2_cloud_sql_instance_of_yojson json : google_cloud_run_v2_cloud_sql_instance =
@@ -1417,6 +1535,7 @@ and google_cloud_run_v2_container_of_yojson json : google_cloud_run_v2_container
   {
     args = member "args" json |> to_option (convert_each to_string);
     base_image_uri = member "baseImageUri" json |> to_option to_string;
+    build_config = member "buildConfig" json |> to_option google_cloud_run_v2_build_configuration_of_yojson;
     build_info = member "buildInfo" json |> to_option google_cloud_run_v2_build_info_of_yojson;
     command = member "command" json |> to_option (convert_each to_string);
     depends_on = member "dependsOn" json |> to_option (convert_each to_string);
@@ -1440,6 +1559,7 @@ and yojson_of_google_cloud_run_v2_container (value : google_cloud_run_v2_contain
        [
          Option.map (fun field -> ("args", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.args;
          Option.map (fun field -> ("baseImageUri", (fun value -> `String value) field)) value.base_image_uri;
+         Option.map (fun field -> ("buildConfig", yojson_of_google_cloud_run_v2_build_configuration field)) value.build_config;
          Option.map (fun field -> ("buildInfo", yojson_of_google_cloud_run_v2_build_info field)) value.build_info;
          Option.map (fun field -> ("command", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.command;
          Option.map (fun field -> ("dependsOn", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.depends_on;
@@ -1494,6 +1614,7 @@ and yojson_of_google_cloud_run_v2_container_port (value : google_cloud_run_v2_co
 and google_cloud_run_v2_container_status_of_yojson json : google_cloud_run_v2_container_status =
   let open Yojson.Safe.Util in
   {
+    build_status = member "buildStatus" json |> to_option google_cloud_run_v2_build_status_of_yojson;
     image_digest = member "imageDigest" json |> to_option to_string;
     name = member "name" json |> to_option to_string;
   }
@@ -1502,6 +1623,7 @@ and yojson_of_google_cloud_run_v2_container_status (value : google_cloud_run_v2_
   `Assoc
     (List.filter_map Fun.id
        [
+         Option.map (fun field -> ("buildStatus", yojson_of_google_cloud_run_v2_build_status field)) value.build_status;
          Option.map (fun field -> ("imageDigest", (fun value -> `String value) field)) value.image_digest;
          Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
        ])
@@ -1717,6 +1839,19 @@ and yojson_of_google_cloud_run_v2_export_status_response (value : google_cloud_r
          Option.map (fun field -> ("imageExportStatuses", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_image_export_status items)) field)) value.image_export_statuses;
          Option.map (fun field -> ("operationId", (fun value -> `String value) field)) value.operation_id;
          Option.map (fun field -> ("operationState", (fun value -> `String ((function `Operation_state_unspecified -> "OPERATION_STATE_UNSPECIFIED" | `In_progress -> "IN_PROGRESS" | `Finished -> "FINISHED" | `Unrecognized value -> value) value)) field)) value.operation_state;
+       ])
+
+and google_cloud_run_v2_filestore_volume_source_of_yojson json : google_cloud_run_v2_filestore_volume_source =
+  let open Yojson.Safe.Util in
+  {
+    volume = member "volume" json |> to_option to_string;
+  }
+
+and yojson_of_google_cloud_run_v2_filestore_volume_source (value : google_cloud_run_v2_filestore_volume_source) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("volume", (fun value -> `String value) field)) value.volume;
        ])
 
 and google_cloud_run_v2_gcs_volume_source_of_yojson json : google_cloud_run_v2_gcs_volume_source =
@@ -2258,6 +2393,7 @@ and google_cloud_run_v2_revision_of_yojson json : google_cloud_run_v2_revision =
     client = member "client" json |> to_option to_string;
     client_version = member "clientVersion" json |> to_option to_string;
     conditions = member "conditions" json |> to_option (convert_each google_cloud_run_v2_condition_of_yojson);
+    container_statuses = member "containerStatuses" json |> to_option (convert_each google_cloud_run_v2_container_status_of_yojson);
     containers = member "containers" json |> to_option (convert_each google_cloud_run_v2_container_of_yojson);
     create_time = member "createTime" json |> to_option to_string;
     creator = member "creator" json |> to_option to_string;
@@ -2303,6 +2439,7 @@ and yojson_of_google_cloud_run_v2_revision (value : google_cloud_run_v2_revision
          Option.map (fun field -> ("client", (fun value -> `String value) field)) value.client;
          Option.map (fun field -> ("clientVersion", (fun value -> `String value) field)) value.client_version;
          Option.map (fun field -> ("conditions", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_condition items)) field)) value.conditions;
+         Option.map (fun field -> ("containerStatuses", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_container_status items)) field)) value.container_statuses;
          Option.map (fun field -> ("containers", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_container items)) field)) value.containers;
          Option.map (fun field -> ("createTime", (fun value -> `String value) field)) value.create_time;
          Option.map (fun field -> ("creator", (fun value -> `String value) field)) value.creator;
@@ -2999,6 +3136,7 @@ and google_cloud_run_v2_volume_of_yojson json : google_cloud_run_v2_volume =
   {
     cloud_sql_instance = member "cloudSqlInstance" json |> to_option google_cloud_run_v2_cloud_sql_instance_of_yojson;
     empty_dir = member "emptyDir" json |> to_option google_cloud_run_v2_empty_dir_volume_source_of_yojson;
+    filestore = member "filestore" json |> to_option google_cloud_run_v2_filestore_volume_source_of_yojson;
     gcs = member "gcs" json |> to_option google_cloud_run_v2_gcs_volume_source_of_yojson;
     name = member "name" json |> to_option to_string;
     nfs = member "nfs" json |> to_option google_cloud_run_v2_nfs_volume_source_of_yojson;
@@ -3011,6 +3149,7 @@ and yojson_of_google_cloud_run_v2_volume (value : google_cloud_run_v2_volume) : 
        [
          Option.map (fun field -> ("cloudSqlInstance", yojson_of_google_cloud_run_v2_cloud_sql_instance field)) value.cloud_sql_instance;
          Option.map (fun field -> ("emptyDir", yojson_of_google_cloud_run_v2_empty_dir_volume_source field)) value.empty_dir;
+         Option.map (fun field -> ("filestore", yojson_of_google_cloud_run_v2_filestore_volume_source field)) value.filestore;
          Option.map (fun field -> ("gcs", yojson_of_google_cloud_run_v2_gcs_volume_source field)) value.gcs;
          Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
          Option.map (fun field -> ("nfs", yojson_of_google_cloud_run_v2_nfs_volume_source field)) value.nfs;
@@ -3049,6 +3188,19 @@ and yojson_of_google_cloud_run_v2_vpc_access (value : google_cloud_run_v2_vpc_ac
          Option.map (fun field -> ("connector", (fun value -> `String value) field)) value.connector;
          Option.map (fun field -> ("egress", (fun value -> `String ((function `Vpc_egress_unspecified -> "VPC_EGRESS_UNSPECIFIED" | `All_traffic -> "ALL_TRAFFIC" | `Private_ranges_only -> "PRIVATE_RANGES_ONLY" | `Unrecognized value -> value) value)) field)) value.egress;
          Option.map (fun field -> ("networkInterfaces", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_network_interface items)) field)) value.network_interfaces;
+       ])
+
+and google_cloud_run_v2_worker_configuration_of_yojson json : google_cloud_run_v2_worker_configuration =
+  let open Yojson.Safe.Util in
+  {
+    cloud_build_worker_configuration = member "cloudBuildWorkerConfiguration" json |> to_option google_cloud_run_v2_cloud_build_worker_configuration_of_yojson;
+  }
+
+and yojson_of_google_cloud_run_v2_worker_configuration (value : google_cloud_run_v2_worker_configuration) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("cloudBuildWorkerConfiguration", yojson_of_google_cloud_run_v2_cloud_build_worker_configuration field)) value.cloud_build_worker_configuration;
        ])
 
 and google_cloud_run_v2_worker_pool_of_yojson json : google_cloud_run_v2_worker_pool =
@@ -4444,11 +4596,19 @@ let make_google_cloud_run_v2_binary_authorization ?breakglass_justification ?pol
 
 let make_google_cloud_run_v2_build_config ?base_image ?enable_automatic_updates ?environment_variables ?function_target ?image_uri ?name ?service_account ?source_location ?worker_pool () : google_cloud_run_v2_build_config = { base_image; enable_automatic_updates; environment_variables; function_target; image_uri; name; service_account; source_location; worker_pool }
 
+let make_google_cloud_run_v2_build_configuration ?buildpacks_build ?docker_build ?image_repository_uri ?service_account ?tags ?worker_configuration () : google_cloud_run_v2_build_configuration = { buildpacks_build; docker_build; image_repository_uri; service_account; tags; worker_configuration }
+
+let make_google_cloud_run_v2_build_configuration_buildpacks_build ?build_base_image_uri ?cache_image_uri ?environment_variables () : google_cloud_run_v2_build_configuration_buildpacks_build = { build_base_image_uri; cache_image_uri; environment_variables }
+
 let make_google_cloud_run_v2_build_info ?function_target ?source_location () : google_cloud_run_v2_build_info = { function_target; source_location }
+
+let make_google_cloud_run_v2_build_status ?cloud_build_log_url ?message ?status () : google_cloud_run_v2_build_status = { cloud_build_log_url; message; status }
 
 let make_google_cloud_run_v2_buildpacks_build ?base_image ?cache_image_uri ?enable_automatic_updates ?environment_variables ?function_target ?project_descriptor ?runtime () : google_cloud_run_v2_buildpacks_build = { base_image; cache_image_uri; enable_automatic_updates; environment_variables; function_target; project_descriptor; runtime }
 
 let make_google_cloud_run_v2_cancel_execution_request ?etag ?validate_only () : google_cloud_run_v2_cancel_execution_request = { etag; validate_only }
+
+let make_google_cloud_run_v2_cloud_build_worker_configuration ?machine_type ?worker_pool () : google_cloud_run_v2_cloud_build_worker_configuration = { machine_type; worker_pool }
 
 let make_google_cloud_run_v2_cloud_sql_instance ?instances () : google_cloud_run_v2_cloud_sql_instance = { instances }
 
@@ -4456,13 +4616,13 @@ let make_google_cloud_run_v2_cloud_storage_source ?bucket ?generation ?object_ (
 
 let make_google_cloud_run_v2_condition ?execution_reason ?instance_reason ?last_transition_time ?message ?reason ?revision_reason ?severity ?state ?type_ () : google_cloud_run_v2_condition = { execution_reason; instance_reason; last_transition_time; message; reason; revision_reason; severity; state; type_ }
 
-let make_google_cloud_run_v2_container ?args ?base_image_uri ?build_info ?command ?depends_on ?env ?image ?liveness_probe ?name ?ports ?readiness_probe ?resources ?sandbox_launcher ?source_code ?startup_probe ?volume_mounts ?working_dir () : google_cloud_run_v2_container = { args; base_image_uri; build_info; command; depends_on; env; image; liveness_probe; name; ports; readiness_probe; resources; sandbox_launcher; source_code; startup_probe; volume_mounts; working_dir }
+let make_google_cloud_run_v2_container ?args ?base_image_uri ?build_config ?build_info ?command ?depends_on ?env ?image ?liveness_probe ?name ?ports ?readiness_probe ?resources ?sandbox_launcher ?source_code ?startup_probe ?volume_mounts ?working_dir () : google_cloud_run_v2_container = { args; base_image_uri; build_config; build_info; command; depends_on; env; image; liveness_probe; name; ports; readiness_probe; resources; sandbox_launcher; source_code; startup_probe; volume_mounts; working_dir }
 
 let make_google_cloud_run_v2_container_override ?args ?clear_args ?env ?name () : google_cloud_run_v2_container_override = { args; clear_args; env; name }
 
 let make_google_cloud_run_v2_container_port ?container_port ?name () : google_cloud_run_v2_container_port = { container_port; name }
 
-let make_google_cloud_run_v2_container_status ?image_digest ?name () : google_cloud_run_v2_container_status = { image_digest; name }
+let make_google_cloud_run_v2_container_status ?build_status ?image_digest ?name () : google_cloud_run_v2_container_status = { build_status; image_digest; name }
 
 let make_google_cloud_run_v2_empty_dir_volume_source ?medium ?size_limit () : google_cloud_run_v2_empty_dir_volume_source = { medium; size_limit }
 
@@ -4481,6 +4641,8 @@ let make_google_cloud_run_v2_export_image_request ?destination_repo () : google_
 let make_google_cloud_run_v2_export_image_response ?operation_id () : google_cloud_run_v2_export_image_response = { operation_id }
 
 let make_google_cloud_run_v2_export_status_response ?image_export_statuses ?operation_id ?operation_state () : google_cloud_run_v2_export_status_response = { image_export_statuses; operation_id; operation_state }
+
+let make_google_cloud_run_v2_filestore_volume_source ?volume () : google_cloud_run_v2_filestore_volume_source = { volume }
 
 let make_google_cloud_run_v2_gcs_volume_source ?bucket ?mount_options ?read_only () : google_cloud_run_v2_gcs_volume_source = { bucket; mount_options; read_only }
 
@@ -4532,7 +4694,7 @@ let make_google_cloud_run_v2_probe ?failure_threshold ?grpc ?http_get ?initial_d
 
 let make_google_cloud_run_v2_resource_requirements ?cpu_idle ?limits ?startup_cpu_boost () : google_cloud_run_v2_resource_requirements = { cpu_idle; limits; startup_cpu_boost }
 
-let make_google_cloud_run_v2_revision ?ambient_networking ?annotations ?client ?client_version ?conditions ?containers ?create_time ?creator ?delete_time ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?etag ?execution_environment ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?labels ?launch_stage ?log_uri ?max_instance_request_concurrency ?name ?node_selector ?observed_generation ?reconciling ?sandboxes ?satisfies_pzs ?scaling ?scaling_status ?service ?service_account ?service_mesh ?session_affinity ?timeout ?uid ?update_time ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_revision = { ambient_networking; annotations; client; client_version; conditions; containers; create_time; creator; delete_time; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; etag; execution_environment; expire_time; generation; gpu_zonal_redundancy_disabled; labels; launch_stage; log_uri; max_instance_request_concurrency; name; node_selector; observed_generation; reconciling; sandboxes; satisfies_pzs; scaling; scaling_status; service; service_account; service_mesh; session_affinity; timeout; uid; update_time; volumes; vpc_access; workload_identity_config }
+let make_google_cloud_run_v2_revision ?ambient_networking ?annotations ?client ?client_version ?conditions ?container_statuses ?containers ?create_time ?creator ?delete_time ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?etag ?execution_environment ?expire_time ?generation ?gpu_zonal_redundancy_disabled ?labels ?launch_stage ?log_uri ?max_instance_request_concurrency ?name ?node_selector ?observed_generation ?reconciling ?sandboxes ?satisfies_pzs ?scaling ?scaling_status ?service ?service_account ?service_mesh ?session_affinity ?timeout ?uid ?update_time ?volumes ?vpc_access ?workload_identity_config () : google_cloud_run_v2_revision = { ambient_networking; annotations; client; client_version; conditions; container_statuses; containers; create_time; creator; delete_time; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; etag; execution_environment; expire_time; generation; gpu_zonal_redundancy_disabled; labels; launch_stage; log_uri; max_instance_request_concurrency; name; node_selector; observed_generation; reconciling; sandboxes; satisfies_pzs; scaling; scaling_status; service; service_account; service_mesh; session_affinity; timeout; uid; update_time; volumes; vpc_access; workload_identity_config }
 
 let make_google_cloud_run_v2_revision_scaling ?concurrency_utilization ?cpu_utilization ?max_instance_count ?min_instance_count () : google_cloud_run_v2_revision_scaling = { concurrency_utilization; cpu_utilization; max_instance_count; min_instance_count }
 
@@ -4588,11 +4750,13 @@ let make_google_cloud_run_v2_upload_source_response ?cloud_storage_source () : g
 
 let make_google_cloud_run_v2_version_to_path ?mode ?path ?version () : google_cloud_run_v2_version_to_path = { mode; path; version }
 
-let make_google_cloud_run_v2_volume ?cloud_sql_instance ?empty_dir ?gcs ?name ?nfs ?secret () : google_cloud_run_v2_volume = { cloud_sql_instance; empty_dir; gcs; name; nfs; secret }
+let make_google_cloud_run_v2_volume ?cloud_sql_instance ?empty_dir ?filestore ?gcs ?name ?nfs ?secret () : google_cloud_run_v2_volume = { cloud_sql_instance; empty_dir; filestore; gcs; name; nfs; secret }
 
 let make_google_cloud_run_v2_volume_mount ?mount_path ?name ?sub_path () : google_cloud_run_v2_volume_mount = { mount_path; name; sub_path }
 
 let make_google_cloud_run_v2_vpc_access ?connector ?egress ?network_interfaces () : google_cloud_run_v2_vpc_access = { connector; egress; network_interfaces }
+
+let make_google_cloud_run_v2_worker_configuration ?cloud_build_worker_configuration () : google_cloud_run_v2_worker_configuration = { cloud_build_worker_configuration }
 
 let make_google_cloud_run_v2_worker_pool ?annotations ?binary_authorization ?client ?client_version ?conditions ?create_time ?creator ?custom_audiences ?delete_time ?description ?etag ?expire_time ?generation ?instance_split_statuses ?instance_splits ?labels ?last_modifier ?latest_created_revision ?latest_ready_revision ?launch_stage ?name ?observed_generation ?reconciling ?satisfies_pzs ?scaling ?template ?terminal_condition ?threat_detection_enabled ?uid ?update_time () : google_cloud_run_v2_worker_pool = { annotations; binary_authorization; client; client_version; conditions; create_time; creator; custom_audiences; delete_time; description; etag; expire_time; generation; instance_split_statuses; instance_splits; labels; last_modifier; latest_created_revision; latest_ready_revision; launch_stage; name; observed_generation; reconciling; satisfies_pzs; scaling; template; terminal_condition; threat_detection_enabled; uid; update_time }
 

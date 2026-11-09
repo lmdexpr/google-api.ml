@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of admin directory_v1 (revision 20261026). Do not edit. *)
+(* Generated from the Discovery document of admin directory_v1 (revision 20261104). Do not edit. *)
 
 [@@@alert "-internal"]
 

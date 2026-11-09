@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of admin directory_v1 (revision 20261026). Do not edit. *)
+(* Generated from the Discovery document of admin directory_v1 (revision 20261104). Do not edit. *)
 
-(** Admin SDK API (admin directory_v1, revision 20261026).
+(** Admin SDK API (admin directory_v1, revision 20261104).
 
     Admin SDK lets administrators of enterprise domains to view and manage resources like user, groups etc. It also provides audit and usage reports of domain.
 
@@ -4064,7 +4064,7 @@ module Users : sig
     body:directory_users_create_guest_request ->
     unit ->
     user Google_api.Call.t
-  (** Create a guest user with access to a \[subset of Workspace capabilities\](https://support.google.com/a/answer/16558545). This feature is currently in Open Beta.
+  (** Create a guest user with access to a \[subset of Workspace capabilities\](https://support.google.com/a/answer/16558545).
 
       [POST admin/directory/v1/users:createGuest] *)
 

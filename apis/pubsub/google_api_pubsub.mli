@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of pubsub v1 (revision 20261020). Do not edit. *)
+(* Generated from the Discovery document of pubsub v1 (revision 20261106). Do not edit. *)
 
-(** Cloud Pub/Sub API (pubsub v1, revision 20261020).
+(** Cloud Pub/Sub API (pubsub v1, revision 20261106).
 
     Provides reliable, many-to-many, asynchronous messaging between applications.
 

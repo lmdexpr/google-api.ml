@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of calendar v3 (revision 20261028). Do not edit. *)
+(* Generated from the Discovery document of calendar v3 (revision 20261102). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -23,6 +23,17 @@ and acl_rule = {
   scope : acl_rule_scope option;
 }
 
+and calendar_working_hours_available_times_item = {
+  day_of_week : string option;
+  period_end : int option;
+  period_start : int option;
+}
+
+and calendar_working_hours = {
+  available_times : calendar_working_hours_available_times_item list option;
+  working_hours_enabled : bool option;
+}
+
 and calendar = {
   auto_accept_invitations : bool option;
   conference_properties : conference_properties option;
@@ -35,6 +46,7 @@ and calendar = {
   location : string option;
   summary : string option;
   time_zone : string option;
+  working_hours : calendar_working_hours option;
 }
 
 and calendar_list = {
@@ -451,6 +463,38 @@ and yojson_of_acl_rule (value : acl_rule) : Yojson.Safe.t =
          Option.map (fun field -> ("scope", yojson_of_acl_rule_scope field)) value.scope;
        ])
 
+and calendar_working_hours_available_times_item_of_yojson json : calendar_working_hours_available_times_item =
+  let open Yojson.Safe.Util in
+  {
+    day_of_week = member "dayOfWeek" json |> to_option to_string;
+    period_end = member "periodEnd" json |> to_option to_int;
+    period_start = member "periodStart" json |> to_option to_int;
+  }
+
+and yojson_of_calendar_working_hours_available_times_item (value : calendar_working_hours_available_times_item) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("dayOfWeek", (fun value -> `String value) field)) value.day_of_week;
+         Option.map (fun field -> ("periodEnd", (fun value -> `Int value) field)) value.period_end;
+         Option.map (fun field -> ("periodStart", (fun value -> `Int value) field)) value.period_start;
+       ])
+
+and calendar_working_hours_of_yojson json : calendar_working_hours =
+  let open Yojson.Safe.Util in
+  {
+    available_times = member "availableTimes" json |> to_option (convert_each calendar_working_hours_available_times_item_of_yojson);
+    working_hours_enabled = member "workingHoursEnabled" json |> to_option to_bool;
+  }
+
+and yojson_of_calendar_working_hours (value : calendar_working_hours) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("availableTimes", (fun items -> `List (List.map yojson_of_calendar_working_hours_available_times_item items)) field)) value.available_times;
+         Option.map (fun field -> ("workingHoursEnabled", (fun value -> `Bool value) field)) value.working_hours_enabled;
+       ])
+
 and calendar_of_yojson json : calendar =
   let open Yojson.Safe.Util in
   {
@@ -465,6 +509,7 @@ and calendar_of_yojson json : calendar =
     location = member "location" json |> to_option to_string;
     summary = member "summary" json |> to_option to_string;
     time_zone = member "timeZone" json |> to_option to_string;
+    working_hours = member "workingHours" json |> to_option calendar_working_hours_of_yojson;
   }
 
 and yojson_of_calendar (value : calendar) : Yojson.Safe.t =
@@ -482,6 +527,7 @@ and yojson_of_calendar (value : calendar) : Yojson.Safe.t =
          Option.map (fun field -> ("location", (fun value -> `String value) field)) value.location;
          Option.map (fun field -> ("summary", (fun value -> `String value) field)) value.summary;
          Option.map (fun field -> ("timeZone", (fun value -> `String value) field)) value.time_zone;
+         Option.map (fun field -> ("workingHours", yojson_of_calendar_working_hours field)) value.working_hours;
        ])
 
 and calendar_list_of_yojson json : calendar_list =
@@ -1429,7 +1475,11 @@ let make_acl_rule_scope ?type_ ?value () : acl_rule_scope = { type_; value }
 
 let make_acl_rule ?etag ?id ?kind ?role ?scope () : acl_rule = { etag; id; kind; role; scope }
 
-let make_calendar ?auto_accept_invitations ?conference_properties ?data_owner ?description ?etag ?id ?kind ?label_properties ?location ?summary ?time_zone () : calendar = { auto_accept_invitations; conference_properties; data_owner; description; etag; id; kind; label_properties; location; summary; time_zone }
+let make_calendar_working_hours_available_times_item ?day_of_week ?period_end ?period_start () : calendar_working_hours_available_times_item = { day_of_week; period_end; period_start }
+
+let make_calendar_working_hours ?available_times ?working_hours_enabled () : calendar_working_hours = { available_times; working_hours_enabled }
+
+let make_calendar ?auto_accept_invitations ?conference_properties ?data_owner ?description ?etag ?id ?kind ?label_properties ?location ?summary ?time_zone ?working_hours () : calendar = { auto_accept_invitations; conference_properties; data_owner; description; etag; id; kind; label_properties; location; summary; time_zone; working_hours }
 
 let make_calendar_list ?etag ?items ?kind ?next_page_token ?next_sync_token () : calendar_list = { etag; items; kind; next_page_token; next_sync_token }
 
