@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of tasks v1 (revision 20261106). Do not edit. *)
+(* Generated from the Discovery document of tasks v1 (revision 20261110). Do not edit. *)
 
 [@@@alert "-internal"]
 

@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of run v2 (revision 20261106). Do not edit. *)
+(* Generated from the Discovery document of run v2 (revision 20261108). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -28,6 +28,7 @@ and google_cloud_run_v2_build_config = {
 and google_cloud_run_v2_build_configuration = {
   buildpacks_build : google_cloud_run_v2_build_configuration_buildpacks_build option;
   docker_build : google_cloud_run_v2_build_configuration_docker_build option;
+  environment_variables : google_cloud_run_v2_env_var list option;
   image_repository_uri : string option;
   service_account : string option;
   tags : string list option;
@@ -134,6 +135,10 @@ and google_cloud_run_v2_container_status = {
   name : string option;
 }
 
+and google_cloud_run_v2_cpu_scaling = {
+  cpu_utilization : float option;
+}
+
 and google_cloud_run_v2_docker_build = Yojson.Safe.t
 
 and google_cloud_run_v2_empty_dir_volume_source = {
@@ -215,10 +220,6 @@ and google_cloud_run_v2_export_status_response = {
   image_export_statuses : google_cloud_run_v2_image_export_status list option;
   operation_id : string option;
   operation_state : [ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] option;
-}
-
-and google_cloud_run_v2_filestore_volume_source = {
-  volume : string option;
 }
 
 and google_cloud_run_v2_gcs_volume_source = {
@@ -730,7 +731,6 @@ and google_cloud_run_v2_version_to_path = {
 and google_cloud_run_v2_volume = {
   cloud_sql_instance : google_cloud_run_v2_cloud_sql_instance option;
   empty_dir : google_cloud_run_v2_empty_dir_volume_source option;
-  filestore : google_cloud_run_v2_filestore_volume_source option;
   gcs : google_cloud_run_v2_gcs_volume_source option;
   name : string option;
   nfs : google_cloud_run_v2_nfs_volume_source option;
@@ -806,7 +806,11 @@ and google_cloud_run_v2_worker_pool_revision_template = {
 }
 
 and google_cloud_run_v2_worker_pool_scaling = {
+  cpu_scaling : google_cloud_run_v2_cpu_scaling option;
   manual_instance_count : int option;
+  max_instance_count : int option;
+  min_instance_count : int option;
+  scaling_mode : [ `Scaling_mode_unspecified | `Automatic | `Manual | `Unrecognized of string ] option;
 }
 
 and google_cloud_run_v2_workload_identity_config = {
@@ -1343,6 +1347,7 @@ and google_cloud_run_v2_build_configuration_of_yojson json : google_cloud_run_v2
   {
     buildpacks_build = member "buildpacksBuild" json |> to_option google_cloud_run_v2_build_configuration_buildpacks_build_of_yojson;
     docker_build = member "dockerBuild" json |> to_option google_cloud_run_v2_build_configuration_docker_build_of_yojson;
+    environment_variables = member "environmentVariables" json |> to_option (convert_each google_cloud_run_v2_env_var_of_yojson);
     image_repository_uri = member "imageRepositoryUri" json |> to_option to_string;
     service_account = member "serviceAccount" json |> to_option to_string;
     tags = member "tags" json |> to_option (convert_each to_string);
@@ -1355,6 +1360,7 @@ and yojson_of_google_cloud_run_v2_build_configuration (value : google_cloud_run_
        [
          Option.map (fun field -> ("buildpacksBuild", yojson_of_google_cloud_run_v2_build_configuration_buildpacks_build field)) value.buildpacks_build;
          Option.map (fun field -> ("dockerBuild", yojson_of_google_cloud_run_v2_build_configuration_docker_build field)) value.docker_build;
+         Option.map (fun field -> ("environmentVariables", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_env_var items)) field)) value.environment_variables;
          Option.map (fun field -> ("imageRepositoryUri", (fun value -> `String value) field)) value.image_repository_uri;
          Option.map (fun field -> ("serviceAccount", (fun value -> `String value) field)) value.service_account;
          Option.map (fun field -> ("tags", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.tags;
@@ -1628,6 +1634,19 @@ and yojson_of_google_cloud_run_v2_container_status (value : google_cloud_run_v2_
          Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
        ])
 
+and google_cloud_run_v2_cpu_scaling_of_yojson json : google_cloud_run_v2_cpu_scaling =
+  let open Yojson.Safe.Util in
+  {
+    cpu_utilization = member "cpuUtilization" json |> to_option to_number;
+  }
+
+and yojson_of_google_cloud_run_v2_cpu_scaling (value : google_cloud_run_v2_cpu_scaling) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("cpuUtilization", (fun value -> `Float value) field)) value.cpu_utilization;
+       ])
+
 and google_cloud_run_v2_docker_build_of_yojson json : google_cloud_run_v2_docker_build =
   let open Yojson.Safe.Util in
   Fun.id json
@@ -1839,19 +1858,6 @@ and yojson_of_google_cloud_run_v2_export_status_response (value : google_cloud_r
          Option.map (fun field -> ("imageExportStatuses", (fun items -> `List (List.map yojson_of_google_cloud_run_v2_image_export_status items)) field)) value.image_export_statuses;
          Option.map (fun field -> ("operationId", (fun value -> `String value) field)) value.operation_id;
          Option.map (fun field -> ("operationState", (fun value -> `String ((function `Operation_state_unspecified -> "OPERATION_STATE_UNSPECIFIED" | `In_progress -> "IN_PROGRESS" | `Finished -> "FINISHED" | `Unrecognized value -> value) value)) field)) value.operation_state;
-       ])
-
-and google_cloud_run_v2_filestore_volume_source_of_yojson json : google_cloud_run_v2_filestore_volume_source =
-  let open Yojson.Safe.Util in
-  {
-    volume = member "volume" json |> to_option to_string;
-  }
-
-and yojson_of_google_cloud_run_v2_filestore_volume_source (value : google_cloud_run_v2_filestore_volume_source) : Yojson.Safe.t =
-  `Assoc
-    (List.filter_map Fun.id
-       [
-         Option.map (fun field -> ("volume", (fun value -> `String value) field)) value.volume;
        ])
 
 and google_cloud_run_v2_gcs_volume_source_of_yojson json : google_cloud_run_v2_gcs_volume_source =
@@ -3136,7 +3142,6 @@ and google_cloud_run_v2_volume_of_yojson json : google_cloud_run_v2_volume =
   {
     cloud_sql_instance = member "cloudSqlInstance" json |> to_option google_cloud_run_v2_cloud_sql_instance_of_yojson;
     empty_dir = member "emptyDir" json |> to_option google_cloud_run_v2_empty_dir_volume_source_of_yojson;
-    filestore = member "filestore" json |> to_option google_cloud_run_v2_filestore_volume_source_of_yojson;
     gcs = member "gcs" json |> to_option google_cloud_run_v2_gcs_volume_source_of_yojson;
     name = member "name" json |> to_option to_string;
     nfs = member "nfs" json |> to_option google_cloud_run_v2_nfs_volume_source_of_yojson;
@@ -3149,7 +3154,6 @@ and yojson_of_google_cloud_run_v2_volume (value : google_cloud_run_v2_volume) : 
        [
          Option.map (fun field -> ("cloudSqlInstance", yojson_of_google_cloud_run_v2_cloud_sql_instance field)) value.cloud_sql_instance;
          Option.map (fun field -> ("emptyDir", yojson_of_google_cloud_run_v2_empty_dir_volume_source field)) value.empty_dir;
-         Option.map (fun field -> ("filestore", yojson_of_google_cloud_run_v2_filestore_volume_source field)) value.filestore;
          Option.map (fun field -> ("gcs", yojson_of_google_cloud_run_v2_gcs_volume_source field)) value.gcs;
          Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
          Option.map (fun field -> ("nfs", yojson_of_google_cloud_run_v2_nfs_volume_source field)) value.nfs;
@@ -3320,14 +3324,22 @@ and yojson_of_google_cloud_run_v2_worker_pool_revision_template (value : google_
 and google_cloud_run_v2_worker_pool_scaling_of_yojson json : google_cloud_run_v2_worker_pool_scaling =
   let open Yojson.Safe.Util in
   {
+    cpu_scaling = member "cpuScaling" json |> to_option google_cloud_run_v2_cpu_scaling_of_yojson;
     manual_instance_count = member "manualInstanceCount" json |> to_option to_int;
+    max_instance_count = member "maxInstanceCount" json |> to_option to_int;
+    min_instance_count = member "minInstanceCount" json |> to_option to_int;
+    scaling_mode = member "scalingMode" json |> to_option (fun json -> match to_string json with "SCALING_MODE_UNSPECIFIED" -> `Scaling_mode_unspecified | "AUTOMATIC" -> `Automatic | "MANUAL" -> `Manual | value -> `Unrecognized value);
   }
 
 and yojson_of_google_cloud_run_v2_worker_pool_scaling (value : google_cloud_run_v2_worker_pool_scaling) : Yojson.Safe.t =
   `Assoc
     (List.filter_map Fun.id
        [
+         Option.map (fun field -> ("cpuScaling", yojson_of_google_cloud_run_v2_cpu_scaling field)) value.cpu_scaling;
          Option.map (fun field -> ("manualInstanceCount", (fun value -> `Int value) field)) value.manual_instance_count;
+         Option.map (fun field -> ("maxInstanceCount", (fun value -> `Int value) field)) value.max_instance_count;
+         Option.map (fun field -> ("minInstanceCount", (fun value -> `Int value) field)) value.min_instance_count;
+         Option.map (fun field -> ("scalingMode", (fun value -> `String ((function `Scaling_mode_unspecified -> "SCALING_MODE_UNSPECIFIED" | `Automatic -> "AUTOMATIC" | `Manual -> "MANUAL" | `Unrecognized value -> value) value)) field)) value.scaling_mode;
        ])
 
 and google_cloud_run_v2_workload_identity_config_of_yojson json : google_cloud_run_v2_workload_identity_config =
@@ -4596,7 +4608,7 @@ let make_google_cloud_run_v2_binary_authorization ?breakglass_justification ?pol
 
 let make_google_cloud_run_v2_build_config ?base_image ?enable_automatic_updates ?environment_variables ?function_target ?image_uri ?name ?service_account ?source_location ?worker_pool () : google_cloud_run_v2_build_config = { base_image; enable_automatic_updates; environment_variables; function_target; image_uri; name; service_account; source_location; worker_pool }
 
-let make_google_cloud_run_v2_build_configuration ?buildpacks_build ?docker_build ?image_repository_uri ?service_account ?tags ?worker_configuration () : google_cloud_run_v2_build_configuration = { buildpacks_build; docker_build; image_repository_uri; service_account; tags; worker_configuration }
+let make_google_cloud_run_v2_build_configuration ?buildpacks_build ?docker_build ?environment_variables ?image_repository_uri ?service_account ?tags ?worker_configuration () : google_cloud_run_v2_build_configuration = { buildpacks_build; docker_build; environment_variables; image_repository_uri; service_account; tags; worker_configuration }
 
 let make_google_cloud_run_v2_build_configuration_buildpacks_build ?build_base_image_uri ?cache_image_uri ?environment_variables () : google_cloud_run_v2_build_configuration_buildpacks_build = { build_base_image_uri; cache_image_uri; environment_variables }
 
@@ -4624,6 +4636,8 @@ let make_google_cloud_run_v2_container_port ?container_port ?name () : google_cl
 
 let make_google_cloud_run_v2_container_status ?build_status ?image_digest ?name () : google_cloud_run_v2_container_status = { build_status; image_digest; name }
 
+let make_google_cloud_run_v2_cpu_scaling ?cpu_utilization () : google_cloud_run_v2_cpu_scaling = { cpu_utilization }
+
 let make_google_cloud_run_v2_empty_dir_volume_source ?medium ?size_limit () : google_cloud_run_v2_empty_dir_volume_source = { medium; size_limit }
 
 let make_google_cloud_run_v2_env_var ?name ?value ?value_source () : google_cloud_run_v2_env_var = { name; value; value_source }
@@ -4641,8 +4655,6 @@ let make_google_cloud_run_v2_export_image_request ?destination_repo () : google_
 let make_google_cloud_run_v2_export_image_response ?operation_id () : google_cloud_run_v2_export_image_response = { operation_id }
 
 let make_google_cloud_run_v2_export_status_response ?image_export_statuses ?operation_id ?operation_state () : google_cloud_run_v2_export_status_response = { image_export_statuses; operation_id; operation_state }
-
-let make_google_cloud_run_v2_filestore_volume_source ?volume () : google_cloud_run_v2_filestore_volume_source = { volume }
 
 let make_google_cloud_run_v2_gcs_volume_source ?bucket ?mount_options ?read_only () : google_cloud_run_v2_gcs_volume_source = { bucket; mount_options; read_only }
 
@@ -4750,7 +4762,7 @@ let make_google_cloud_run_v2_upload_source_response ?cloud_storage_source () : g
 
 let make_google_cloud_run_v2_version_to_path ?mode ?path ?version () : google_cloud_run_v2_version_to_path = { mode; path; version }
 
-let make_google_cloud_run_v2_volume ?cloud_sql_instance ?empty_dir ?filestore ?gcs ?name ?nfs ?secret () : google_cloud_run_v2_volume = { cloud_sql_instance; empty_dir; filestore; gcs; name; nfs; secret }
+let make_google_cloud_run_v2_volume ?cloud_sql_instance ?empty_dir ?gcs ?name ?nfs ?secret () : google_cloud_run_v2_volume = { cloud_sql_instance; empty_dir; gcs; name; nfs; secret }
 
 let make_google_cloud_run_v2_volume_mount ?mount_path ?name ?sub_path () : google_cloud_run_v2_volume_mount = { mount_path; name; sub_path }
 
@@ -4762,7 +4774,7 @@ let make_google_cloud_run_v2_worker_pool ?annotations ?binary_authorization ?cli
 
 let make_google_cloud_run_v2_worker_pool_revision_template ?annotations ?client ?client_version ?containers ?encryption_key ?encryption_key_revocation_action ?encryption_key_shutdown_duration ?gpu_zonal_redundancy_disabled ?labels ?node_selector ?revision ?sandboxes ?service_account ?service_mesh ?volumes ?vpc_access () : google_cloud_run_v2_worker_pool_revision_template = { annotations; client; client_version; containers; encryption_key; encryption_key_revocation_action; encryption_key_shutdown_duration; gpu_zonal_redundancy_disabled; labels; node_selector; revision; sandboxes; service_account; service_mesh; volumes; vpc_access }
 
-let make_google_cloud_run_v2_worker_pool_scaling ?manual_instance_count () : google_cloud_run_v2_worker_pool_scaling = { manual_instance_count }
+let make_google_cloud_run_v2_worker_pool_scaling ?cpu_scaling ?manual_instance_count ?max_instance_count ?min_instance_count ?scaling_mode () : google_cloud_run_v2_worker_pool_scaling = { cpu_scaling; manual_instance_count; max_instance_count; min_instance_count; scaling_mode }
 
 let make_google_cloud_run_v2_workload_identity_config ?identity ?identity_certificate_enabled ?identity_type () : google_cloud_run_v2_workload_identity_config = { identity; identity_certificate_enabled; identity_type }
 

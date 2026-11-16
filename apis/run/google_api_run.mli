@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of run v2 (revision 20261106). Do not edit. *)
+(* Generated from the Discovery document of run v2 (revision 20261108). Do not edit. *)
 
-(** Cloud Run Admin API (run v2, revision 20261106).
+(** Cloud Run Admin API (run v2, revision 20261108).
 
     Deploy and manage user provided container images that scale automatically based on incoming requests. The Cloud Run Admin API v1 follows the Knative Serving API specification, while v2 is aligned with Google Cloud AIP-based API standards, as described in https://google.aip.dev/.
 
@@ -36,6 +36,7 @@ and google_cloud_run_v2_build_config = {
 and google_cloud_run_v2_build_configuration = {
   buildpacks_build : google_cloud_run_v2_build_configuration_buildpacks_build option;  (** Optional. Builds the source using Buildpacks. *)
   docker_build : google_cloud_run_v2_build_configuration_docker_build option;  (** Optional. Builds the source using Docker. *)
+  environment_variables : google_cloud_run_v2_env_var list option;  (** Optional. Environment variables for the build. *)
   image_repository_uri : string option;  (** Required. Artifact Registry URI to store the built image. *)
   service_account : string option;  (** Optional. The service account to use for the build. Its resource name in the format `projects/\{project\}/serviceAccounts/\{email\}`. *)
   tags : string list option;  (** Optional. Tags to add to the build. *)
@@ -46,7 +47,7 @@ and google_cloud_run_v2_build_configuration = {
 and google_cloud_run_v2_build_configuration_buildpacks_build = {
   build_base_image_uri : string option;  (** Optional. Specify base image other than the default. *)
   cache_image_uri : string option;  (** Optional. Cache image URI. *)
-  environment_variables : (string * string) list option;  (** Optional. Environment variables for the build. *)
+  environment_variables : (string * string) list option;  (** Optional. Deprecated: Use environment_variables in BuildConfiguration instead. *)
 }
 
 (** Docker build configuration. *)
@@ -104,13 +105,13 @@ and google_cloud_run_v2_cloud_storage_source = {
 and google_cloud_run_v2_condition = {
   execution_reason : [ `Execution_reason_undefined | `Job_status_service_polling_error | `Non_zero_exit_code | `Cancelled | `Cancelling | `Deleted | `Delayed_start_pending | `Delayed_execution_exceeding_duration_limit | `Unrecognized of string ] option;  (** Output only. A reason for the execution condition. *)
   instance_reason : [ `Instance_reason_unspecified | `Instance_deleted | `Instance_stopped | `Instance_stopping | `Instance_non_zero_exit_code | `Unrecognized of string ] option;  (** Output only. A reason for the instance condition. *)
-  last_transition_time : string option;  (** Last time the condition transitioned from one status to another. *)
-  message : string option;  (** Human readable message indicating details about the current status. *)
+  last_transition_time : string option;  (** Output only. Last time the condition transitioned from one status to another. *)
+  message : string option;  (** Output only. Human readable message indicating details about the current status. *)
   reason : [ `Common_reason_undefined | `Unknown | `Revision_failed | `Progress_deadline_exceeded | `Container_missing | `Container_permission_denied | `Container_image_unauthorized | `Container_image_authorization_check_failed | `Encryption_key_permission_denied | `Encryption_key_check_failed | `Secrets_access_check_failed | `Waiting_for_operation | `Immediate_retry | `Postponed_retry | `Internal | `Vpc_network_not_found | `Unrecognized of string ] option;  (** Output only. A common (service-level) reason for this condition. *)
   revision_reason : [ `Revision_reason_undefined | `Pending | `Reserve | `Retired | `Retiring | `Recreating | `Health_check_container_error | `Customized_path_response_pending | `Min_instances_not_provisioned | `Active_revision_limit_reached | `No_deployment | `Health_check_skipped | `Min_instances_warming | `Unrecognized of string ] option;  (** Output only. A reason for the revision condition. *)
-  severity : [ `Severity_unspecified | `Error | `Warning | `Info | `Unrecognized of string ] option;  (** How to interpret failures of this condition, one of Error, Warning, Info *)
-  state : [ `State_unspecified | `Condition_pending | `Condition_reconciling | `Condition_failed | `Condition_succeeded | `Unrecognized of string ] option;  (** State of the condition. *)
-  type_ : string option;  (** type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * 'Ready': True when the Resource is ready. *)
+  severity : [ `Severity_unspecified | `Error | `Warning | `Info | `Unrecognized of string ] option;  (** Output only. How to interpret failures of this condition, one of Error, Warning, Info *)
+  state : [ `State_unspecified | `Condition_pending | `Condition_reconciling | `Condition_failed | `Condition_succeeded | `Unrecognized of string ] option;  (** Output only. State of the condition. *)
+  type_ : string option;  (** Output only. type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * 'Ready': True when the Resource is ready. *)
 }
 
 (** A single application container. This specifies both the container to run, the command to run in the container and the arguments to supply to it. Note that additional arguments can be supplied by the system to the container at runtime. *)
@@ -156,13 +157,18 @@ and google_cloud_run_v2_container_status = {
   name : string option;  (** The name of the container, if specified. *)
 }
 
+(** Represents CPU-related scaling settings. *)
+and google_cloud_run_v2_cpu_scaling = {
+  cpu_utilization : float option;  (** Optional. Determines a threshold for CPU utilization before scaling begins. Accepted values are between `0.1` and `0.90` (inclusive) or `0.0` to disable CPU utilization as threshold for scaling. *)
+}
+
 (** Build the source using Docker. This means the source has a Dockerfile. *)
 and google_cloud_run_v2_docker_build = Yojson.Safe.t
 
-(** In memory (tmpfs) ephemeral storage. It is ephemeral in the sense that when the sandbox is taken down, the data is destroyed with it (it does not persist across sandbox runs). *)
+(** Represents in-memory (tmpfs) or disk-backed ephemeral storage. It is ephemeral in the sense that when the sandbox is taken down, the data is destroyed with it (it does not persist across sandbox runs). *)
 and google_cloud_run_v2_empty_dir_volume_source = {
-  medium : [ `Medium_unspecified | `Memory | `Disk | `Unrecognized of string ] option;  (** The medium on which the data is stored. Acceptable values today is only MEMORY or none. When none, the default will currently be backed by memory but could change over time. +optional *)
-  size_limit : string option;  (** Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers. The default is nil which means that the limit is undefined. More info: https://cloud.google.com/run/docs/configuring/in-memory-volumes#configure-volume. Info in Kubernetes: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir *)
+  medium : [ `Medium_unspecified | `Memory | `Disk | `Unrecognized of string ] option;  (** The medium on which the data is stored. Acceptable values are `MEMORY`, `DISK`, or unset (`MEDIUM_UNSPECIFIED`). When unset, the default is currently memory-backed but could change over time. *)
+  size_limit : string option;  (** Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers. The default is nil which means that the limit is undefined. For more information, see \[Configure in-memory volume mounts\](https://cloud.google.com/run/docs/configuring/in-memory-volumes#configure-volume) and the \[Kubernetes `emptyDir` volume documentation\](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir). *)
 }
 
 (** EnvVar represents an environment variable present in a Container. *)
@@ -247,11 +253,6 @@ and google_cloud_run_v2_export_status_response = {
   image_export_statuses : google_cloud_run_v2_image_export_status list option;  (** The status of each image export job. *)
   operation_id : string option;  (** The operation id. *)
   operation_state : [ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] option;  (** Output only. The state of the overall export operation. *)
-}
-
-(** Represents a volume backed by a Filestore instance. *)
-and google_cloud_run_v2_filestore_volume_source = {
-  volume : string option;  (** Required. The resource name of the Filestore volume. Format: `projects/\{project\}/locations/\{location\}/volumePools/\{volume_pool\}/volumes/\{volume\}` *)
 }
 
 (** Represents a volume backed by a Cloud Storage bucket (mounted via Cloud Storage FUSE or as a block device disk). *)
@@ -817,7 +818,6 @@ and google_cloud_run_v2_version_to_path = {
 and google_cloud_run_v2_volume = {
   cloud_sql_instance : google_cloud_run_v2_cloud_sql_instance option;  (** For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. *)
   empty_dir : google_cloud_run_v2_empty_dir_volume_source option;  (** Ephemeral storage used as a shared volume. *)
-  filestore : google_cloud_run_v2_filestore_volume_source option;  (** Optional. Represents a volume backed by a Filestore instance. *)
   gcs : google_cloud_run_v2_gcs_volume_source option;  (** Persistent storage backed by a Google Cloud Storage bucket. *)
   name : string option;  (** Required. Volume's name. *)
   nfs : google_cloud_run_v2_nfs_volume_source option;  (** For NFS Voumes, contains the path to the nfs Volume *)
@@ -899,7 +899,11 @@ and google_cloud_run_v2_worker_pool_revision_template = {
 
 (** Worker pool scaling settings. *)
 and google_cloud_run_v2_worker_pool_scaling = {
+  cpu_scaling : google_cloud_run_v2_cpu_scaling option;  (** Optional. The CPU scaling settings for the worker pool. *)
   manual_instance_count : int option;  (** Optional. The total number of instances in manual scaling mode. *)
+  max_instance_count : int option;  (** Optional. The maximum count of instances distributed among revisions based on the specified instance split percentages. *)
+  min_instance_count : int option;  (** Optional. The minimum count of instances distributed among revisions based on the specified instance split percentages. *)
+  scaling_mode : [ `Scaling_mode_unspecified | `Automatic | `Manual | `Unrecognized of string ] option;  (** Optional. The scaling mode for the worker pool. *)
 }
 
 (** Workload identity settings. *)
@@ -1002,7 +1006,7 @@ and google_devtools_cloudbuild_v1_build_options = {
   machine_type : [ `Unspecified | `N1_highcpu_8 | `N1_highcpu_32 | `E2_highcpu_8 | `E2_highcpu_32 | `E2_medium | `E2_standard_2 | `Unrecognized of string ] option;  (** Compute Engine machine type on which to run the build. *)
   pool : google_devtools_cloudbuild_v1_pool_option option;  (** Optional. Specification for execution on a `WorkerPool`. See \[running builds in a private pool\](https://cloud.google.com/build/docs/private-pools/run-builds-in-private-pool) for more information. *)
   pubsub_topic : string option;  (** Optional. Option to specify the Pub/Sub topic to receive build status updates. *)
-  ranked_machine_series : [ `Machine_series_unspecified | `Machine_series_e | `Machine_series_n | `Machine_series_c | `Unrecognized of string ] list option;  (** Optional. Ranked list (earlier items have higher priority) of Machine Series to consider when provisioning Worker VMs. A concrete machine type will be selected based on machine availability in the given region. This field must be empty for the Build to be eligible to be paired with a pre-provisioned worker VM. *)
+  ranked_machine_series : [ `Machine_series_unspecified | `Machine_series_e | `Machine_series_n | `Machine_series_c | `Unrecognized of string ] list option;  (** Optional. Deprecated: Use PrivatePoolV1Config.WorkerConfig.ranked_machine_series instead. This field has no effect. *)
   requested_verify_option : [ `Not_verified | `Verified | `Best_effort | `Unrecognized of string ] option;  (** Requested verifiability options. *)
   resolved_worker_release : string option;  (** Output only. Worker release resolved from the release channel. *)
   secret_env : string list option;  (** A list of global environment variables, which are encrypted using a Cloud Key Management Service crypto key. These values must be specified in the build's `Secret`. These variables will be available to all build steps in this build. *)
@@ -1477,6 +1481,7 @@ val yojson_of_google_cloud_run_v2_build_configuration : google_cloud_run_v2_buil
 val make_google_cloud_run_v2_build_configuration :
   ?buildpacks_build:google_cloud_run_v2_build_configuration_buildpacks_build ->
   ?docker_build:google_cloud_run_v2_build_configuration_docker_build ->
+  ?environment_variables:google_cloud_run_v2_env_var list ->
   ?image_repository_uri:string ->
   ?service_account:string ->
   ?tags:string list ->
@@ -1637,6 +1642,14 @@ val make_google_cloud_run_v2_container_status :
   unit ->
   google_cloud_run_v2_container_status
 
+val google_cloud_run_v2_cpu_scaling_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_cpu_scaling
+val yojson_of_google_cloud_run_v2_cpu_scaling : google_cloud_run_v2_cpu_scaling -> Yojson.Safe.t
+
+val make_google_cloud_run_v2_cpu_scaling :
+  ?cpu_utilization:float ->
+  unit ->
+  google_cloud_run_v2_cpu_scaling
+
 val google_cloud_run_v2_docker_build_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_docker_build
 val yojson_of_google_cloud_run_v2_docker_build : google_cloud_run_v2_docker_build -> Yojson.Safe.t
 
@@ -1756,14 +1769,6 @@ val make_google_cloud_run_v2_export_status_response :
   ?operation_state:[ `Operation_state_unspecified | `In_progress | `Finished | `Unrecognized of string ] ->
   unit ->
   google_cloud_run_v2_export_status_response
-
-val google_cloud_run_v2_filestore_volume_source_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_filestore_volume_source
-val yojson_of_google_cloud_run_v2_filestore_volume_source : google_cloud_run_v2_filestore_volume_source -> Yojson.Safe.t
-
-val make_google_cloud_run_v2_filestore_volume_source :
-  ?volume:string ->
-  unit ->
-  google_cloud_run_v2_filestore_volume_source
 
 val google_cloud_run_v2_gcs_volume_source_of_yojson : Yojson.Safe.t -> google_cloud_run_v2_gcs_volume_source
 val yojson_of_google_cloud_run_v2_gcs_volume_source : google_cloud_run_v2_gcs_volume_source -> Yojson.Safe.t
@@ -2489,7 +2494,6 @@ val yojson_of_google_cloud_run_v2_volume : google_cloud_run_v2_volume -> Yojson.
 val make_google_cloud_run_v2_volume :
   ?cloud_sql_instance:google_cloud_run_v2_cloud_sql_instance ->
   ?empty_dir:google_cloud_run_v2_empty_dir_volume_source ->
-  ?filestore:google_cloud_run_v2_filestore_volume_source ->
   ?gcs:google_cloud_run_v2_gcs_volume_source ->
   ?name:string ->
   ?nfs:google_cloud_run_v2_nfs_volume_source ->
@@ -2589,7 +2593,11 @@ val google_cloud_run_v2_worker_pool_scaling_of_yojson : Yojson.Safe.t -> google_
 val yojson_of_google_cloud_run_v2_worker_pool_scaling : google_cloud_run_v2_worker_pool_scaling -> Yojson.Safe.t
 
 val make_google_cloud_run_v2_worker_pool_scaling :
+  ?cpu_scaling:google_cloud_run_v2_cpu_scaling ->
   ?manual_instance_count:int ->
+  ?max_instance_count:int ->
+  ?min_instance_count:int ->
+  ?scaling_mode:[ `Scaling_mode_unspecified | `Automatic | `Manual | `Unrecognized of string ] ->
   unit ->
   google_cloud_run_v2_worker_pool_scaling
 
@@ -3507,7 +3515,7 @@ module Projects : sig
         body:google_iam_v1_test_iam_permissions_request ->
         unit ->
         google_iam_v1_test_iam_permissions_response Google_api.Call.t
-      (** Returns permissions that a caller has on the specified Project. There are no permissions required for making this API call.
+      (** Returns permissions that a caller has on the specified Instance. There are no permissions required for making this API call.
 
           [POST v2/{+resource}:testIamPermissions]
 

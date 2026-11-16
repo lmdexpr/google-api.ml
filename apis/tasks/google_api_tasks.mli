@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of tasks v1 (revision 20261106). Do not edit. *)
+(* Generated from the Discovery document of tasks v1 (revision 20261110). Do not edit. *)
 
-(** Google Tasks API (tasks v1, revision 20261106).
+(** Google Tasks API (tasks v1, revision 20261110).
 
     The Google Tasks API lets you manage your tasks and task lists.
 
@@ -340,7 +340,7 @@ module Tasks : sig
 
       - [tasklist]: Task list identifier.
       - [task]: Task identifier.
-      - [destination_tasklist]: Optional. Destination task list identifier. If set, the task is moved from tasklist to the destinationTasklist list. Otherwise the task is moved within its current list. Recurrent tasks cannot currently be moved between lists.
+      - [destination_tasklist]: Optional. Destination task list identifier. If set, the task is moved from tasklist to the destinationTasklist list. Otherwise the task is moved within its current list.
       - [parent]: Optional. New parent task identifier. If the task is moved to the top level, this parameter is omitted. The task set as parent must exist in the task list and can not be hidden. Exceptions: 1. Assigned and repeating tasks cannot be set as parent tasks (have subtasks), or be moved under a parent task (become subtasks). 2. Tasks that are both completed and hidden cannot be nested, so the parent field must be empty.
       - [previous]: Optional. New previous sibling task identifier. If the task is moved to the first position among its siblings, this parameter is omitted. The task set as previous must exist in the task list and can not be hidden. Exceptions: 1. Tasks that are both completed and hidden can only be moved to position 0, so the previous field must be empty. *)
 
