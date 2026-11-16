@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of storage v1 (revision 20261103). Do not edit. *)
+(* Generated from the Discovery document of storage v1 (revision 20261111). Do not edit. *)
 
-(** Cloud Storage JSON API (storage v1, revision 20261103).
+(** Cloud Storage JSON API (storage v1, revision 20261111).
 
     Stores and retrieves potentially large, immutable data objects.
 
@@ -275,6 +275,10 @@ and bucket_storage_layout_hierarchical_namespace = {
   enabled : bool option;  (** When set to true, hierarchical namespace is enabled for this bucket. *)
 }
 
+and bucket_storage_layout_rapid_cache_info = {
+  cache_type : string option;  (** The type of cache in the bucket. Set to `rapid-cache` or `rapid-cache-ultra`, only if there is a cache present. *)
+}
+
 (** The storage layout configuration of a bucket. *)
 and bucket_storage_layout = {
   bucket : string option;  (** The name of the bucket. *)
@@ -283,6 +287,7 @@ and bucket_storage_layout = {
   kind : string option;  (** The kind of item this is. For storage layout, this is always storage#storageLayout. *)
   location : string option;  (** The location of the bucket. *)
   location_type : string option;  (** The type of the bucket location. *)
+  rapid_cache_info : bucket_storage_layout_rapid_cache_info option;  (** The Rapid Cache configuration for the bucket. *)
 }
 
 (** A list of buckets. *)
@@ -465,6 +470,10 @@ and object__retention = {
   retain_until_time : string option;  (** A time in RFC 3339 format until which object retention protects this object. *)
 }
 
+and object__zonal_availability_info = {
+  available_zones : string list option;  (** A list of zones where the object has a zonal copy. The zone names are expected to be in lower-dash case format (e.g., 'us-central1-a'). *)
+}
+
 (** An object. *)
 and object_ = {
   acl : object_access_control list option;  (** Access controls on the object. *)
@@ -505,6 +514,7 @@ and object_ = {
   time_finalized : string option;  (** The time when the object was finalized. *)
   time_storage_class_updated : string option;  (** The time at which the object's storage class was last changed. When the object is initially created, it will be set to timeCreated. *)
   updated : string option;  (** The modification time of the object metadata in RFC 3339 format. Set initially to object creation time and then updated whenever any metadata of the object changes. This includes changes made by a requester, such as modifying custom metadata, as well as changes made by Cloud Storage on behalf of a requester, such as changing the storage class based on an Object Lifecycle Configuration. *)
+  zonal_availability_info : object__zonal_availability_info option;  (** Information about the object's availability in Rapid Cache Ultra (RCU) zonal caches. This field will only populate once the object is loaded into the cache. *)
 }
 
 and object_access_control_project_team = {
@@ -1093,6 +1103,14 @@ val make_bucket_storage_layout_hierarchical_namespace :
   unit ->
   bucket_storage_layout_hierarchical_namespace
 
+val bucket_storage_layout_rapid_cache_info_of_yojson : Yojson.Safe.t -> bucket_storage_layout_rapid_cache_info
+val yojson_of_bucket_storage_layout_rapid_cache_info : bucket_storage_layout_rapid_cache_info -> Yojson.Safe.t
+
+val make_bucket_storage_layout_rapid_cache_info :
+  ?cache_type:string ->
+  unit ->
+  bucket_storage_layout_rapid_cache_info
+
 val bucket_storage_layout_of_yojson : Yojson.Safe.t -> bucket_storage_layout
 val yojson_of_bucket_storage_layout : bucket_storage_layout -> Yojson.Safe.t
 
@@ -1103,6 +1121,7 @@ val make_bucket_storage_layout :
   ?kind:string ->
   ?location:string ->
   ?location_type:string ->
+  ?rapid_cache_info:bucket_storage_layout_rapid_cache_info ->
   unit ->
   bucket_storage_layout
 
@@ -1362,6 +1381,14 @@ val make_object__retention :
   unit ->
   object__retention
 
+val object__zonal_availability_info_of_yojson : Yojson.Safe.t -> object__zonal_availability_info
+val yojson_of_object__zonal_availability_info : object__zonal_availability_info -> Yojson.Safe.t
+
+val make_object__zonal_availability_info :
+  ?available_zones:string list ->
+  unit ->
+  object__zonal_availability_info
+
 val object__of_yojson : Yojson.Safe.t -> object_
 val yojson_of_object_ : object_ -> Yojson.Safe.t
 
@@ -1404,6 +1431,7 @@ val make_object_ :
   ?time_finalized:string ->
   ?time_storage_class_updated:string ->
   ?updated:string ->
+  ?zonal_availability_info:object__zonal_availability_info ->
   unit ->
   object_
 
@@ -1660,24 +1688,12 @@ module Anywhere_caches : sig
       - [page_size]: Maximum number of items to return in a single page of responses. Maximum 1000.
       - [page_token]: A previously-returned page token representing part of the larger set of results to view. *)
 
-  val pause :
-    bucket:string ->
-    anywhere_cache_id:string ->
-    unit ->
-    anywhere_cache Google_api.Call.t
-  (** Pauses an Anywhere Cache instance.
-
-      [POST b/{bucket}/anywhereCaches/{anywhereCacheId}/pause]
-
-      - [bucket]: Name of the parent bucket.
-      - [anywhere_cache_id]: The ID of requested Anywhere Cache instance. *)
-
   val resume :
     bucket:string ->
     anywhere_cache_id:string ->
     unit ->
     anywhere_cache Google_api.Call.t
-  (** Resumes a paused or disabled Anywhere Cache instance.
+  (** Resumes a disabled Anywhere Cache instance.
 
       [POST b/{bucket}/anywhereCaches/{anywhereCacheId}/resume]
 

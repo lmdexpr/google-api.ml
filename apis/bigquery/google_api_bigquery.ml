@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of bigquery v2 (revision 20261009). Do not edit. *)
+(* Generated from the Discovery document of bigquery v2 (revision 20261107). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -129,6 +129,7 @@ and bi_engine_statistics = {
 and big_lake_configuration = {
   connection_id : string option;
   file_format : [ `File_format_unspecified | `Parquet | `Unrecognized of string ] option;
+  metadata_export_mode : [ `Metadata_export_mode_unspecified | `Async | `Manual | `Unrecognized of string ] option;
   storage_uri : string option;
   table_format : [ `Table_format_unspecified | `Iceberg | `Unrecognized of string ] option;
 }
@@ -335,6 +336,7 @@ and dataset = {
   etag : string option;
   external_catalog_dataset_options : external_catalog_dataset_options option;
   external_dataset_reference : external_dataset_reference option;
+  failover_reservation_id : string option;
   friendly_name : string option;
   id : string option;
   is_case_insensitive : bool option;
@@ -345,6 +347,7 @@ and dataset = {
   linked_dataset_source : linked_dataset_source option;
   location : string option;
   max_time_travel_hours : string option;
+  replicas : replica list option;
   resource_tags : (string * string) list option;
   restrictions : restriction_config option;
   satisfies_pzi : bool option;
@@ -757,6 +760,12 @@ and input_data_change = {
   records_read_diff_percentage : float option;
 }
 
+and installed_package = {
+  name : string option;
+  source_repository : string option;
+  version : string option;
+}
+
 and int_array = {
   elements : string list option;
 }
@@ -1035,6 +1044,7 @@ and job_statistics2 = {
   referenced_tables : table_reference list option;
   reservation_usage : job_statistics2_reservation_usage_item list option;
   schema : table_schema option;
+  search_indexing_stats : search_indexing_stats option;
   search_statistics : search_statistics option;
   spark_statistics : spark_statistics option;
   statement_type : string option;
@@ -1047,6 +1057,7 @@ and job_statistics2 = {
   total_slot_ms : string option;
   transferred_bytes : string option;
   undeclared_query_parameters : query_parameter list option;
+  vector_search_indexing_stats : vector_search_indexing_stats option;
   vector_search_statistics : vector_search_statistics option;
 }
 
@@ -1302,7 +1313,9 @@ and pruning_stats = {
 }
 
 and python_options = {
+  build_connection : string option;
   entry_point : string option;
+  extra_package_repositories : string list option;
   packages : string list option;
 }
 
@@ -1453,6 +1466,27 @@ and remote_model_info = {
   speech_recognizer : string option;
 }
 
+and replica = {
+  backfill_completion_time : string option;
+  creation_time : string option;
+  failover_reservation_uri : string option;
+  id : string option;
+  location : string option;
+  primary_assignment_completion_time : string option;
+  primary_assignment_time : string option;
+  replica_options : replica_options option;
+  replica_state : [ `Replica_state_unspecified | `Primary | `Secondary | `Assigned_primary | `Previously_assigned_primary | `Backfilling | `Unrecognized of string ] option;
+}
+
+and replica_options = {
+  default_kms_key_name : string option;
+}
+
+and resource_policy_member = {
+  iam_policy_name_principal : string option;
+  iam_policy_uid_principal : string option;
+}
+
 and restriction_config = {
   type_ : [ `Restriction_type_unspecified | `Restricted_data_egress | `Unrecognized of string ] option;
 }
@@ -1487,6 +1521,7 @@ and routine_build_status = {
   build_state_update_time : string option;
   error_result : error_proto option;
   image_size_bytes : string option;
+  installed_packages : installed_package list option;
 }
 
 and routine_reference = {
@@ -1538,6 +1573,11 @@ and script_stack_frame = {
 and script_statistics = {
   evaluation_kind : [ `Evaluation_kind_unspecified | `Statement | `Expression | `Unrecognized of string ] option;
   stack_frames : script_stack_frame list option;
+}
+
+and search_indexing_stats = {
+  base_table : table_reference option;
+  index_name : string option;
 }
 
 and search_statistics = {
@@ -1710,6 +1750,7 @@ and table = {
   num_total_logical_bytes : string option;
   num_total_physical_bytes : string option;
   partition_definition : partitioning_definition option;
+  policy_member : resource_policy_member option;
   range_partitioning : range_partitioning option;
   replicas : table_reference list option;
   require_partition_filter : bool option;
@@ -2044,6 +2085,11 @@ and undelete_dataset_request = {
 and user_defined_function_resource = {
   inline_code : string option;
   resource_uri : string option;
+}
+
+and vector_search_indexing_stats = {
+  base_table : table_reference option;
+  index_name : string option;
 }
 
 and vector_search_statistics = {
@@ -2409,6 +2455,7 @@ and big_lake_configuration_of_yojson json : big_lake_configuration =
   {
     connection_id = member "connectionId" json |> to_option to_string;
     file_format = member "fileFormat" json |> to_option (fun json -> match to_string json with "FILE_FORMAT_UNSPECIFIED" -> `File_format_unspecified | "PARQUET" -> `Parquet | value -> `Unrecognized value);
+    metadata_export_mode = member "metadataExportMode" json |> to_option (fun json -> match to_string json with "METADATA_EXPORT_MODE_UNSPECIFIED" -> `Metadata_export_mode_unspecified | "ASYNC" -> `Async | "MANUAL" -> `Manual | value -> `Unrecognized value);
     storage_uri = member "storageUri" json |> to_option to_string;
     table_format = member "tableFormat" json |> to_option (fun json -> match to_string json with "TABLE_FORMAT_UNSPECIFIED" -> `Table_format_unspecified | "ICEBERG" -> `Iceberg | value -> `Unrecognized value);
   }
@@ -2419,6 +2466,7 @@ and yojson_of_big_lake_configuration (value : big_lake_configuration) : Yojson.S
        [
          Option.map (fun field -> ("connectionId", (fun value -> `String value) field)) value.connection_id;
          Option.map (fun field -> ("fileFormat", (fun value -> `String ((function `File_format_unspecified -> "FILE_FORMAT_UNSPECIFIED" | `Parquet -> "PARQUET" | `Unrecognized value -> value) value)) field)) value.file_format;
+         Option.map (fun field -> ("metadataExportMode", (fun value -> `String ((function `Metadata_export_mode_unspecified -> "METADATA_EXPORT_MODE_UNSPECIFIED" | `Async -> "ASYNC" | `Manual -> "MANUAL" | `Unrecognized value -> value) value)) field)) value.metadata_export_mode;
          Option.map (fun field -> ("storageUri", (fun value -> `String value) field)) value.storage_uri;
          Option.map (fun field -> ("tableFormat", (fun value -> `String ((function `Table_format_unspecified -> "TABLE_FORMAT_UNSPECIFIED" | `Iceberg -> "ICEBERG" | `Unrecognized value -> value) value)) field)) value.table_format;
        ])
@@ -2955,6 +3003,7 @@ and dataset_of_yojson json : dataset =
     etag = member "etag" json |> to_option to_string;
     external_catalog_dataset_options = member "externalCatalogDatasetOptions" json |> to_option external_catalog_dataset_options_of_yojson;
     external_dataset_reference = member "externalDatasetReference" json |> to_option external_dataset_reference_of_yojson;
+    failover_reservation_id = member "failoverReservationId" json |> to_option to_string;
     friendly_name = member "friendlyName" json |> to_option to_string;
     id = member "id" json |> to_option to_string;
     is_case_insensitive = member "isCaseInsensitive" json |> to_option to_bool;
@@ -2965,6 +3014,7 @@ and dataset_of_yojson json : dataset =
     linked_dataset_source = member "linkedDatasetSource" json |> to_option linked_dataset_source_of_yojson;
     location = member "location" json |> to_option to_string;
     max_time_travel_hours = member "maxTimeTravelHours" json |> to_option to_string;
+    replicas = member "replicas" json |> to_option (convert_each replica_of_yojson);
     resource_tags = member "resourceTags" json |> to_option (fun json -> List.map (fun (key, value) -> (key, to_string value)) (to_assoc json));
     restrictions = member "restrictions" json |> to_option restriction_config_of_yojson;
     satisfies_pzi = member "satisfiesPzi" json |> to_option to_bool;
@@ -2992,6 +3042,7 @@ and yojson_of_dataset (value : dataset) : Yojson.Safe.t =
          Option.map (fun field -> ("etag", (fun value -> `String value) field)) value.etag;
          Option.map (fun field -> ("externalCatalogDatasetOptions", yojson_of_external_catalog_dataset_options field)) value.external_catalog_dataset_options;
          Option.map (fun field -> ("externalDatasetReference", yojson_of_external_dataset_reference field)) value.external_dataset_reference;
+         Option.map (fun field -> ("failoverReservationId", (fun value -> `String value) field)) value.failover_reservation_id;
          Option.map (fun field -> ("friendlyName", (fun value -> `String value) field)) value.friendly_name;
          Option.map (fun field -> ("id", (fun value -> `String value) field)) value.id;
          Option.map (fun field -> ("isCaseInsensitive", (fun value -> `Bool value) field)) value.is_case_insensitive;
@@ -3002,6 +3053,7 @@ and yojson_of_dataset (value : dataset) : Yojson.Safe.t =
          Option.map (fun field -> ("linkedDatasetSource", yojson_of_linked_dataset_source field)) value.linked_dataset_source;
          Option.map (fun field -> ("location", (fun value -> `String value) field)) value.location;
          Option.map (fun field -> ("maxTimeTravelHours", (fun value -> `String value) field)) value.max_time_travel_hours;
+         Option.map (fun field -> ("replicas", (fun items -> `List (List.map yojson_of_replica items)) field)) value.replicas;
          Option.map (fun field -> ("resourceTags", (fun members -> `Assoc (List.map (fun (key, value) -> (key, (fun value -> `String value) value)) members)) field)) value.resource_tags;
          Option.map (fun field -> ("restrictions", yojson_of_restriction_config field)) value.restrictions;
          Option.map (fun field -> ("satisfiesPzi", (fun value -> `Bool value) field)) value.satisfies_pzi;
@@ -4076,6 +4128,23 @@ and yojson_of_input_data_change (value : input_data_change) : Yojson.Safe.t =
          Option.map (fun field -> ("recordsReadDiffPercentage", (fun value -> `Float value) field)) value.records_read_diff_percentage;
        ])
 
+and installed_package_of_yojson json : installed_package =
+  let open Yojson.Safe.Util in
+  {
+    name = member "name" json |> to_option to_string;
+    source_repository = member "sourceRepository" json |> to_option to_string;
+    version = member "version" json |> to_option to_string;
+  }
+
+and yojson_of_installed_package (value : installed_package) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("name", (fun value -> `String value) field)) value.name;
+         Option.map (fun field -> ("sourceRepository", (fun value -> `String value) field)) value.source_repository;
+         Option.map (fun field -> ("version", (fun value -> `String value) field)) value.version;
+       ])
+
 and int_array_of_yojson json : int_array =
   let open Yojson.Safe.Util in
   {
@@ -4696,6 +4765,7 @@ and job_statistics2_of_yojson json : job_statistics2 =
     referenced_tables = member "referencedTables" json |> to_option (convert_each table_reference_of_yojson);
     reservation_usage = member "reservationUsage" json |> to_option (convert_each job_statistics2_reservation_usage_item_of_yojson);
     schema = member "schema" json |> to_option table_schema_of_yojson;
+    search_indexing_stats = member "searchIndexingStats" json |> to_option search_indexing_stats_of_yojson;
     search_statistics = member "searchStatistics" json |> to_option search_statistics_of_yojson;
     spark_statistics = member "sparkStatistics" json |> to_option spark_statistics_of_yojson;
     statement_type = member "statementType" json |> to_option to_string;
@@ -4708,6 +4778,7 @@ and job_statistics2_of_yojson json : job_statistics2 =
     total_slot_ms = member "totalSlotMs" json |> to_option to_string;
     transferred_bytes = member "transferredBytes" json |> to_option to_string;
     undeclared_query_parameters = member "undeclaredQueryParameters" json |> to_option (convert_each query_parameter_of_yojson);
+    vector_search_indexing_stats = member "vectorSearchIndexingStats" json |> to_option vector_search_indexing_stats_of_yojson;
     vector_search_statistics = member "vectorSearchStatistics" json |> to_option vector_search_statistics_of_yojson;
   }
 
@@ -4752,6 +4823,7 @@ and yojson_of_job_statistics2 (value : job_statistics2) : Yojson.Safe.t =
          Option.map (fun field -> ("referencedTables", (fun items -> `List (List.map yojson_of_table_reference items)) field)) value.referenced_tables;
          Option.map (fun field -> ("reservationUsage", (fun items -> `List (List.map yojson_of_job_statistics2_reservation_usage_item items)) field)) value.reservation_usage;
          Option.map (fun field -> ("schema", yojson_of_table_schema field)) value.schema;
+         Option.map (fun field -> ("searchIndexingStats", yojson_of_search_indexing_stats field)) value.search_indexing_stats;
          Option.map (fun field -> ("searchStatistics", yojson_of_search_statistics field)) value.search_statistics;
          Option.map (fun field -> ("sparkStatistics", yojson_of_spark_statistics field)) value.spark_statistics;
          Option.map (fun field -> ("statementType", (fun value -> `String value) field)) value.statement_type;
@@ -4764,6 +4836,7 @@ and yojson_of_job_statistics2 (value : job_statistics2) : Yojson.Safe.t =
          Option.map (fun field -> ("totalSlotMs", (fun value -> `String value) field)) value.total_slot_ms;
          Option.map (fun field -> ("transferredBytes", (fun value -> `String value) field)) value.transferred_bytes;
          Option.map (fun field -> ("undeclaredQueryParameters", (fun items -> `List (List.map yojson_of_query_parameter items)) field)) value.undeclared_query_parameters;
+         Option.map (fun field -> ("vectorSearchIndexingStats", yojson_of_vector_search_indexing_stats field)) value.vector_search_indexing_stats;
          Option.map (fun field -> ("vectorSearchStatistics", yojson_of_vector_search_statistics field)) value.vector_search_statistics;
        ])
 
@@ -5476,7 +5549,9 @@ and yojson_of_pruning_stats (value : pruning_stats) : Yojson.Safe.t =
 and python_options_of_yojson json : python_options =
   let open Yojson.Safe.Util in
   {
+    build_connection = member "buildConnection" json |> to_option to_string;
     entry_point = member "entryPoint" json |> to_option to_string;
+    extra_package_repositories = member "extraPackageRepositories" json |> to_option (convert_each to_string);
     packages = member "packages" json |> to_option (convert_each to_string);
   }
 
@@ -5484,7 +5559,9 @@ and yojson_of_python_options (value : python_options) : Yojson.Safe.t =
   `Assoc
     (List.filter_map Fun.id
        [
+         Option.map (fun field -> ("buildConnection", (fun value -> `String value) field)) value.build_connection;
          Option.map (fun field -> ("entryPoint", (fun value -> `String value) field)) value.entry_point;
+         Option.map (fun field -> ("extraPackageRepositories", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.extra_package_repositories;
          Option.map (fun field -> ("packages", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.packages;
        ])
 
@@ -5857,6 +5934,63 @@ and yojson_of_remote_model_info (value : remote_model_info) : Yojson.Safe.t =
          Option.map (fun field -> ("speechRecognizer", (fun value -> `String value) field)) value.speech_recognizer;
        ])
 
+and replica_of_yojson json : replica =
+  let open Yojson.Safe.Util in
+  {
+    backfill_completion_time = member "backfillCompletionTime" json |> to_option to_string;
+    creation_time = member "creationTime" json |> to_option to_string;
+    failover_reservation_uri = member "failoverReservationUri" json |> to_option to_string;
+    id = member "id" json |> to_option to_string;
+    location = member "location" json |> to_option to_string;
+    primary_assignment_completion_time = member "primaryAssignmentCompletionTime" json |> to_option to_string;
+    primary_assignment_time = member "primaryAssignmentTime" json |> to_option to_string;
+    replica_options = member "replicaOptions" json |> to_option replica_options_of_yojson;
+    replica_state = member "replicaState" json |> to_option (fun json -> match to_string json with "REPLICA_STATE_UNSPECIFIED" -> `Replica_state_unspecified | "PRIMARY" -> `Primary | "SECONDARY" -> `Secondary | "ASSIGNED_PRIMARY" -> `Assigned_primary | "PREVIOUSLY_ASSIGNED_PRIMARY" -> `Previously_assigned_primary | "BACKFILLING" -> `Backfilling | value -> `Unrecognized value);
+  }
+
+and yojson_of_replica (value : replica) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("backfillCompletionTime", (fun value -> `String value) field)) value.backfill_completion_time;
+         Option.map (fun field -> ("creationTime", (fun value -> `String value) field)) value.creation_time;
+         Option.map (fun field -> ("failoverReservationUri", (fun value -> `String value) field)) value.failover_reservation_uri;
+         Option.map (fun field -> ("id", (fun value -> `String value) field)) value.id;
+         Option.map (fun field -> ("location", (fun value -> `String value) field)) value.location;
+         Option.map (fun field -> ("primaryAssignmentCompletionTime", (fun value -> `String value) field)) value.primary_assignment_completion_time;
+         Option.map (fun field -> ("primaryAssignmentTime", (fun value -> `String value) field)) value.primary_assignment_time;
+         Option.map (fun field -> ("replicaOptions", yojson_of_replica_options field)) value.replica_options;
+         Option.map (fun field -> ("replicaState", (fun value -> `String ((function `Replica_state_unspecified -> "REPLICA_STATE_UNSPECIFIED" | `Primary -> "PRIMARY" | `Secondary -> "SECONDARY" | `Assigned_primary -> "ASSIGNED_PRIMARY" | `Previously_assigned_primary -> "PREVIOUSLY_ASSIGNED_PRIMARY" | `Backfilling -> "BACKFILLING" | `Unrecognized value -> value) value)) field)) value.replica_state;
+       ])
+
+and replica_options_of_yojson json : replica_options =
+  let open Yojson.Safe.Util in
+  {
+    default_kms_key_name = member "defaultKmsKeyName" json |> to_option to_string;
+  }
+
+and yojson_of_replica_options (value : replica_options) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("defaultKmsKeyName", (fun value -> `String value) field)) value.default_kms_key_name;
+       ])
+
+and resource_policy_member_of_yojson json : resource_policy_member =
+  let open Yojson.Safe.Util in
+  {
+    iam_policy_name_principal = member "iamPolicyNamePrincipal" json |> to_option to_string;
+    iam_policy_uid_principal = member "iamPolicyUidPrincipal" json |> to_option to_string;
+  }
+
+and yojson_of_resource_policy_member (value : resource_policy_member) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("iamPolicyNamePrincipal", (fun value -> `String value) field)) value.iam_policy_name_principal;
+         Option.map (fun field -> ("iamPolicyUidPrincipal", (fun value -> `String value) field)) value.iam_policy_uid_principal;
+       ])
+
 and restriction_config_of_yojson json : restriction_config =
   let open Yojson.Safe.Util in
   {
@@ -5931,6 +6065,7 @@ and routine_build_status_of_yojson json : routine_build_status =
     build_state_update_time = member "buildStateUpdateTime" json |> to_option to_string;
     error_result = member "errorResult" json |> to_option error_proto_of_yojson;
     image_size_bytes = member "imageSizeBytes" json |> to_option to_string;
+    installed_packages = member "installedPackages" json |> to_option (convert_each installed_package_of_yojson);
   }
 
 and yojson_of_routine_build_status (value : routine_build_status) : Yojson.Safe.t =
@@ -5942,6 +6077,7 @@ and yojson_of_routine_build_status (value : routine_build_status) : Yojson.Safe.
          Option.map (fun field -> ("buildStateUpdateTime", (fun value -> `String value) field)) value.build_state_update_time;
          Option.map (fun field -> ("errorResult", yojson_of_error_proto field)) value.error_result;
          Option.map (fun field -> ("imageSizeBytes", (fun value -> `String value) field)) value.image_size_bytes;
+         Option.map (fun field -> ("installedPackages", (fun items -> `List (List.map yojson_of_installed_package items)) field)) value.installed_packages;
        ])
 
 and routine_reference_of_yojson json : routine_reference =
@@ -6084,6 +6220,21 @@ and yojson_of_script_statistics (value : script_statistics) : Yojson.Safe.t =
        [
          Option.map (fun field -> ("evaluationKind", (fun value -> `String ((function `Evaluation_kind_unspecified -> "EVALUATION_KIND_UNSPECIFIED" | `Statement -> "STATEMENT" | `Expression -> "EXPRESSION" | `Unrecognized value -> value) value)) field)) value.evaluation_kind;
          Option.map (fun field -> ("stackFrames", (fun items -> `List (List.map yojson_of_script_stack_frame items)) field)) value.stack_frames;
+       ])
+
+and search_indexing_stats_of_yojson json : search_indexing_stats =
+  let open Yojson.Safe.Util in
+  {
+    base_table = member "baseTable" json |> to_option table_reference_of_yojson;
+    index_name = member "indexName" json |> to_option to_string;
+  }
+
+and yojson_of_search_indexing_stats (value : search_indexing_stats) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("baseTable", yojson_of_table_reference field)) value.base_table;
+         Option.map (fun field -> ("indexName", (fun value -> `String value) field)) value.index_name;
        ])
 
 and search_statistics_of_yojson json : search_statistics =
@@ -6500,6 +6651,7 @@ and table_of_yojson json : table =
     num_total_logical_bytes = member "numTotalLogicalBytes" json |> to_option to_string;
     num_total_physical_bytes = member "numTotalPhysicalBytes" json |> to_option to_string;
     partition_definition = member "partitionDefinition" json |> to_option partitioning_definition_of_yojson;
+    policy_member = member "policyMember" json |> to_option resource_policy_member_of_yojson;
     range_partitioning = member "rangePartitioning" json |> to_option range_partitioning_of_yojson;
     replicas = member "replicas" json |> to_option (convert_each table_reference_of_yojson);
     require_partition_filter = member "requirePartitionFilter" json |> to_option to_bool;
@@ -6558,6 +6710,7 @@ and yojson_of_table (value : table) : Yojson.Safe.t =
          Option.map (fun field -> ("numTotalLogicalBytes", (fun value -> `String value) field)) value.num_total_logical_bytes;
          Option.map (fun field -> ("numTotalPhysicalBytes", (fun value -> `String value) field)) value.num_total_physical_bytes;
          Option.map (fun field -> ("partitionDefinition", yojson_of_partitioning_definition field)) value.partition_definition;
+         Option.map (fun field -> ("policyMember", yojson_of_resource_policy_member field)) value.policy_member;
          Option.map (fun field -> ("rangePartitioning", yojson_of_range_partitioning field)) value.range_partitioning;
          Option.map (fun field -> ("replicas", (fun items -> `List (List.map yojson_of_table_reference items)) field)) value.replicas;
          Option.map (fun field -> ("requirePartitionFilter", (fun value -> `Bool value) field)) value.require_partition_filter;
@@ -7383,6 +7536,21 @@ and yojson_of_user_defined_function_resource (value : user_defined_function_reso
          Option.map (fun field -> ("resourceUri", (fun value -> `String value) field)) value.resource_uri;
        ])
 
+and vector_search_indexing_stats_of_yojson json : vector_search_indexing_stats =
+  let open Yojson.Safe.Util in
+  {
+    base_table = member "baseTable" json |> to_option table_reference_of_yojson;
+    index_name = member "indexName" json |> to_option to_string;
+  }
+
+and yojson_of_vector_search_indexing_stats (value : vector_search_indexing_stats) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("baseTable", yojson_of_table_reference field)) value.base_table;
+         Option.map (fun field -> ("indexName", (fun value -> `String value) field)) value.index_name;
+       ])
+
 and vector_search_statistics_of_yojson json : vector_search_statistics =
   let open Yojson.Safe.Util in
   {
@@ -7461,7 +7629,7 @@ let make_bi_engine_reason ?code ?message () : bi_engine_reason = { code; message
 
 let make_bi_engine_statistics ?acceleration_mode ?bi_engine_mode ?bi_engine_reasons () : bi_engine_statistics = { acceleration_mode; bi_engine_mode; bi_engine_reasons }
 
-let make_big_lake_configuration ?connection_id ?file_format ?storage_uri ?table_format () : big_lake_configuration = { connection_id; file_format; storage_uri; table_format }
+let make_big_lake_configuration ?connection_id ?file_format ?metadata_export_mode ?storage_uri ?table_format () : big_lake_configuration = { connection_id; file_format; metadata_export_mode; storage_uri; table_format }
 
 let make_big_query_model_training ?current_iteration ?expected_total_iterations () : big_query_model_training = { current_iteration; expected_total_iterations }
 
@@ -7519,7 +7687,7 @@ let make_dataset_access_item ?condition ?dataset ?domain ?group_by_email ?iam_me
 
 let make_dataset_tags_item ?tag_key ?tag_value () : dataset_tags_item = { tag_key; tag_value }
 
-let make_dataset ?access ?catalog_source ?creation_time ?dataset_reference ?default_collation ?default_encryption_configuration ?default_partition_expiration_ms ?default_rounding_mode ?default_table_expiration_ms ?description ?etag ?external_catalog_dataset_options ?external_dataset_reference ?friendly_name ?id ?is_case_insensitive ?kind ?labels ?last_modified_time ?linked_dataset_metadata ?linked_dataset_source ?location ?max_time_travel_hours ?resource_tags ?restrictions ?satisfies_pzi ?satisfies_pzs ?self_link ?storage_billing_model ?tags ?type_ () : dataset = { access; catalog_source; creation_time; dataset_reference; default_collation; default_encryption_configuration; default_partition_expiration_ms; default_rounding_mode; default_table_expiration_ms; description; etag; external_catalog_dataset_options; external_dataset_reference; friendly_name; id; is_case_insensitive; kind; labels; last_modified_time; linked_dataset_metadata; linked_dataset_source; location; max_time_travel_hours; resource_tags; restrictions; satisfies_pzi; satisfies_pzs; self_link; storage_billing_model; tags; type_ }
+let make_dataset ?access ?catalog_source ?creation_time ?dataset_reference ?default_collation ?default_encryption_configuration ?default_partition_expiration_ms ?default_rounding_mode ?default_table_expiration_ms ?description ?etag ?external_catalog_dataset_options ?external_dataset_reference ?failover_reservation_id ?friendly_name ?id ?is_case_insensitive ?kind ?labels ?last_modified_time ?linked_dataset_metadata ?linked_dataset_source ?location ?max_time_travel_hours ?replicas ?resource_tags ?restrictions ?satisfies_pzi ?satisfies_pzs ?self_link ?storage_billing_model ?tags ?type_ () : dataset = { access; catalog_source; creation_time; dataset_reference; default_collation; default_encryption_configuration; default_partition_expiration_ms; default_rounding_mode; default_table_expiration_ms; description; etag; external_catalog_dataset_options; external_dataset_reference; failover_reservation_id; friendly_name; id; is_case_insensitive; kind; labels; last_modified_time; linked_dataset_metadata; linked_dataset_source; location; max_time_travel_hours; replicas; resource_tags; restrictions; satisfies_pzi; satisfies_pzs; self_link; storage_billing_model; tags; type_ }
 
 let make_dataset_access_entry ?dataset ?target_types () : dataset_access_entry = { dataset; target_types }
 
@@ -7625,6 +7793,8 @@ let make_index_unused_reason ?base_table ?code ?index_name ?message () : index_u
 
 let make_input_data_change ?records_read_diff_percentage () : input_data_change = { records_read_diff_percentage }
 
+let make_installed_package ?name ?source_repository ?version () : installed_package = { name; source_repository; version }
+
 let make_int_array ?elements () : int_array = { elements }
 
 let make_int_array_hparam_search_space ?candidates () : int_array_hparam_search_space = { candidates }
@@ -7665,7 +7835,7 @@ let make_job_statistics ?completion_ratio ?copy ?creation_time ?data_masking_sta
 
 let make_job_statistics2_reservation_usage_item ?name ?slot_ms () : job_statistics2_reservation_usage_item = { name; slot_ms }
 
-let make_job_statistics2 ?bi_engine_statistics ?billing_tier ?cache_hit ?dcl_target_dataset ?dcl_target_table ?dcl_target_view ?ddl_affected_row_access_policy_count ?ddl_destination_table ?ddl_operation_performed ?ddl_target_dataset ?ddl_target_routine ?ddl_target_row_access_policy ?ddl_target_table ?dml_stats ?estimated_bytes_processed ?export_data_statistics ?external_service_costs ?gen_ai_stats ?incremental_result_stats ?load_query_statistics ?materialized_view_statistics ?metadata_cache_statistics ?ml_statistics ?model_training ?model_training_current_iteration ?model_training_expected_total_iteration ?num_dml_affected_rows ?object_storage_stats ?performance_insights ?query_info ?query_plan ?referenced_logical_views ?referenced_property_graphs ?referenced_routines ?referenced_tables ?reservation_usage ?schema ?search_statistics ?spark_statistics ?statement_type ?timeline ?total_bytes_billed ?total_bytes_processed ?total_bytes_processed_accuracy ?total_partitions_processed ?total_services_sku_slot_ms ?total_slot_ms ?transferred_bytes ?undeclared_query_parameters ?vector_search_statistics () : job_statistics2 = { bi_engine_statistics; billing_tier; cache_hit; dcl_target_dataset; dcl_target_table; dcl_target_view; ddl_affected_row_access_policy_count; ddl_destination_table; ddl_operation_performed; ddl_target_dataset; ddl_target_routine; ddl_target_row_access_policy; ddl_target_table; dml_stats; estimated_bytes_processed; export_data_statistics; external_service_costs; gen_ai_stats; incremental_result_stats; load_query_statistics; materialized_view_statistics; metadata_cache_statistics; ml_statistics; model_training; model_training_current_iteration; model_training_expected_total_iteration; num_dml_affected_rows; object_storage_stats; performance_insights; query_info; query_plan; referenced_logical_views; referenced_property_graphs; referenced_routines; referenced_tables; reservation_usage; schema; search_statistics; spark_statistics; statement_type; timeline; total_bytes_billed; total_bytes_processed; total_bytes_processed_accuracy; total_partitions_processed; total_services_sku_slot_ms; total_slot_ms; transferred_bytes; undeclared_query_parameters; vector_search_statistics }
+let make_job_statistics2 ?bi_engine_statistics ?billing_tier ?cache_hit ?dcl_target_dataset ?dcl_target_table ?dcl_target_view ?ddl_affected_row_access_policy_count ?ddl_destination_table ?ddl_operation_performed ?ddl_target_dataset ?ddl_target_routine ?ddl_target_row_access_policy ?ddl_target_table ?dml_stats ?estimated_bytes_processed ?export_data_statistics ?external_service_costs ?gen_ai_stats ?incremental_result_stats ?load_query_statistics ?materialized_view_statistics ?metadata_cache_statistics ?ml_statistics ?model_training ?model_training_current_iteration ?model_training_expected_total_iteration ?num_dml_affected_rows ?object_storage_stats ?performance_insights ?query_info ?query_plan ?referenced_logical_views ?referenced_property_graphs ?referenced_routines ?referenced_tables ?reservation_usage ?schema ?search_indexing_stats ?search_statistics ?spark_statistics ?statement_type ?timeline ?total_bytes_billed ?total_bytes_processed ?total_bytes_processed_accuracy ?total_partitions_processed ?total_services_sku_slot_ms ?total_slot_ms ?transferred_bytes ?undeclared_query_parameters ?vector_search_indexing_stats ?vector_search_statistics () : job_statistics2 = { bi_engine_statistics; billing_tier; cache_hit; dcl_target_dataset; dcl_target_table; dcl_target_view; ddl_affected_row_access_policy_count; ddl_destination_table; ddl_operation_performed; ddl_target_dataset; ddl_target_routine; ddl_target_row_access_policy; ddl_target_table; dml_stats; estimated_bytes_processed; export_data_statistics; external_service_costs; gen_ai_stats; incremental_result_stats; load_query_statistics; materialized_view_statistics; metadata_cache_statistics; ml_statistics; model_training; model_training_current_iteration; model_training_expected_total_iteration; num_dml_affected_rows; object_storage_stats; performance_insights; query_info; query_plan; referenced_logical_views; referenced_property_graphs; referenced_routines; referenced_tables; reservation_usage; schema; search_indexing_stats; search_statistics; spark_statistics; statement_type; timeline; total_bytes_billed; total_bytes_processed; total_bytes_processed_accuracy; total_partitions_processed; total_services_sku_slot_ms; total_slot_ms; transferred_bytes; undeclared_query_parameters; vector_search_indexing_stats; vector_search_statistics }
 
 let make_job_statistics3 ?bad_records ?input_file_bytes ?input_files ?output_bytes ?output_rows ?timeline () : job_statistics3 = { bad_records; input_file_bytes; input_files; output_bytes; output_rows; timeline }
 
@@ -7747,7 +7917,7 @@ let make_property_graph_reference ?dataset_id ?project_id ?property_graph_id () 
 
 let make_pruning_stats ?post_cmeta_pruning_parallel_input_count ?post_cmeta_pruning_partition_count ?pre_cmeta_pruning_parallel_input_count () : pruning_stats = { post_cmeta_pruning_parallel_input_count; post_cmeta_pruning_partition_count; pre_cmeta_pruning_parallel_input_count }
 
-let make_python_options ?entry_point ?packages () : python_options = { entry_point; packages }
+let make_python_options ?build_connection ?entry_point ?extra_package_repositories ?packages () : python_options = { build_connection; entry_point; extra_package_repositories; packages }
 
 let make_query_info ?optimization_details () : query_info = { optimization_details }
 
@@ -7779,11 +7949,17 @@ let make_remote_function_options ?connection ?endpoint ?max_batching_rows ?user_
 
 let make_remote_model_info ?connection ?endpoint ?max_batching_rows ?remote_model_version ?remote_service_type ?speech_recognizer () : remote_model_info = { connection; endpoint; max_batching_rows; remote_model_version; remote_service_type; speech_recognizer }
 
+let make_replica ?backfill_completion_time ?creation_time ?failover_reservation_uri ?id ?location ?primary_assignment_completion_time ?primary_assignment_time ?replica_options ?replica_state () : replica = { backfill_completion_time; creation_time; failover_reservation_uri; id; location; primary_assignment_completion_time; primary_assignment_time; replica_options; replica_state }
+
+let make_replica_options ?default_kms_key_name () : replica_options = { default_kms_key_name }
+
+let make_resource_policy_member ?iam_policy_name_principal ?iam_policy_uid_principal () : resource_policy_member = { iam_policy_name_principal; iam_policy_uid_principal }
+
 let make_restriction_config ?type_ () : restriction_config = { type_ }
 
 let make_routine ?arguments ?build_status ?creation_time ?data_governance_type ?definition_body ?description ?determinism_level ?etag ?external_runtime_options ?imported_libraries ?language ?last_modified_time ?python_options ?remote_function_options ?return_table_type ?return_type ?routine_reference ?routine_type ?security_mode ?spark_options ?strict_mode () : routine = { arguments; build_status; creation_time; data_governance_type; definition_body; description; determinism_level; etag; external_runtime_options; imported_libraries; language; last_modified_time; python_options; remote_function_options; return_table_type; return_type; routine_reference; routine_type; security_mode; spark_options; strict_mode }
 
-let make_routine_build_status ?build_duration ?build_state ?build_state_update_time ?error_result ?image_size_bytes () : routine_build_status = { build_duration; build_state; build_state_update_time; error_result; image_size_bytes }
+let make_routine_build_status ?build_duration ?build_state ?build_state_update_time ?error_result ?image_size_bytes ?installed_packages () : routine_build_status = { build_duration; build_state; build_state_update_time; error_result; image_size_bytes; installed_packages }
 
 let make_routine_reference ?dataset_id ?project_id ?routine_id () : routine_reference = { dataset_id; project_id; routine_id }
 
@@ -7800,6 +7976,8 @@ let make_script_options ?key_result_statement ?statement_byte_budget ?statement_
 let make_script_stack_frame ?end_column ?end_line ?procedure_id ?start_column ?start_line ?text () : script_stack_frame = { end_column; end_line; procedure_id; start_column; start_line; text }
 
 let make_script_statistics ?evaluation_kind ?stack_frames () : script_statistics = { evaluation_kind; stack_frames }
+
+let make_search_indexing_stats ?base_table ?index_name () : search_indexing_stats = { base_table; index_name }
 
 let make_search_statistics ?index_pruning_stats ?index_unused_reasons ?index_usage_mode () : search_statistics = { index_pruning_stats; index_unused_reasons; index_usage_mode }
 
@@ -7845,7 +8023,7 @@ let make_string_hparam_search_space ?candidates () : string_hparam_search_space 
 
 let make_system_variables ?types ?values () : system_variables = { types; values }
 
-let make_table ?biglake_configuration ?clone_definition ?clustering ?creation_time ?default_collation ?default_rounding_mode ?description ?encryption_configuration ?etag ?expiration_time ?external_catalog_table_options ?external_data_configuration ?friendly_name ?id ?kind ?labels ?last_modified_time ?location ?managed_table_type ?materialized_view ?materialized_view_status ?max_staleness ?model ?num_active_logical_bytes ?num_active_physical_bytes ?num_bytes ?num_current_physical_bytes ?num_long_term_bytes ?num_long_term_logical_bytes ?num_long_term_physical_bytes ?num_partitions ?num_physical_bytes ?num_rows ?num_time_travel_physical_bytes ?num_total_logical_bytes ?num_total_physical_bytes ?partition_definition ?range_partitioning ?replicas ?require_partition_filter ?resource_tags ?restrictions ?schema ?self_link ?snapshot_definition ?streaming_buffer ?table_constraints ?table_reference ?table_replication_info ?time_partitioning ?type_ ?view () : table = { biglake_configuration; clone_definition; clustering; creation_time; default_collation; default_rounding_mode; description; encryption_configuration; etag; expiration_time; external_catalog_table_options; external_data_configuration; friendly_name; id; kind; labels; last_modified_time; location; managed_table_type; materialized_view; materialized_view_status; max_staleness; model; num_active_logical_bytes; num_active_physical_bytes; num_bytes; num_current_physical_bytes; num_long_term_bytes; num_long_term_logical_bytes; num_long_term_physical_bytes; num_partitions; num_physical_bytes; num_rows; num_time_travel_physical_bytes; num_total_logical_bytes; num_total_physical_bytes; partition_definition; range_partitioning; replicas; require_partition_filter; resource_tags; restrictions; schema; self_link; snapshot_definition; streaming_buffer; table_constraints; table_reference; table_replication_info; time_partitioning; type_; view }
+let make_table ?biglake_configuration ?clone_definition ?clustering ?creation_time ?default_collation ?default_rounding_mode ?description ?encryption_configuration ?etag ?expiration_time ?external_catalog_table_options ?external_data_configuration ?friendly_name ?id ?kind ?labels ?last_modified_time ?location ?managed_table_type ?materialized_view ?materialized_view_status ?max_staleness ?model ?num_active_logical_bytes ?num_active_physical_bytes ?num_bytes ?num_current_physical_bytes ?num_long_term_bytes ?num_long_term_logical_bytes ?num_long_term_physical_bytes ?num_partitions ?num_physical_bytes ?num_rows ?num_time_travel_physical_bytes ?num_total_logical_bytes ?num_total_physical_bytes ?partition_definition ?policy_member ?range_partitioning ?replicas ?require_partition_filter ?resource_tags ?restrictions ?schema ?self_link ?snapshot_definition ?streaming_buffer ?table_constraints ?table_reference ?table_replication_info ?time_partitioning ?type_ ?view () : table = { biglake_configuration; clone_definition; clustering; creation_time; default_collation; default_rounding_mode; description; encryption_configuration; etag; expiration_time; external_catalog_table_options; external_data_configuration; friendly_name; id; kind; labels; last_modified_time; location; managed_table_type; materialized_view; materialized_view_status; max_staleness; model; num_active_logical_bytes; num_active_physical_bytes; num_bytes; num_current_physical_bytes; num_long_term_bytes; num_long_term_logical_bytes; num_long_term_physical_bytes; num_partitions; num_physical_bytes; num_rows; num_time_travel_physical_bytes; num_total_logical_bytes; num_total_physical_bytes; partition_definition; policy_member; range_partitioning; replicas; require_partition_filter; resource_tags; restrictions; schema; self_link; snapshot_definition; streaming_buffer; table_constraints; table_reference; table_replication_info; time_partitioning; type_; view }
 
 let make_table_cell ?v () : table_cell = { v }
 
@@ -7915,6 +8093,8 @@ let make_undelete_dataset_request ?deletion_time () : undelete_dataset_request =
 
 let make_user_defined_function_resource ?inline_code ?resource_uri () : user_defined_function_resource = { inline_code; resource_uri }
 
+let make_vector_search_indexing_stats ?base_table ?index_name () : vector_search_indexing_stats = { base_table; index_name }
+
 let make_vector_search_statistics ?index_unused_reasons ?index_usage_mode ?stored_columns_usages () : vector_search_statistics = { index_unused_reasons; index_usage_mode; stored_columns_usages }
 
 let make_view_definition ?foreign_definitions ?privacy_policy ?query ?use_explicit_column_names ?use_legacy_sql ?user_defined_function_resources () : view_definition = { foreign_definitions; privacy_policy; query; use_explicit_column_names; use_legacy_sql; user_defined_function_resources }
@@ -7943,7 +8123,7 @@ module Datasets = struct
            (List.concat
               [
                 Google_api_runtime.Query.optional "accessPolicyVersion" string_of_int access_policy_version;
-                Google_api_runtime.Query.optional "datasetView" (function `Dataset_view_unspecified -> "DATASET_VIEW_UNSPECIFIED" | `Metadata -> "METADATA" | `Acl -> "ACL" | `Full -> "FULL" | `Unrecognized value -> value) dataset_view;
+                Google_api_runtime.Query.optional "datasetView" (function `Dataset_view_unspecified -> "DATASET_VIEW_UNSPECIFIED" | `Metadata -> "METADATA" | `Acl -> "ACL" | `Full -> "FULL" | `Basic -> "BASIC" | `Basic_replica_metadata_view -> "BASIC_REPLICA_METADATA_VIEW" | `Unrecognized value -> value) dataset_view;
               ]))
       (Google_api_runtime.Call.json dataset_of_yojson)
 

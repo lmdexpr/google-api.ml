@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of storage v1 (revision 20261103). Do not edit. *)
+(* Generated from the Discovery document of storage v1 (revision 20261111). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -254,6 +254,10 @@ and bucket_storage_layout_hierarchical_namespace = {
   enabled : bool option;
 }
 
+and bucket_storage_layout_rapid_cache_info = {
+  cache_type : string option;
+}
+
 and bucket_storage_layout = {
   bucket : string option;
   custom_placement_config : bucket_storage_layout_custom_placement_config option;
@@ -261,6 +265,7 @@ and bucket_storage_layout = {
   kind : string option;
   location : string option;
   location_type : string option;
+  rapid_cache_info : bucket_storage_layout_rapid_cache_info option;
 }
 
 and buckets = {
@@ -427,6 +432,10 @@ and object__retention = {
   retain_until_time : string option;
 }
 
+and object__zonal_availability_info = {
+  available_zones : string list option;
+}
+
 and object_ = {
   acl : object_access_control list option;
   bucket : string option;
@@ -466,6 +475,7 @@ and object_ = {
   time_finalized : string option;
   time_storage_class_updated : string option;
   updated : string option;
+  zonal_availability_info : object__zonal_availability_info option;
 }
 
 and object_access_control_project_team = {
@@ -1278,6 +1288,19 @@ and yojson_of_bucket_storage_layout_hierarchical_namespace (value : bucket_stora
          Option.map (fun field -> ("enabled", (fun value -> `Bool value) field)) value.enabled;
        ])
 
+and bucket_storage_layout_rapid_cache_info_of_yojson json : bucket_storage_layout_rapid_cache_info =
+  let open Yojson.Safe.Util in
+  {
+    cache_type = member "cacheType" json |> to_option to_string;
+  }
+
+and yojson_of_bucket_storage_layout_rapid_cache_info (value : bucket_storage_layout_rapid_cache_info) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("cacheType", (fun value -> `String value) field)) value.cache_type;
+       ])
+
 and bucket_storage_layout_of_yojson json : bucket_storage_layout =
   let open Yojson.Safe.Util in
   {
@@ -1287,6 +1310,7 @@ and bucket_storage_layout_of_yojson json : bucket_storage_layout =
     kind = member "kind" json |> to_option to_string;
     location = member "location" json |> to_option to_string;
     location_type = member "locationType" json |> to_option to_string;
+    rapid_cache_info = member "rapidCacheInfo" json |> to_option bucket_storage_layout_rapid_cache_info_of_yojson;
   }
 
 and yojson_of_bucket_storage_layout (value : bucket_storage_layout) : Yojson.Safe.t =
@@ -1299,6 +1323,7 @@ and yojson_of_bucket_storage_layout (value : bucket_storage_layout) : Yojson.Saf
          Option.map (fun field -> ("kind", (fun value -> `String value) field)) value.kind;
          Option.map (fun field -> ("location", (fun value -> `String value) field)) value.location;
          Option.map (fun field -> ("locationType", (fun value -> `String value) field)) value.location_type;
+         Option.map (fun field -> ("rapidCacheInfo", yojson_of_bucket_storage_layout_rapid_cache_info field)) value.rapid_cache_info;
        ])
 
 and buckets_of_yojson json : buckets =
@@ -1744,6 +1769,19 @@ and yojson_of_object__retention (value : object__retention) : Yojson.Safe.t =
          Option.map (fun field -> ("retainUntilTime", (fun value -> `String value) field)) value.retain_until_time;
        ])
 
+and object__zonal_availability_info_of_yojson json : object__zonal_availability_info =
+  let open Yojson.Safe.Util in
+  {
+    available_zones = member "availableZones" json |> to_option (convert_each to_string);
+  }
+
+and yojson_of_object__zonal_availability_info (value : object__zonal_availability_info) : Yojson.Safe.t =
+  `Assoc
+    (List.filter_map Fun.id
+       [
+         Option.map (fun field -> ("availableZones", (fun items -> `List (List.map (fun value -> `String value) items)) field)) value.available_zones;
+       ])
+
 and object__of_yojson json : object_ =
   let open Yojson.Safe.Util in
   {
@@ -1785,6 +1823,7 @@ and object__of_yojson json : object_ =
     time_finalized = member "timeFinalized" json |> to_option to_string;
     time_storage_class_updated = member "timeStorageClassUpdated" json |> to_option to_string;
     updated = member "updated" json |> to_option to_string;
+    zonal_availability_info = member "zonalAvailabilityInfo" json |> to_option object__zonal_availability_info_of_yojson;
   }
 
 and yojson_of_object_ (value : object_) : Yojson.Safe.t =
@@ -1829,6 +1868,7 @@ and yojson_of_object_ (value : object_) : Yojson.Safe.t =
          Option.map (fun field -> ("timeFinalized", (fun value -> `String value) field)) value.time_finalized;
          Option.map (fun field -> ("timeStorageClassUpdated", (fun value -> `String value) field)) value.time_storage_class_updated;
          Option.map (fun field -> ("updated", (fun value -> `String value) field)) value.updated;
+         Option.map (fun field -> ("zonalAvailabilityInfo", yojson_of_object__zonal_availability_info field)) value.zonal_availability_info;
        ])
 
 and object_access_control_project_team_of_yojson json : object_access_control_project_team =
@@ -2240,7 +2280,9 @@ let make_bucket_storage_layout_custom_placement_config ?data_locations () : buck
 
 let make_bucket_storage_layout_hierarchical_namespace ?enabled () : bucket_storage_layout_hierarchical_namespace = { enabled }
 
-let make_bucket_storage_layout ?bucket ?custom_placement_config ?hierarchical_namespace ?kind ?location ?location_type () : bucket_storage_layout = { bucket; custom_placement_config; hierarchical_namespace; kind; location; location_type }
+let make_bucket_storage_layout_rapid_cache_info ?cache_type () : bucket_storage_layout_rapid_cache_info = { cache_type }
+
+let make_bucket_storage_layout ?bucket ?custom_placement_config ?hierarchical_namespace ?kind ?location ?location_type ?rapid_cache_info () : bucket_storage_layout = { bucket; custom_placement_config; hierarchical_namespace; kind; location; location_type; rapid_cache_info }
 
 let make_buckets ?items ?kind ?next_page_token ?unreachable () : buckets = { items; kind; next_page_token; unreachable }
 
@@ -2288,7 +2330,9 @@ let make_object__owner ?entity ?entity_id () : object__owner = { entity; entity_
 
 let make_object__retention ?mode ?retain_until_time () : object__retention = { mode; retain_until_time }
 
-let make_object_ ?acl ?bucket ?cache_control ?component_count ?content_disposition ?content_encoding ?content_language ?content_type ?contexts ?crc32c ?custom_time ?customer_encryption ?etag ?event_based_hold ?generation ?hard_delete_time ?id ?kind ?kms_key_name ?md5_hash ?media_link ?metadata ?metageneration ?name ?owner ?restore_token ?retention ?retention_expiration_time ?self_link ?size ?soft_delete_time ?storage_class ?temporary_hold ?time_created ?time_deleted ?time_finalized ?time_storage_class_updated ?updated () : object_ = { acl; bucket; cache_control; component_count; content_disposition; content_encoding; content_language; content_type; contexts; crc32c; custom_time; customer_encryption; etag; event_based_hold; generation; hard_delete_time; id; kind; kms_key_name; md5_hash; media_link; metadata; metageneration; name; owner; restore_token; retention; retention_expiration_time; self_link; size; soft_delete_time; storage_class; temporary_hold; time_created; time_deleted; time_finalized; time_storage_class_updated; updated }
+let make_object__zonal_availability_info ?available_zones () : object__zonal_availability_info = { available_zones }
+
+let make_object_ ?acl ?bucket ?cache_control ?component_count ?content_disposition ?content_encoding ?content_language ?content_type ?contexts ?crc32c ?custom_time ?customer_encryption ?etag ?event_based_hold ?generation ?hard_delete_time ?id ?kind ?kms_key_name ?md5_hash ?media_link ?metadata ?metageneration ?name ?owner ?restore_token ?retention ?retention_expiration_time ?self_link ?size ?soft_delete_time ?storage_class ?temporary_hold ?time_created ?time_deleted ?time_finalized ?time_storage_class_updated ?updated ?zonal_availability_info () : object_ = { acl; bucket; cache_control; component_count; content_disposition; content_encoding; content_language; content_type; contexts; crc32c; custom_time; customer_encryption; etag; event_based_hold; generation; hard_delete_time; id; kind; kms_key_name; md5_hash; media_link; metadata; metageneration; name; owner; restore_token; retention; retention_expiration_time; self_link; size; soft_delete_time; storage_class; temporary_hold; time_created; time_deleted; time_finalized; time_storage_class_updated; updated; zonal_availability_info }
 
 let make_object_access_control_project_team ?project_number ?team () : object_access_control_project_team = { project_number; team }
 
@@ -2359,12 +2403,6 @@ module Anywhere_caches = struct
                 Google_api_runtime.Query.optional "pageToken" Fun.id page_token;
               ]))
       (Google_api_runtime.Call.json anywhere_caches_of_yojson)
-
-  let pause ~bucket ~anywhere_cache_id () =
-    Google_api_runtime.Call.make ~meth:`POST
-      ~uri:
-        (Uri.of_string (base_url ^ "b/" ^ Uri.pct_encode ~component:`Path bucket ^ "/anywhereCaches/" ^ Uri.pct_encode ~component:`Path anywhere_cache_id ^ "/pause"))
-      (Google_api_runtime.Call.json anywhere_cache_of_yojson)
 
   let resume ~bucket ~anywhere_cache_id () =
     Google_api_runtime.Call.make ~meth:`POST

@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of bigquery v2 (revision 20261009). Do not edit. *)
+(* Generated from the Discovery document of bigquery v2 (revision 20261107). Do not edit. *)
 
-(** BigQuery API (bigquery v2, revision 20261009).
+(** BigQuery API (bigquery v2, revision 20261107).
 
     A data platform for customers to create, manage, share and query data.
 
@@ -97,17 +97,17 @@ and arima_single_model_forecasting_metrics = {
   time_series_ids : string list option;  (** The tuple of time_series_ids identifying this time series. It will be one of the unique tuples of values present in the time_series_id_columns specified during ARIMA model training. Only present when time_series_id_columns training option was used and the order of values here are same as the order of time_series_id_columns. *)
 }
 
-(** Arrow RecordBatch. This feature is not yet available. *)
+(** Arrow RecordBatch. \[Preview\](https://cloud.google.com/products/#product-launch-stages) *)
 and arrow_record_batch = {
   serialized_record_batch : string option;  (** IPC-serialized Arrow RecordBatch. *)
 }
 
-(** Arrow schema as specified in https://arrow.apache.org/docs/python/api/datatypes.html and serialized to bytes using IPC: https://arrow.apache.org/docs/format/Columnar.html#serialization-and-interprocess-communication-ipc See code samples on how this message can be deserialized. This feature is not yet available. *)
+(** Arrow schema as specified in https://arrow.apache.org/docs/python/api/datatypes.html and serialized to bytes using IPC: https://arrow.apache.org/docs/format/Columnar.html#serialization-and-interprocess-communication-ipc See code samples on how this message can be deserialized. \[Preview\](https://cloud.google.com/products/#product-launch-stages) *)
 and arrow_schema = {
   serialized_schema : string option;  (** IPC serialized Arrow schema. *)
 }
 
-(** Contains options specific to Arrow Serialization. This feature is not yet available. *)
+(** Contains options specific to Arrow Serialization. \[Preview\](https://cloud.google.com/products/#product-launch-stages) *)
 and arrow_serialization_options = {
   buffer_compression : [ `Compression_unspecified | `Lz4_frame | `Zstd | `Unrecognized of string ] option;  (** The compression codec to use for Arrow buffers in serialized record batches. *)
   picos_timestamp_precision : [ `Picos_timestamp_precision_unspecified | `Timestamp_precision_micros | `Timestamp_precision_nanos | `Timestamp_precision_picos | `Unrecognized of string ] option;  (** Optional. Set timestamp precision option. If not set, the default precision is microseconds. *)
@@ -153,6 +153,7 @@ and bi_engine_statistics = {
 and big_lake_configuration = {
   connection_id : string option;  (** Optional. The connection specifying the credentials to be used to read and write to external storage, such as Cloud Storage. The connection_id can have the form `\{project\}.\{location\}.\{connection_id\}` or `projects/\{project\}/locations/\{location\}/connections/\{connection_id\}'. *)
   file_format : [ `File_format_unspecified | `Parquet | `Unrecognized of string ] option;  (** Optional. The file format the table data is stored in. *)
+  metadata_export_mode : [ `Metadata_export_mode_unspecified | `Async | `Manual | `Unrecognized of string ] option;  (** Optional. The type of Metadata Export for BigLake Managed Tables. *)
   storage_uri : string option;  (** Optional. The fully qualified location prefix of the external folder where table data is stored. The '*' wildcard character is not allowed. The URI should be in the format `gs://bucket/path_to_table/` *)
   table_format : [ `Table_format_unspecified | `Iceberg | `Unrecognized of string ] option;  (** Optional. The table format the metadata only snapshots are stored in. *)
 }
@@ -382,6 +383,7 @@ and dataset = {
   etag : string option;  (** Output only. A hash of the resource. *)
   external_catalog_dataset_options : external_catalog_dataset_options option;  (** Optional. Options defining open source compatible datasets living in the BigQuery catalog. Contains metadata of open source database, schema or namespace represented by the current dataset. *)
   external_dataset_reference : external_dataset_reference option;  (** Optional. Reference to a read-only external dataset defined in data catalogs outside of BigQuery. Filled out when the dataset type is EXTERNAL. *)
+  failover_reservation_id : string option;  (** Optional. The failover reservation associated with the dataset in the regionless format. Example: .. To learn about about failover reservations see: https://docs.cloud.google.com/bigquery/docs/managed-disaster-recovery#overview *)
   friendly_name : string option;  (** Optional. A descriptive name for the dataset. *)
   id : string option;  (** Output only. The fully-qualified unique name of the dataset in the format projectId:datasetId. The dataset name without the project name is given in the datasetId field. When creating a new dataset, leave this field blank, and instead specify the datasetId field. *)
   is_case_insensitive : bool option;  (** Optional. TRUE if the dataset and its table names are case-insensitive, otherwise FALSE. By default, this is FALSE, which means the dataset and its table names are case-sensitive. This field does not affect routine references. *)
@@ -392,6 +394,7 @@ and dataset = {
   linked_dataset_source : linked_dataset_source option;  (** Optional. The source dataset reference when the dataset is of type LINKED. For all other dataset types it is not set. This field cannot be updated once it is set. Any attempt to update this field using Update and Patch API Operations will be ignored. *)
   location : string option;  (** The geographic location where the dataset should reside. See https://cloud.google.com/bigquery/docs/locations for supported locations. *)
   max_time_travel_hours : string option;  (** Optional. Defines the time travel window in hours. The value can be from 48 to 168 hours (2 to 7 days). The default value is 168 hours if this is not set. *)
+  replicas : replica list option;  (** Optional. The list of replicas in a cross region replicated or disaster recovery dataset. *)
   resource_tags : (string * string) list option;  (** Optional. The \[tags\](https://cloud.google.com/bigquery/docs/tags) attached to this dataset. Tag keys are globally unique. Tag key is expected to be in the namespaced format, for example '123456789012/environment' where 123456789012 is the ID of the parent organization or project resource for this tag key. Tag value is expected to be the short name, for example 'Production'. See \[Tag definitions\](https://cloud.google.com/iam/docs/tags-access-control#definitions) for more details. *)
   restrictions : restriction_config option;  (** Optional. Output only. Restriction config for all tables and dataset. If set, restrict certain accesses on the dataset and all its tables based on the config. See \[Data egress\](https://cloud.google.com/bigquery/docs/analytics-hub-introduction#data_egress) for more details. *)
   satisfies_pzi : bool option;  (** Output only. Reserved for future use. *)
@@ -854,6 +857,13 @@ and input_data_change = {
   records_read_diff_percentage : float option;  (** Output only. Records read difference percentage compared to a previous run. *)
 }
 
+(** Information about a package installed in the routine execution environment. *)
+and installed_package = {
+  name : string option;  (** Output only. The name of the installed package. *)
+  source_repository : string option;  (** Output only. The source repository from which this package was installed. Populated only when the package was installed from an additional package repository. E.g. 'https://my-region-python.pkg.dev/my-project/my-repo/simple' *)
+  version : string option;  (** Output only. The version of the installed package. *)
+}
+
 (** An array of int. *)
 and int_array = {
   elements : string list option;  (** Elements in the int array. *)
@@ -1148,6 +1158,7 @@ and job_statistics2 = {
   referenced_tables : table_reference list option;  (** Output only. Referenced tables for the job. *)
   reservation_usage : job_statistics2_reservation_usage_item list option;  (** Output only. Job resource usage breakdown by reservation. This field reported misleading information and will no longer be populated. *)
   schema : table_schema option;  (** Output only. The schema of the results. Present only for successful dry run of non-legacy SQL queries. *)
+  search_indexing_stats : search_indexing_stats option;  (** Output only. Search indexing specific statistics. *)
   search_statistics : search_statistics option;  (** Output only. Search query specific statistics. *)
   spark_statistics : spark_statistics option;  (** Output only. Statistics of a Spark procedure job. *)
   statement_type : string option;  (** Output only. The type of query statement, if valid. Possible values: * `SELECT`: \[`SELECT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_list) statement. * `ASSERT`: \[`ASSERT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/debugging-statements#assert) statement. * `INSERT`: \[`INSERT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#insert_statement) statement. * `UPDATE`: \[`UPDATE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#update_statement) statement. * `DELETE`: \[`DELETE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language) statement. * `MERGE`: \[`MERGE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language) statement. * `TRUNCATE_TABLE`: \[`TRUNCATE TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#truncate_table_statement) statement. * `CREATE_TABLE`: \[`CREATE TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement) statement, without `AS SELECT`. * `CREATE_TABLE_AS_SELECT`: \[`CREATE TABLE AS SELECT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement) statement. * `CREATE_VIEW`: \[`CREATE VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_view_statement) statement. * `CREATE_MODEL`: \[`CREATE MODEL`\](https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create#create_model_statement) statement. * `CREATE_MATERIALIZED_VIEW`: \[`CREATE MATERIALIZED VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_statement) statement. * `CREATE_FUNCTION`: \[`CREATE FUNCTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_function_statement) statement. * `CREATE_TABLE_FUNCTION`: \[`CREATE TABLE FUNCTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_function_statement) statement. * `CREATE_PROCEDURE`: \[`CREATE PROCEDURE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_procedure) statement. * `CREATE_ROW_ACCESS_POLICY`: \[`CREATE ROW ACCESS POLICY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement) statement. * `CREATE_SCHEMA`: \[`CREATE SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_schema_statement) statement. * `CREATE_EXTERNAL_SCHEMA`: \[`CREATE EXTERNAL SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_external_schema_statement) statement. * `CREATE_EXTERNAL_TABLE`: \[`CREATE EXTERNAL TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_external_table_statement) statement. * `CREATE_SNAPSHOT_TABLE`: \[`CREATE SNAPSHOT TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_snapshot_table_statement) statement. * `CREATE_SEARCH_INDEX`: \[`CREATE SEARCH INDEX`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_search_index_statement) statement. * `CREATE_VECTOR_INDEX`: \[`CREATE VECTOR INDEX`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_vector_index_statement) statement. * `CREATE_CONNECTION`: \[`CREATE CONNECTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_connection_statement) statement. * `CREATE_DATA_POLICY`: \[`CREATE DATA_POLICY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_data_policy_statement) statement. * `CREATE_PROPERTY_GRAPH`: \[`CREATE PROPERTY GRAPH`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/graph-schema-statements#gql_create_graph) statement. * `CREATE_CAPACITY`: \[`CREATE CAPACITY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_capacity_statement) statement. * `CREATE_RESERVATION`: \[`CREATE RESERVATION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_reservation_statement) statement. * `CREATE_ASSIGNMENT`: \[`CREATE ASSIGNMENT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_assignment_statement) statement. * `DROP_TABLE`: \[`DROP TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_statement) statement. * `DROP_EXTERNAL_TABLE`: \[`DROP EXTERNAL TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_external_table_statement) statement. * `DROP_VIEW`: \[`DROP VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_view_statement) statement. * `DROP_MODEL`: \[`DROP MODEL`\](https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model) statement. * `DROP_MATERIALIZED_VIEW`: \[`DROP MATERIALIZED VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_materialized_view_statement) statement. * `DROP_FUNCTION`: \[`DROP FUNCTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_function_statement) statement. * `DROP_TABLE_FUNCTION`: \[`DROP TABLE FUNCTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_function) statement. * `DROP_PROCEDURE`: \[`DROP PROCEDURE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_procedure_statement) statement. * `DROP_SEARCH_INDEX`: \[`DROP SEARCH INDEX`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_search_index) statement. * `DROP_VECTOR_INDEX`: \[`DROP VECTOR INDEX`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_vector_index) statement. * `DROP_SCHEMA`: \[`DROP SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_schema_statement) statement. * `UNDROP_SCHEMA`: \[`UNDROP SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#undrop_schema_statement) statement. * `DROP_SNAPSHOT_TABLE`: \[`DROP SNAPSHOT TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_snapshot_table_statement) statement. * `DROP_ROW_ACCESS_POLICY`: \[`DROP \[ALL\] ROW ACCESS POLICY|POLICIES`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_row_access_policy_statement) statement. * `DROP_CONNECTION`: \[`DROP CONNECTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_connection_statement) statement. * `DROP_DATA_POLICY`: \[`DROP DATA_POLICY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_data_policy) statement. * `DROP_PROPERTY_GRAPH`: \[`DROP PROPERTY GRAPH`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/graph-schema-statements#gql_drop_graph) statement. * `DROP_CAPACITY`: \[`DROP CAPACITY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_capacity_statement) statement. * `DROP_RESERVATION`: \[`DROP RESERVATION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_reservation_statement) statement. * `DROP_ASSIGNMENT`: \[`DROP ASSIGNMENT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_assignment_statement) statement. * `ALTER_TABLE`: \[`ALTER TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_set_options_statement) statement. * `ALTER_VIEW`: \[`ALTER VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_view_set_options_statement) statement. * `ALTER_MATERIALIZED_VIEW`: \[`ALTER MATERIALIZED VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_materialized_view_set_options_statement) statement. * `ALTER_SCHEMA`: \[`ALTER SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_set_options_statement) statement. * `ALTER_MODEL`: \[`ALTER MODEL`\](https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-alter-model) statement. * `ALTER_SEARCH_INDEX`: \[`ALTER SEARCH INDEX`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_search_index_statement) statement. * `ALTER_VECTOR_INDEX`: \[`ALTER VECTOR INDEX`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_vector_index_rebuild_statement) statement. * `ALTER_CONNECTION`: \[`ALTER CONNECTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_connection_set_options_statement) statement. * `ALTER_DATA_POLICY`: \[`ALTER DATA_POLICY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_data_policy_statement) statement. * `ALTER_PROJECT`: \[`ALTER PROJECT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_project_set_options_statement) statement. * `ALTER_ORGANIZATION`: \[`ALTER ORGANIZATION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_organization_set_options_statement) statement. * `ALTER_BI_CAPACITY`: \[`ALTER BI_CAPACITY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_bi_capacity_set_options_statement) statement. * `ALTER_CAPACITY`: \[`ALTER CAPACITY`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_capacity_set_options_statement) statement. * `ALTER_RESERVATION`: \[`ALTER RESERVATION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_reservation_set_options_statement) statement. * `SCRIPT`: \[`SCRIPT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language) statement. * `CALL`: \[`CALL`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#call) statement. * `BEGIN_TRANSACTION`: \[`BEGIN TRANSACTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#begin_transaction) statement. * `COMMIT_TRANSACTION`: \[`COMMIT TRANSACTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#commit_transaction) statement. * `ROLLBACK_TRANSACTION`: \[`ROLLBACK TRANSACTION`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#rollback_transaction) statement. * `EXPORT_DATA`: \[`EXPORT DATA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/export-statements#export_data_statement) statement. * `EXPORT_MODEL`: \[`EXPORT MODEL`\](https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-export-model) statement. * `EXPORT_METADATA`: \[`EXPORT TABLE METADATA`\](https://cloud.google.com/bigquery/docs/biglake-iceberg-tables-in-bigquery) statement, for BigLake Iceberg tables. * `LOAD_DATA`: \[`LOAD DATA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/load-statements#load_data_statement) statement. * `GRANT_ON_SCHEMA`: \[`GRANT ... ON SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#grant_statement) statement. * `GRANT_ON_TABLE`: \[`GRANT ... ON TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#grant_statement) statement. Also used for `GRANT ... ON EXTERNAL TABLE`. * `GRANT_ON_VIEW`: \[`GRANT ... ON VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#grant_statement) statement. * `GRANT_ON_PROJECT`: \[`GRANT ... ON PROJECT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#grant_statement) statement. * `REVOKE_ON_SCHEMA`: \[`REVOKE ... ON SCHEMA`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#revoke_statement) statement. * `REVOKE_ON_TABLE`: \[`REVOKE ... ON TABLE`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#revoke_statement) statement. Also used for `REVOKE ... ON EXTERNAL TABLE`. * `REVOKE_ON_VIEW`: \[`REVOKE ... ON VIEW`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#revoke_statement) statement. * `REVOKE_ON_PROJECT`: \[`REVOKE ... ON PROJECT`\](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language#revoke_statement) statement. *)
@@ -1160,6 +1171,7 @@ and job_statistics2 = {
   total_slot_ms : string option;  (** Output only. Slot-milliseconds for the job. *)
   transferred_bytes : string option;  (** Output only. Total bytes transferred for BigQuery Omni queries from the remote cloud back to Google Cloud. This tracks data movement over Google-managed connections (like query results). It doesn't include input data read from the external data lake (for example, S3) because that data stays within the remote cloud. *)
   undeclared_query_parameters : query_parameter list option;  (** Output only. GoogleSQL only: list of undeclared query parameters detected during a dry run validation. *)
+  vector_search_indexing_stats : vector_search_indexing_stats option;  (** Output only. Vector Search indexing specific statistics. *)
   vector_search_statistics : vector_search_statistics option;  (** Output only. Vector Search query specific statistics. *)
 }
 
@@ -1452,7 +1464,9 @@ and pruning_stats = {
 
 (** Options for a user-defined Python function. *)
 and python_options = {
+  build_connection : string option;  (** Optional. Fully qualified name of the connection whose service account will be used to authenticate to private package repositories during build-time. Format: 'projects/\{project_id\}/locations/\{location_id\}/connections/\{connection_id\}' *)
   entry_point : string option;  (** Required. The name of the function defined in Python code as the entry point when the Python UDF is invoked. *)
+  extra_package_repositories : string list option;  (** Optional. The list of additional package repositories to search when resolving Python packages. These repositories are searched in addition to the default public PyPI. Only repositories hosted in Artifact Registry (.pkg.dev) are supported. Only pre-compiled Wheel (.whl) packages are supported from these repositories. E.g. \['https://my-region-python.pkg.dev/my-project/my-repo/simple'\] *)
   packages : string list option;  (** Optional. A list of Python package names along with versions to be installed. Example: \['pandas>=2.1', 'google-cloud-translate==3.11'\]. For more information, see \[Use third-party packages\](https://cloud.google.com/bigquery/docs/user-defined-functions-python#third-party-packages). *)
 }
 
@@ -1513,7 +1527,7 @@ and query_request = {
   preserve_nulls : bool option;  (** This property is deprecated. *)
   query : string option;  (** Required. A query string to execute, using Google Standard SQL or legacy SQL syntax. Example: 'SELECT COUNT(f1) FROM myProjectId.myDatasetId.myTableId'. *)
   query_parameters : query_parameter list option;  (** Query parameters for GoogleSQL queries. *)
-  query_results_format : [ `Query_results_format_unspecified | `Struct_encoding | `Arrow | `Unrecognized of string ] option;  (** Optional. The query results format. If the value is anything other than `STRUCT_ENCODING` or unspecified: * The schema of the results will be provided in `QueryResponse.results_schema` field. * The results of the first page will be provided in `QueryResponse.results` field. * The `QueryResponse.rows` will not be populated. * The `QueryResponse.schema` for `QueryResponse.rows` will also not be populated since it is the schema of the `QueryResponse.rows`. This feature is not yet available. *)
+  query_results_format : [ `Query_results_format_unspecified | `Struct_encoding | `Arrow | `Unrecognized of string ] option;  (** Optional. The query results format. If the value is anything other than `STRUCT_ENCODING` or unspecified: * The schema of the results is provided in the `QueryResponse.results_schema` field. * The results of the first page are provided in the `QueryResponse.results` field. * The `QueryResponse.rows` is not populated. * The `QueryResponse.schema` for `QueryResponse.rows` is not populated since it is the schema of the `QueryResponse.rows`. \[Preview\](https://cloud.google.com/products/#product-launch-stages) *)
   request_id : string option;  (** Optional. A unique user provided identifier to ensure idempotent behavior for queries. Note that this is different from the job_id. It has the following properties: 1. It is case-sensitive, limited to up to 36 ASCII characters. A UUID is recommended. 2. Read only queries can ignore this token since they are nullipotent by definition. 3. For the purposes of idempotency ensured by the request_id, a request is considered duplicate of another only if they have the same request_id and are actually duplicates. When determining whether a request is a duplicate of another request, all parameters in the request that may affect the result are considered. For example, query, connection_properties, query_parameters, use_legacy_sql are parameters that affect the result and are considered when determining whether a request is a duplicate, but properties like timeout_ms don't affect the result and are thus not considered. Dry run query requests are never considered duplicate of another request. 4. When a duplicate mutating query request is detected, it returns: a. the results of the mutation if it completes successfully within the timeout. b. the running operation if it is still in progress at the end of the timeout. 5. Its lifetime is limited to 15 minutes. In other words, if two requests are sent with the same request_id, but more than 15 minutes apart, idempotency is not guaranteed. *)
   reservation : string option;  (** Optional. The reservation that jobs.query request would use. User can specify a reservation to execute the job.query. The expected format is `projects/\{project\}/locations/\{location\}/reservations/\{reservation\}`. Forces the query to use on-demand billing when set to `none`. This requires the project or organization to have `reservation_override_mode` set to `ALLOW_ANY_OVERRIDE`. *)
   secure_context : secure_context option;  (** Optional. A set of key-value pairs representing the secure context. This can be used to pass sensitive or context-specific information. They can be retrieved via the SECURE_CONTEXT() function and used to modify the run-time behavior of a query. *)
@@ -1537,7 +1551,7 @@ and query_response = {
   kind : string option;  (** The resource type. *)
   location : string option;  (** Output only. The geographic location of the query. For more information about BigQuery locations, see: https://cloud.google.com/bigquery/docs/locations *)
   num_dml_affected_rows : string option;  (** Output only. The number of rows affected by a DML statement. Present only for DML statements INSERT, UPDATE or DELETE. *)
-  page_row_count : string option;  (** Output only. The number of rows out of `total_rows` returned in this response. This feature is not yet available. *)
+  page_row_count : string option;  (** Output only. The number of rows out of `total_rows` returned in this response. \[Preview\](https://cloud.google.com/products/#product-launch-stages) *)
   page_token : string option;  (** A token used for paging results. A non-empty token indicates that additional results are available. To see additional results, query the \[`jobs.getQueryResults`\](https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults) method. For more information, see \[Paging through table data\](https://cloud.google.com/bigquery/docs/paging-results). *)
   query_id : string option;  (** Auto-generated ID for the query. *)
   rows : table_row list option;  (** An object with as many results as can be contained within the maximum permitted reply size. To get any additional rows, you can call GetQueryResults and specify the jobReference returned above. *)
@@ -1614,6 +1628,30 @@ and remote_model_info = {
   speech_recognizer : string option;  (** Output only. The name of the speech recognizer to use for speech recognition. The expected format is `projects/\{project\}/locations/\{location\}/recognizers/\{recognizer\}`. Customers can specify this field at model creation. If not specified, a default recognizer `projects/\{model project\}/locations/global/recognizers/_` will be used. See more details at \[recognizers\](https://cloud.google.com/speech-to-text/v2/docs/reference/rest/v2/projects.locations.recognizers) *)
 }
 
+(** The replica metadata of the dataset. If the dataset has two or more replicas, it's considered a cross region replicated (CRR) dataset. *)
+and replica = {
+  backfill_completion_time : string option;  (** Output only. The time when the backfill was completed and replica is ready to use. *)
+  creation_time : string option;  (** Output only. The timestamp when the replica was created. For any dataset's first replica, this should be set to the dataset's creation_time. *)
+  failover_reservation_uri : string option;  (** Output only. Failover reservation ID for the replica's region if this replica is used for DR. Fully-qualified format, e.g. 'projects/some-project/locations/US/reservations/some-reservation' The location portion of the format is upper case if 'US' or 'EU', otherwise a lower case cloud region like 'asia-northeast1'. *)
+  id : string option;  (** Required. The user-visible string identifier for this dataset replica. This is generally named after the region. *)
+  location : string option;  (** Required. The logical bigquery region where this replica is located. This is upper case if 'US' or 'EU', otherwise a lower case cloud region like 'asia-northeast1'. *)
+  primary_assignment_completion_time : string option;  (** Output only. After a new primary assignment is made, this is the time that the dataset's data has been fully replicated to the replica, and after which the system will use current reads in the new primary replica. *)
+  primary_assignment_time : string option;  (** Output only. The time at which the replica was assigned primary. Only one replica will have this field populated at any point. *)
+  replica_options : replica_options option;  (** Optional. Contains modify options on the replica such as set a kms key on the replica. *)
+  replica_state : [ `Replica_state_unspecified | `Primary | `Secondary | `Assigned_primary | `Previously_assigned_primary | `Backfilling | `Unrecognized of string ] option;  (** Output only. Gives an explicit indicator of the replica primary state. *)
+}
+
+(** Options set by the user when creating the replica. These include region-specific dataset values, for example default KMS key name. When a resource is replicated, the destination region's replica contains values that should be overwritten in the destination region. *)
+and replica_options = {
+  default_kms_key_name : string option;  (** Optional. Default KMS encryption key name. *)
+}
+
+(** Output-only policy member strings of a Google Cloud resource's built-in identity. *)
+and resource_policy_member = {
+  iam_policy_name_principal : string option;  (** Output only. IAM policy binding member referring to a Google Cloud resource by user-assigned name (https://google.aip.dev/122). If a resource is deleted and recreated with the same name, the binding will be applicable to the new resource. Example: `principal://parametermanager.googleapis.com/projects/12345/name/locations/us-central1-a/parameters/my-parameter` *)
+  iam_policy_uid_principal : string option;  (** Output only. IAM policy binding member referring to a Google Cloud resource by system-assigned unique identifier (https://google.aip.dev/148#uid). If a resource is deleted and recreated with the same name, the binding will not be applicable to the new resource Example: `principal://parametermanager.googleapis.com/projects/12345/uid/locations/us-central1-a/parameters/a918fed5` *)
+}
+
 and restriction_config = {
   type_ : [ `Restriction_type_unspecified | `Restricted_data_egress | `Unrecognized of string ] option;  (** Output only. Specifies the type of dataset/table restriction. *)
 }
@@ -1650,6 +1688,7 @@ and routine_build_status = {
   build_state_update_time : string option;  (** Output only. The time when the build state was updated last. *)
   error_result : error_proto option;  (** Output only. A result object that will be present only if the build has failed. *)
   image_size_bytes : string option;  (** Output only. The size of the image in bytes. Populated only after the build succeeds. *)
+  installed_packages : installed_package list option;  (** Output only. The list of installed packages in the routine's execution environment. Populated only after the build succeeds. *)
 }
 
 (** Id path of a routine. *)
@@ -1709,6 +1748,12 @@ and script_stack_frame = {
 and script_statistics = {
   evaluation_kind : [ `Evaluation_kind_unspecified | `Statement | `Expression | `Unrecognized of string ] option;  (** Whether this child job was a statement or expression. *)
   stack_frames : script_stack_frame list option;  (** Stack trace showing the line/column/procedure name of each frame on the stack at the point where the current evaluation happened. The leaf frame is first, the primary script is last. Never empty. *)
+}
+
+(** Statistics for a search indexing job. Populated as part of JobStatistics2. *)
+and search_indexing_stats = {
+  base_table : table_reference option;  (** Output only. The base table for which the search index is being created or refreshed. *)
+  index_name : string option;  (** Output only. The name of the search index. *)
 }
 
 (** Statistics for a search query. Populated as part of JobStatistics2. *)
@@ -1902,6 +1947,7 @@ and table = {
   num_total_logical_bytes : string option;  (** Output only. Total number of logical bytes in the table or materialized view. *)
   num_total_physical_bytes : string option;  (** Output only. The physical size of this table in bytes. This also includes storage used for time travel. This data is not kept in real time, and might be delayed by a few seconds to a few minutes. *)
   partition_definition : partitioning_definition option;  (** Optional. The partition information for all table formats, including managed partitioned tables, hive partitioned tables, iceberg partitioned, and metastore partitioned tables. This field is only populated for metastore partitioned tables. For other table formats, this is an output only field. *)
+  policy_member : resource_policy_member option;  (** Output only. Contains the resource identity token of the view that users can use to include in their policy bindings for authorization. This should be set only for views. *)
   range_partitioning : range_partitioning option;  (** If specified, configures range partitioning for this table. *)
   replicas : table_reference list option;  (** Optional. Output only. Table references of all replicas currently active on the table. *)
   require_partition_filter : bool option;  (** Optional. If set to true, queries over this table require a partition filter that can be used for partition elimination to be specified. *)
@@ -2255,6 +2301,12 @@ and user_defined_function_resource = {
   resource_uri : string option;  (** \[Pick one\] A code resource to load from a Google Cloud Storage URI (gs://bucket/path). *)
 }
 
+(** Statistics for a vector search indexing job. Populated as part of JobStatistics2. *)
+and vector_search_indexing_stats = {
+  base_table : table_reference option;  (** Output only. The base table for which the vector index is being created or refreshed. *)
+  index_name : string option;  (** Output only. The name of the vector index. *)
+}
+
 (** Statistics for a vector search query. Populated as part of JobStatistics2. *)
 and vector_search_statistics = {
   index_unused_reasons : index_unused_reason list option;  (** When `indexUsageMode` is `UNUSED` or `PARTIALLY_USED`, this field explains why indexes were not used in all or part of the vector search query. If `indexUsageMode` is `FULLY_USED`, this field is not populated. *)
@@ -2478,6 +2530,7 @@ val yojson_of_big_lake_configuration : big_lake_configuration -> Yojson.Safe.t
 val make_big_lake_configuration :
   ?connection_id:string ->
   ?file_format:[ `File_format_unspecified | `Parquet | `Unrecognized of string ] ->
+  ?metadata_export_mode:[ `Metadata_export_mode_unspecified | `Async | `Manual | `Unrecognized of string ] ->
   ?storage_uri:string ->
   ?table_format:[ `Table_format_unspecified | `Iceberg | `Unrecognized of string ] ->
   unit ->
@@ -2800,6 +2853,7 @@ val make_dataset :
   ?etag:string ->
   ?external_catalog_dataset_options:external_catalog_dataset_options ->
   ?external_dataset_reference:external_dataset_reference ->
+  ?failover_reservation_id:string ->
   ?friendly_name:string ->
   ?id:string ->
   ?is_case_insensitive:bool ->
@@ -2810,6 +2864,7 @@ val make_dataset :
   ?linked_dataset_source:linked_dataset_source ->
   ?location:string ->
   ?max_time_travel_hours:string ->
+  ?replicas:replica list ->
   ?resource_tags:(string * string) list ->
   ?restrictions:restriction_config ->
   ?satisfies_pzi:bool ->
@@ -3431,6 +3486,16 @@ val make_input_data_change :
   unit ->
   input_data_change
 
+val installed_package_of_yojson : Yojson.Safe.t -> installed_package
+val yojson_of_installed_package : installed_package -> Yojson.Safe.t
+
+val make_installed_package :
+  ?name:string ->
+  ?source_repository:string ->
+  ?version:string ->
+  unit ->
+  installed_package
+
 val int_array_of_yojson : Yojson.Safe.t -> int_array
 val yojson_of_int_array : int_array -> Yojson.Safe.t
 
@@ -3792,6 +3857,7 @@ val make_job_statistics2 :
   ?referenced_tables:table_reference list ->
   ?reservation_usage:job_statistics2_reservation_usage_item list ->
   ?schema:table_schema ->
+  ?search_indexing_stats:search_indexing_stats ->
   ?search_statistics:search_statistics ->
   ?spark_statistics:spark_statistics ->
   ?statement_type:string ->
@@ -3804,6 +3870,7 @@ val make_job_statistics2 :
   ?total_slot_ms:string ->
   ?transferred_bytes:string ->
   ?undeclared_query_parameters:query_parameter list ->
+  ?vector_search_indexing_stats:vector_search_indexing_stats ->
   ?vector_search_statistics:vector_search_statistics ->
   unit ->
   job_statistics2
@@ -4225,7 +4292,9 @@ val python_options_of_yojson : Yojson.Safe.t -> python_options
 val yojson_of_python_options : python_options -> Yojson.Safe.t
 
 val make_python_options :
+  ?build_connection:string ->
   ?entry_point:string ->
+  ?extra_package_repositories:string list ->
   ?packages:string list ->
   unit ->
   python_options
@@ -4437,6 +4506,39 @@ val make_remote_model_info :
   unit ->
   remote_model_info
 
+val replica_of_yojson : Yojson.Safe.t -> replica
+val yojson_of_replica : replica -> Yojson.Safe.t
+
+val make_replica :
+  ?backfill_completion_time:string ->
+  ?creation_time:string ->
+  ?failover_reservation_uri:string ->
+  ?id:string ->
+  ?location:string ->
+  ?primary_assignment_completion_time:string ->
+  ?primary_assignment_time:string ->
+  ?replica_options:replica_options ->
+  ?replica_state:[ `Replica_state_unspecified | `Primary | `Secondary | `Assigned_primary | `Previously_assigned_primary | `Backfilling | `Unrecognized of string ] ->
+  unit ->
+  replica
+
+val replica_options_of_yojson : Yojson.Safe.t -> replica_options
+val yojson_of_replica_options : replica_options -> Yojson.Safe.t
+
+val make_replica_options :
+  ?default_kms_key_name:string ->
+  unit ->
+  replica_options
+
+val resource_policy_member_of_yojson : Yojson.Safe.t -> resource_policy_member
+val yojson_of_resource_policy_member : resource_policy_member -> Yojson.Safe.t
+
+val make_resource_policy_member :
+  ?iam_policy_name_principal:string ->
+  ?iam_policy_uid_principal:string ->
+  unit ->
+  resource_policy_member
+
 val restriction_config_of_yojson : Yojson.Safe.t -> restriction_config
 val yojson_of_restriction_config : restriction_config -> Yojson.Safe.t
 
@@ -4482,6 +4584,7 @@ val make_routine_build_status :
   ?build_state_update_time:string ->
   ?error_result:error_proto ->
   ?image_size_bytes:string ->
+  ?installed_packages:installed_package list ->
   unit ->
   routine_build_status
 
@@ -4567,6 +4670,15 @@ val make_script_statistics :
   ?stack_frames:script_stack_frame list ->
   unit ->
   script_statistics
+
+val search_indexing_stats_of_yojson : Yojson.Safe.t -> search_indexing_stats
+val yojson_of_search_indexing_stats : search_indexing_stats -> Yojson.Safe.t
+
+val make_search_indexing_stats :
+  ?base_table:table_reference ->
+  ?index_name:string ->
+  unit ->
+  search_indexing_stats
 
 val search_statistics_of_yojson : Yojson.Safe.t -> search_statistics
 val yojson_of_search_statistics : search_statistics -> Yojson.Safe.t
@@ -4829,6 +4941,7 @@ val make_table :
   ?num_total_logical_bytes:string ->
   ?num_total_physical_bytes:string ->
   ?partition_definition:partitioning_definition ->
+  ?policy_member:resource_policy_member ->
   ?range_partitioning:range_partitioning ->
   ?replicas:table_reference list ->
   ?require_partition_filter:bool ->
@@ -5302,6 +5415,15 @@ val make_user_defined_function_resource :
   unit ->
   user_defined_function_resource
 
+val vector_search_indexing_stats_of_yojson : Yojson.Safe.t -> vector_search_indexing_stats
+val yojson_of_vector_search_indexing_stats : vector_search_indexing_stats -> Yojson.Safe.t
+
+val make_vector_search_indexing_stats :
+  ?base_table:table_reference ->
+  ?index_name:string ->
+  unit ->
+  vector_search_indexing_stats
+
 val vector_search_statistics_of_yojson : Yojson.Safe.t -> vector_search_statistics
 val yojson_of_vector_search_statistics : vector_search_statistics -> Yojson.Safe.t
 
@@ -5353,7 +5475,7 @@ module Datasets : sig
     project_id:string ->
     dataset_id:string ->
     ?access_policy_version:int ->
-    ?dataset_view:[ `Dataset_view_unspecified | `Metadata | `Acl | `Full | `Unrecognized of string ] ->
+    ?dataset_view:[ `Dataset_view_unspecified | `Metadata | `Acl | `Full | `Basic | `Basic_replica_metadata_view | `Unrecognized of string ] ->
     unit ->
     dataset Google_api.Call.t
   (** Returns the dataset specified by datasetID. # IAM Permissions Requires the `bigquery.datasets.get` permission on the dataset.
