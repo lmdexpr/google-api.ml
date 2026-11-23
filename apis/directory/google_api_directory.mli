@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of admin directory_v1 (revision 20261111). Do not edit. *)
+(* Generated from the Discovery document of admin directory_v1 (revision 20261117). Do not edit. *)
 
-(** Admin SDK API (admin directory_v1, revision 20261111).
+(** Admin SDK API (admin directory_v1, revision 20261117).
 
     Admin SDK lets administrators of enterprise domains to view and manage resources like user, groups etc. It also provides audit and usage reports of domain.
 

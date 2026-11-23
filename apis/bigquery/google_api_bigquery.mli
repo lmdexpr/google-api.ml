@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of bigquery v2 (revision 20261107). Do not edit. *)
+(* Generated from the Discovery document of bigquery v2 (revision 20261117). Do not edit. *)
 
-(** BigQuery API (bigquery v2, revision 20261107).
+(** BigQuery API (bigquery v2, revision 20261117).
 
     A data platform for customers to create, manage, share and query data.
 

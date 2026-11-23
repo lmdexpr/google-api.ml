@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of storage v1 (revision 20261111). Do not edit. *)
+(* Generated from the Discovery document of storage v1 (revision 20261114). Do not edit. *)
 
 [@@@alert "-internal"]
 
