@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of pubsub v1 (revision 20261111). Do not edit. *)
+(* Generated from the Discovery document of pubsub v1 (revision 20261110). Do not edit. *)
 
-(** Cloud Pub/Sub API (pubsub v1, revision 20261111).
+(** Cloud Pub/Sub API (pubsub v1, revision 20261110).
 
     Provides reliable, many-to-many, asynchronous messaging between applications.
 
@@ -136,7 +136,7 @@ and compiled_proto_schema = {
 
 (** Configuration for compressing/decompressing message data using a user-specified compression algorithm. *)
 and compression = {
-  compression_algorithm : [ `Compression_algorithm_unspecified | `Zlib | `Unrecognized of string ] option;  (** Required. Specifies the compression algorithm to use. *)
+  compression_algorithm : [ `Compression_algorithm_unspecified | `Zlib | `Zstd | `Unrecognized of string ] option;  (** Required. Specifies the compression algorithm to use. *)
   compression_mode : [ `Compression_mode_unspecified | `Compress | `Decompress | `Unrecognized of string ] option;  (** Required. Specifies whether to compress or decompress the message. *)
 }
 
@@ -690,7 +690,7 @@ val compression_of_yojson : Yojson.Safe.t -> compression
 val yojson_of_compression : compression -> Yojson.Safe.t
 
 val make_compression :
-  ?compression_algorithm:[ `Compression_algorithm_unspecified | `Zlib | `Unrecognized of string ] ->
+  ?compression_algorithm:[ `Compression_algorithm_unspecified | `Zlib | `Zstd | `Unrecognized of string ] ->
   ?compression_mode:[ `Compression_mode_unspecified | `Compress | `Decompress | `Unrecognized of string ] ->
   unit ->
   compression

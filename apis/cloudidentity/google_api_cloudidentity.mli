@@ -1,6 +1,6 @@
-(* Generated from the Discovery document of cloudidentity v1 (revision 20261108). Do not edit. *)
+(* Generated from the Discovery document of cloudidentity v1 (revision 20261118). Do not edit. *)
 
-(** Cloud Identity API (cloudidentity v1, revision 20261108).
+(** Cloud Identity API (cloudidentity v1, revision 20261118).
 
     API for provisioning and managing identity resources.
 
@@ -2576,7 +2576,7 @@ module Inbound_sso_assignments : sig
 
       [GET v1/inboundSsoAssignments]
 
-      - [filter]: A CEL expression to filter the results. The only supported filter is filtering by customer. For example: `customer==customers/C0123abc`. Omitting the filter or specifying a filter of `customer==customers/my_customer` will return the assignments for the customer that the caller (authenticated user) belongs to.
+      - [filter]: A CEL expression to filter the results. The only supported filter is filtering by customer. For example: `customer=='customers/C0123abc'`. Omitting the filter or specifying a filter of `customer=='customers/my_customer'` will return the assignments for the customer that the caller (authenticated user) belongs to.
       - [page_size]: The maximum number of assignments to return. The service may return fewer than this value. If omitted (or defaulted to zero) the server will use a sensible default. This default may change over time. The maximum allowed value is 100, though requests with page_size greater than that will be silently interpreted as having this maximum value. This may increase in the futue.
       - [page_token]: A page token, received from a previous `ListInboundSsoAssignments` call. Provide this to retrieve the subsequent page. When paginating, all other parameters provided to `ListInboundSsoAssignments` must match the call that provided the page token. *)
 

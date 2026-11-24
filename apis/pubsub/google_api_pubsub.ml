@@ -1,4 +1,4 @@
-(* Generated from the Discovery document of pubsub v1 (revision 20261111). Do not edit. *)
+(* Generated from the Discovery document of pubsub v1 (revision 20261110). Do not edit. *)
 
 [@@@alert "-internal"]
 
@@ -115,7 +115,7 @@ and compiled_proto_schema = {
 }
 
 and compression = {
-  compression_algorithm : [ `Compression_algorithm_unspecified | `Zlib | `Unrecognized of string ] option;
+  compression_algorithm : [ `Compression_algorithm_unspecified | `Zlib | `Zstd | `Unrecognized of string ] option;
   compression_mode : [ `Compression_mode_unspecified | `Compress | `Decompress | `Unrecognized of string ] option;
 }
 
@@ -737,7 +737,7 @@ and yojson_of_compiled_proto_schema (value : compiled_proto_schema) : Yojson.Saf
 and compression_of_yojson json : compression =
   let open Yojson.Safe.Util in
   {
-    compression_algorithm = member "compressionAlgorithm" json |> to_option (fun json -> match to_string json with "COMPRESSION_ALGORITHM_UNSPECIFIED" -> `Compression_algorithm_unspecified | "ZLIB" -> `Zlib | value -> `Unrecognized value);
+    compression_algorithm = member "compressionAlgorithm" json |> to_option (fun json -> match to_string json with "COMPRESSION_ALGORITHM_UNSPECIFIED" -> `Compression_algorithm_unspecified | "ZLIB" -> `Zlib | "ZSTD" -> `Zstd | value -> `Unrecognized value);
     compression_mode = member "compressionMode" json |> to_option (fun json -> match to_string json with "COMPRESSION_MODE_UNSPECIFIED" -> `Compression_mode_unspecified | "COMPRESS" -> `Compress | "DECOMPRESS" -> `Decompress | value -> `Unrecognized value);
   }
 
@@ -745,7 +745,7 @@ and yojson_of_compression (value : compression) : Yojson.Safe.t =
   `Assoc
     (List.filter_map Fun.id
        [
-         Option.map (fun field -> ("compressionAlgorithm", (fun value -> `String ((function `Compression_algorithm_unspecified -> "COMPRESSION_ALGORITHM_UNSPECIFIED" | `Zlib -> "ZLIB" | `Unrecognized value -> value) value)) field)) value.compression_algorithm;
+         Option.map (fun field -> ("compressionAlgorithm", (fun value -> `String ((function `Compression_algorithm_unspecified -> "COMPRESSION_ALGORITHM_UNSPECIFIED" | `Zlib -> "ZLIB" | `Zstd -> "ZSTD" | `Unrecognized value -> value) value)) field)) value.compression_algorithm;
          Option.map (fun field -> ("compressionMode", (fun value -> `String ((function `Compression_mode_unspecified -> "COMPRESSION_MODE_UNSPECIFIED" | `Compress -> "COMPRESS" | `Decompress -> "DECOMPRESS" | `Unrecognized value -> value) value)) field)) value.compression_mode;
        ])
 

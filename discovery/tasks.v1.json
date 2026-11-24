@@ -576,7 +576,7 @@
       }
     }
   },
-  "revision": "20261110",
+  "revision": "20261117",
   "rootUrl": "https://tasks.googleapis.com/",
   "schemas": {
     "AssignmentInfo": {
